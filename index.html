@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/images/ccv-logo.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Call Center Village</title>
+    <style>
+      @font-face { font-family: 'DM Sans'; font-weight: 400; font-style: normal; font-display: swap; src: url('/fonts/dm-sans-400.ttf') format('truetype'); }
+      @font-face { font-family: 'DM Sans'; font-weight: 500; font-style: normal; font-display: swap; src: url('/fonts/dm-sans-500.ttf') format('truetype'); }
+      @font-face { font-family: 'DM Sans'; font-weight: 600; font-style: normal; font-display: swap; src: url('/fonts/dm-sans-600.ttf') format('truetype'); }
+      @font-face { font-family: 'DM Sans'; font-weight: 700; font-style: normal; font-display: swap; src: url('/fonts/dm-sans-700.ttf') format('truetype'); }
+      @font-face { font-family: 'DM Sans'; font-weight: 800; font-style: normal; font-display: swap; src: url('/fonts/dm-sans-800.ttf') format('truetype'); }
+      @font-face { font-family: 'JetBrains Mono'; font-weight: 400; font-style: normal; font-display: swap; src: url('/fonts/jetbrains-mono-400.ttf') format('truetype'); }
+      @font-face { font-family: 'JetBrains Mono'; font-weight: 600; font-style: normal; font-display: swap; src: url('/fonts/jetbrains-mono-600.ttf') format('truetype'); }
+      *, *::before, *::after { box-sizing: border-box; }
+      html, body, #root { margin: 0; padding: 0; background: #08060f; }
+      body { font-family: 'DM Sans', 'Segoe UI', sans-serif; }
+      button { font-family: 'DM Sans', 'Segoe UI', sans-serif; }
+      body { font-size: 16px; }
+      *:focus-visible {
+        outline: 2px solid #38b6ff;
+        outline-offset: 2px;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
