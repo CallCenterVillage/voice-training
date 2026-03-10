@@ -39,7 +39,7 @@ const AudioQualityCard = ({ title, children }) => {
           transition: "border-color 0.2s ease",
         }}
       >
-        <div style={{ fontSize: 13, color: C.accent, fontWeight: 700, marginBottom: 8 }}>{title}</div>
+        <div style={{ fontSize: 13, color: C.accent, fontWeight: 700, marginBottom: 16 }}>{title}</div>
         {children}
       </div>
       {open && (
@@ -122,16 +122,20 @@ const TimbreDiagram = () => {
   const breathy = [0.90, 0.45, 0.30, 0.25, 0.35, 0.20, 0.15, 0.12, 0.18, 0.10, 0.08, 0.06, 0.05, 0.04, 0.03, 0.02];
   const leftPad = 52;
   const barW = (w - leftPad - 4) / bars;
+  const f0X = leftPad + barW / 2;
   return (
     <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", height: h }}>
+      {/* F0 reference line */}
+      <line x1={f0X} y1={10} x2={f0X} y2={graphH} stroke={C.dim} strokeWidth="0.5" strokeDasharray="3,2" opacity="0.6" />
+      <text x={f0X} y={8} fill={C.dim} fontSize="7" textAnchor="middle" fontFamily="inherit">F0</text>
       {rich.map((v, i) => (
-        <rect key={`r-${i}`} x={leftPad + i * barW + 1} y={graphH - v * (graphH - 14)} width={barW / 2 - 1} height={v * (graphH - 14)} fill="#6C8EEF" opacity="0.7" rx="1" />
+        <rect key={`r-${i}`} x={leftPad + i * barW + 1} y={graphH - v * (graphH - 14)} width={barW / 2 - 1} height={v * (graphH - 14)} fill={C.accent} opacity="0.7" rx="1" />
       ))}
       {breathy.map((v, i) => (
-        <rect key={`b-${i}`} x={leftPad + i * barW + barW / 2} y={graphH - v * (graphH - 14)} width={barW / 2 - 1} height={v * (graphH - 14)} fill="#E77CE7" opacity="0.7" rx="1" />
+        <rect key={`b-${i}`} x={leftPad + i * barW + barW / 2} y={graphH - v * (graphH - 14)} width={barW / 2 - 1} height={v * (graphH - 14)} fill={C.secondary} opacity="0.7" rx="1" />
       ))}
-      <text x="4" y="12" fill="#6C8EEF" fontSize="9" fontWeight="700" fontFamily="inherit">Rich</text>
-      <text x="4" y="24" fill="#E77CE7" fontSize="9" fontWeight="700" fontFamily="inherit">Breathy</text>
+      <text x="4" y="12" fill={C.accent} fontSize="9" fontWeight="700" fontFamily="inherit">Rich</text>
+      <text x="4" y="24" fill={C.secondary} fontSize="9" fontWeight="700" fontFamily="inherit">Breathy</text>
       <text x={w - 4} y={h - 2} fill={C.dim} fontSize="9" textAnchor="end" fontFamily="inherit">Harmonics →</text>
     </svg>
   );
@@ -156,10 +160,10 @@ const ProsodyDiagram = () => {
   }).join(" ");
   return (
     <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", height: h }}>
-      <path d={stmtPath} fill="none" stroke="#6C8EEF" strokeWidth="2" opacity="0.8" />
-      <path d={qPath} fill="none" stroke="#E77CE7" strokeWidth="2" opacity="0.8" />
-      <text x="4" y="14" fill="#6C8EEF" fontSize="9" fontWeight="700" fontFamily="inherit">"That's your card." ↘</text>
-      <text x="4" y={graphH - 4} fill="#E77CE7" fontSize="9" fontWeight="700" fontFamily="inherit">"That's your card?" ↗</text>
+      <path d={stmtPath} fill="none" stroke={C.highlight} strokeWidth="2" opacity="0.8" />
+      <path d={qPath} fill="none" stroke={C.secondary} strokeWidth="2" opacity="0.8" />
+      <text x="4" y="14" fill={C.highlight} fontSize="9" fontWeight="700" fontFamily="inherit">"That's your card." ↘</text>
+      <text x="4" y={graphH - 4} fill={C.secondary} fontSize="9" fontWeight="700" fontFamily="inherit">"That's your card?" ↗</text>
       <text x={w / 2} y={h - 2} fill={C.dim} fontSize="9" textAnchor="middle" fontFamily="inherit">Time →</text>
     </svg>
   );
@@ -474,8 +478,10 @@ const FREQ_LABELS = [0, 4, 8, 12, 16, 20, 24, 28, 31].map(band => {
 });
 
 const SpectrumViz = () => {
-  const [selected, setSelected] = useState(["male", "female"]);
+  const [selected, setSelected] = useState(["male", "female", "child"]);
   const [jitter, setJitter] = useState(0);
+  const [cycling, setCycling] = useState(false);
+  const cycleRef = useRef(null);
   const bands = 32;
 
   useEffect(() => {
@@ -485,7 +491,35 @@ const SpectrumViz = () => {
     return () => clearInterval(iv);
   }, []);
 
+  const stopCycle = useCallback(() => {
+    if (cycleRef.current) clearTimeout(cycleRef.current);
+    cycleRef.current = null;
+    setCycling(false);
+    setSelected(["male", "female", "child"]);
+  }, []);
+
+  const startCycle = useCallback(() => {
+    const sequence = ["male", "female", "child"];
+    const stepDuration = 2500;
+    setCycling(true);
+    setSelected([sequence[0]]);
+    cycleRef.current = setTimeout(() => {
+      setSelected([sequence[1]]);
+      cycleRef.current = setTimeout(() => {
+        setSelected([sequence[2]]);
+        cycleRef.current = setTimeout(() => {
+          setSelected(["male", "female", "child"]);
+          setCycling(false);
+          cycleRef.current = null;
+        }, stepDuration);
+      }, stepDuration);
+    }, stepDuration);
+  }, []);
+
+  useEffect(() => () => { if (cycleRef.current) clearTimeout(cycleRef.current); }, []);
+
   const toggle = (key) => {
+    if (cycling) return;
     setSelected(prev => prev.includes(key) ? (prev.length > 1 ? prev.filter(k => k !== key) : prev) : [...prev, key]);
   };
 
@@ -496,10 +530,24 @@ const SpectrumViz = () => {
 
   return (
     <div>
-      <div role="tablist" style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+      <div role="tablist" style={{ display: "flex", gap: 8, marginBottom: 12, alignItems: "center" }}>
         {Object.entries(VOICE_PROFILES).map(([key, prof]) => (
-          <button key={key} role="tab" aria-selected={selected.includes(key)} onClick={() => toggle(key)} style={{ background: selected.includes(key) ? `${prof.color}20` : "#06040c", border: `1px solid ${selected.includes(key) ? prof.color : C.border}`, borderRadius: 6, padding: "6px 14px", color: selected.includes(key) ? prof.color : C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600 }}>{prof.label}</button>
+          <button key={key} role="tab" aria-selected={selected.includes(key)} onClick={() => toggle(key)} style={{ background: selected.includes(key) ? `${prof.color}20` : "#06040c", border: `1px solid ${selected.includes(key) ? prof.color : C.border}`, borderRadius: 6, padding: "6px 14px", color: selected.includes(key) ? prof.color : C.muted, cursor: cycling ? "default" : "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600, opacity: cycling ? 0.5 : 1 }}>{prof.label}</button>
         ))}
+        <button
+          onClick={cycling ? stopCycle : startCycle}
+          aria-label={cycling ? "Stop cycle" : "Cycle through voices"}
+          style={{
+            background: cycling ? "#58E88025" : `${C.primary}25`,
+            border: `1px solid ${cycling ? "#58E88066" : C.border}`,
+            borderRadius: 6, padding: "6px 14px",
+            color: cycling ? "#58E880" : C.accent,
+            cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600,
+            display: "flex", alignItems: "center", gap: 6, marginLeft: 4
+          }}
+        >
+          <Icon name={cycling ? "stop" : "play"} size={14} />{cycling ? "Stop" : "Cycle"}
+        </button>
       </div>
       <div style={{ background: C.codeBg, borderRadius: 8, padding: "16px 12px 4px 12px", position: "relative", border: `1px solid ${C.primary}44` }}>
         <div style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 140, position: "relative" }}>
@@ -538,11 +586,13 @@ const SpectrumViz = () => {
         </div>
       </div>
       <div style={{ fontSize: 13, color: C.dim, marginTop: 8, lineHeight: 1.6 }}>
-        {selected.length > 1
+        {cycling
+          ? `Now showing: ${VOICE_PROFILES[selected[0]].label}. Watch how the formant peaks shift position as the vocal tract size changes between speakers.`
+          : selected.length > 1
           ? "The formant peaks (F1–F4) shift higher as the vocal tract gets smaller: lowest for the adult male, highest for the child. This is why you can instantly tell these voices apart, and it's the core challenge voice cloning AI has to solve."
           : `Showing the ${VOICE_PROFILES[selected[0]].label.toLowerCase()} spectral profile for the vowel \"ah.\" The peaks labeled F1–F4 are formant resonances — shaped by the size and geometry of the vocal tract. Toggle another voice to see how the same vowel looks completely different from a different speaker.`}
       </div>
-      <div style={{ fontSize: 11, color: C.dim, marginTop: 6, fontStyle: "italic" }}>Based on formant measurements from <a href="https://homepages.wmich.edu/~hillenbr/Papers/HillsGettyClarke1995.pdf" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }} onMouseEnter={e => e.target.style.textDecoration = "underline"} onMouseLeave={e => e.target.style.textDecoration = "none"}>Hillenbrand, Getty, Clark &amp; Wheeler (1995)</a>. Spectrum computed using <a href="https://en.wikipedia.org/wiki/Source%E2%80%93filter_model" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }} onMouseEnter={e => e.target.style.textDecoration = "underline"} onMouseLeave={e => e.target.style.textDecoration = "none"}>source-filter model</a> with glottal rolloff.</div>
+      <div style={{ fontSize: 11, color: C.dim, marginTop: 6, fontStyle: "italic" }}>Based on formant measurements from <a href="https://pubmed.ncbi.nlm.nih.gov/7759650/" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }} onMouseEnter={e => e.target.style.textDecoration = "underline"} onMouseLeave={e => e.target.style.textDecoration = "none"}>Hillenbrand, Getty, Clark &amp; Wheeler (1995)</a>. Spectrum computed using <a href="https://en.wikipedia.org/wiki/Source%E2%80%93filter_model" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }} onMouseEnter={e => e.target.style.textDecoration = "underline"} onMouseLeave={e => e.target.style.textDecoration = "none"}>source-filter model</a> with glottal rolloff.</div>
     </div>
   );
 };
@@ -692,89 +742,89 @@ const FundamentalsSection = () => {
       <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 20, fontSize: 14 }}>Now that you know what makes a voice unique — the fundamental pitch, the formant peaks, the harmonic texture — the question becomes: how good does a recording need to be to preserve all of that? If the sample rate is too low, the upper formants get cut off. If there's too much background noise, the subtle harmonics that define timbre get buried. If the audio clips, the waveform gets distorted beyond recognition. There's no hard cutoff, but these are the general thresholds where most cloning tools start producing usable results.</p>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 24 }}>
         {[{ label: "Sample Rate", value: "≥16kHz", ideal: "44.1kHz+" }, { label: "Bit Depth", value: "≥16-bit", ideal: "24-bit" }, { label: "Duration", value: "≥30s", ideal: "3-10 min" }, { label: "Format", value: "WAV/FLAC", ideal: "WAV" }, { label: "Noise Floor", value: "≤ −40dB", ideal: "≤ −60dB" }, { label: "Clipping", value: "None", ideal: "Peak ≤ −3dB" }].map((r, i) => (
-          <div key={i} style={{ background: "#06040c", padding: "20px 10px", borderRadius: 8, textAlign: "center", border: `1px solid ${C.border}` }}><div style={{ fontSize: 12, color: C.dim }}>{r.label}</div><div style={{ fontSize: 14, color: C.text, fontWeight: 700 }}>{r.value}</div><div style={{ fontSize: 12, color: C.accent }}>Ideal: {r.ideal}</div></div>
+          <div key={i} style={{ background: "#06040c", padding: "28px 10px", borderRadius: 8, textAlign: "center", border: `1px solid ${C.border}` }}><div style={{ fontSize: 12, color: C.dim, marginBottom: 4 }}>{r.label}</div><div style={{ fontSize: 14, color: C.text, fontWeight: 700, marginBottom: 4 }}>{r.value}</div><div style={{ fontSize: 12, color: C.accent }}>Ideal: {r.ideal}</div></div>
         ))}
       </div>
       <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 12 }}>Why These Numbers Matter</div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
         <AudioQualityCard title="Sample Rate">
-          <svg width="200" height="90" viewBox="0 0 200 90" style={{ width: "100%", height: 90 }}>
+          <svg width="200" height="108" viewBox="0 0 200 108" style={{ width: "100%", height: 108 }}>
             <text x="4" y="10" fill={C.tertiary} fontSize="9" fontWeight="700" fontFamily="inherit">8kHz — too low</text>
-            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 8; const y = 24 + Math.sin(t) * 6; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke={C.tertiary} strokeWidth="1.5" opacity="0.8" />
-            <rect x="100" y="14" width="100" height="20" fill="#06040c" opacity="0.7" />
-            <text x="130" y="27" fill={C.tertiary} fontSize="8" fontFamily="inherit" opacity="0.6">F3, F4 lost</text>
-            <text x="4" y="52" fill="#58E880" fontSize="9" fontWeight="700" fontFamily="inherit">44.1kHz — full detail</text>
-            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 8; const y = 66 + Math.sin(t) * 5 + Math.sin(t * 2.5) * 3 + Math.sin(t * 4.1) * 2 + Math.sin(t * 6) * 1; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke="#58E880" strokeWidth="1.5" opacity="0.8" />
-            <text x="4" y="86" fill={C.dim} fontSize="8" fontFamily="inherit">All formants preserved →</text>
+            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 8; const y = 29 + Math.sin(t) * 6; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke={C.tertiary} strokeWidth="1.5" opacity="0.8" />
+            <rect x="100" y="19" width="100" height="20" fill="#06040c" opacity="0.7" />
+            <text x="130" y="32" fill={C.tertiary} fontSize="8" fontFamily="inherit" opacity="0.6">F3, F4 lost</text>
+            <text x="4" y="57" fill="#58E880" fontSize="9" fontWeight="700" fontFamily="inherit">44.1kHz — full detail</text>
+            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 8; const y = 76 + Math.sin(t) * 5 + Math.sin(t * 2.5) * 3 + Math.sin(t * 4.1) * 2 + Math.sin(t * 6) * 1; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke="#58E880" strokeWidth="1.5" opacity="0.8" />
+            <text x="4" y="105" fill="#58E880" fontSize="8" fontFamily="inherit">All formants preserved</text>
           </svg>
         </AudioQualityCard>
-        <AudioQualityCard title="Noise Floor">
-          <svg width="200" height="90" viewBox="0 0 200 90" style={{ width: "100%", height: 90 }}>
-            <text x="4" y="10" fill={C.tertiary} fontSize="9" fontWeight="700" fontFamily="inherit">−20dB — noisy</text>
-            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 6; const signal = Math.sin(t) * 5 + Math.sin(t * 2.5) * 3; const noise = (Math.sin(x * 7.3) + Math.sin(x * 13.1) + Math.sin(x * 23.7)) * 3; const y = 24 + signal + noise; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke={C.tertiary} strokeWidth="1.5" opacity="0.8" />
-            <text x="4" y="52" fill="#58E880" fontSize="9" fontWeight="700" fontFamily="inherit">−60dB — clean</text>
-            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 6; const y = 66 + Math.sin(t) * 6 + Math.sin(t * 2.5) * 3.5 + Math.sin(t * 4.1) * 2; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke="#58E880" strokeWidth="1.5" opacity="0.8" />
-            <text x="4" y="86" fill={C.dim} fontSize="8" fontFamily="inherit">Harmonics clearly visible →</text>
+        <AudioQualityCard title="Bit Depth">
+          <svg width="200" height="108" viewBox="0 0 200 108" style={{ width: "100%", height: 108 }}>
+            <text x="4" y="10" fill={C.tertiary} fontSize="9" fontWeight="700" fontFamily="inherit">8-bit — coarse steps</text>
+            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 6; const raw = Math.sin(t) * 8 + Math.sin(t * 2.5) * 4; const quantized = Math.round(raw / 3) * 3; const y = 29 + quantized; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke={C.tertiary} strokeWidth="1.5" opacity="0.8" />
+            <text x="4" y="57" fill="#58E880" fontSize="9" fontWeight="700" fontFamily="inherit">24-bit — smooth detail</text>
+            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 6; const y = 76 + Math.sin(t) * 8 + Math.sin(t * 2.5) * 4 + Math.sin(t * 4.1) * 2; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke="#58E880" strokeWidth="1.5" opacity="0.8" />
+            <text x="4" y="105" fill="#58E880" fontSize="8" fontFamily="inherit">Subtle dynamics preserved</text>
           </svg>
         </AudioQualityCard>
-        <AudioQualityCard title="Clipping">
-          <svg width="200" height="90" viewBox="0 0 200 90" style={{ width: "100%", height: 90 }}>
-            <text x="4" y="10" fill={C.tertiary} fontSize="9" fontWeight="700" fontFamily="inherit">Clipped — distorted</text>
-            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 6; const raw = Math.sin(t) * 12 + Math.sin(t * 2.5) * 6; const clipped = Math.max(-7, Math.min(7, raw)); const y = 24 + clipped; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke={C.tertiary} strokeWidth="1.5" opacity="0.8" />
-            <line x1="0" y1="17" x2="200" y2="17" stroke={C.tertiary} strokeWidth="0.5" strokeDasharray="3,3" opacity="0.4" />
-            <line x1="0" y1="31" x2="200" y2="31" stroke={C.tertiary} strokeWidth="0.5" strokeDasharray="3,3" opacity="0.4" />
-            <text x="4" y="52" fill="#58E880" fontSize="9" fontWeight="700" fontFamily="inherit">Peak ≤ −3dB — headroom</text>
-            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 6; const y = 66 + Math.sin(t) * 8 + Math.sin(t * 2.5) * 4 + Math.sin(t * 4.1) * 2; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke="#58E880" strokeWidth="1.5" opacity="0.8" />
-            <text x="4" y="86" fill={C.dim} fontSize="8" fontFamily="inherit">Waveform intact →</text>
+        <AudioQualityCard title="Duration">
+          <svg width="200" height="108" viewBox="0 0 200 108" style={{ width: "100%", height: 108 }}>
+            <text x="4" y="10" fill={C.tertiary} fontSize="9" fontWeight="700" fontFamily="inherit">5s — limited phonemes</text>
+            <g opacity="0.8">
+              {["aa","ee","oo"].map((p, i) => (
+                <g key={i}>
+                  <rect x={8 + i * 28} y="20" width="22" height="16" rx="3" fill={`${C.tertiary}30`} stroke={C.tertiary} strokeWidth="0.5" />
+                  <text x={19 + i * 28} y="31" fill={C.tertiary} fontSize="7" textAnchor="middle" fontFamily="inherit">{p}</text>
+                </g>
+              ))}
+              <text x="100" y="31" fill={C.tertiary} fontSize="8" fontFamily="inherit" opacity="0.5">missing most sounds</text>
+            </g>
+            <text x="4" y="57" fill="#58E880" fontSize="9" fontWeight="700" fontFamily="inherit">3+ min — full coverage</text>
+            <g opacity="0.8">
+              {["aa","ee","oo","aw","p","t","k","s","sh","th","m","n"].map((p, i) => (
+                <g key={i}>
+                  <rect x={4 + i * 16} y="67" width="13" height="14" rx="2" fill="#58E88020" stroke="#58E880" strokeWidth="0.5" />
+                  <text x={10.5 + i * 16} y="77" fill="#58E880" fontSize="6" textAnchor="middle" fontFamily="inherit">{p}</text>
+                </g>
+              ))}
+            </g>
+            <text x="4" y="105" fill="#58E880" fontSize="8" fontFamily="inherit">All phonemes represented</text>
           </svg>
         </AudioQualityCard>
       </div>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginTop: 12 }}>
-        <AudioQualityCard title="Bit Depth">
-          <svg width="200" height="90" viewBox="0 0 200 90" style={{ width: "100%", height: 90 }}>
-            <text x="4" y="10" fill={C.tertiary} fontSize="9" fontWeight="700" fontFamily="inherit">8-bit — coarse steps</text>
-            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 6; const raw = Math.sin(t) * 8 + Math.sin(t * 2.5) * 4; const quantized = Math.round(raw / 3) * 3; const y = 24 + quantized; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke={C.tertiary} strokeWidth="1.5" opacity="0.8" />
-            <text x="4" y="52" fill="#58E880" fontSize="9" fontWeight="700" fontFamily="inherit">24-bit — smooth detail</text>
-            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 6; const y = 66 + Math.sin(t) * 8 + Math.sin(t * 2.5) * 4 + Math.sin(t * 4.1) * 2; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke="#58E880" strokeWidth="1.5" opacity="0.8" />
-            <text x="4" y="86" fill={C.dim} fontSize="8" fontFamily="inherit">Subtle dynamics preserved →</text>
-          </svg>
-        </AudioQualityCard>
-        <AudioQualityCard title="Duration">
-          <svg width="200" height="90" viewBox="0 0 200 90" style={{ width: "100%", height: 90 }}>
-            <text x="4" y="10" fill={C.tertiary} fontSize="9" fontWeight="700" fontFamily="inherit">5s — limited phonemes</text>
-            <g opacity="0.8">
-              {["ah","ee","oh"].map((p, i) => (
-                <g key={i}>
-                  <rect x={8 + i * 28} y="15" width="22" height="16" rx="3" fill={`${C.tertiary}30`} stroke={C.tertiary} strokeWidth="0.5" />
-                  <text x={19 + i * 28} y="26" fill={C.tertiary} fontSize="7" textAnchor="middle" fontFamily="inherit">{p}</text>
-                </g>
-              ))}
-              <text x="100" y="26" fill={C.tertiary} fontSize="8" fontFamily="inherit" opacity="0.5">missing most sounds</text>
-            </g>
-            <text x="4" y="52" fill="#58E880" fontSize="9" fontWeight="700" fontFamily="inherit">3+ min — full coverage</text>
-            <g opacity="0.8">
-              {["ah","ee","oh","oo","ss","th","mm","rr","pp","kk","ll","ng"].map((p, i) => (
-                <g key={i}>
-                  <rect x={4 + i * 16} y="57" width="13" height="14" rx="2" fill="#58E88020" stroke="#58E880" strokeWidth="0.5" />
-                  <text x={10.5 + i * 16} y="67" fill="#58E880" fontSize="6" textAnchor="middle" fontFamily="inherit">{p}</text>
-                </g>
-              ))}
-            </g>
-            <text x="4" y="86" fill={C.dim} fontSize="8" fontFamily="inherit">All phonemes represented →</text>
-          </svg>
-        </AudioQualityCard>
         <AudioQualityCard title="Format">
-          <svg width="200" height="90" viewBox="0 0 200 90" style={{ width: "100%", height: 90 }}>
+          <svg width="200" height="108" viewBox="0 0 200 108" style={{ width: "100%", height: 108 }}>
             <text x="4" y="10" fill={C.tertiary} fontSize="9" fontWeight="700" fontFamily="inherit">MP3 — lossy compression</text>
-            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 6; const y = 24 + Math.sin(t) * 6 + Math.sin(t * 2.5) * 3 + (x % 20 < 3 ? 2 : 0); return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke={C.tertiary} strokeWidth="1.5" opacity="0.8" />
-            <text x="100" y="10" fill={C.tertiary} fontSize="7" fontFamily="inherit" opacity="0.5">artifacts in quiet parts</text>
-            <text x="4" y="52" fill="#58E880" fontSize="9" fontWeight="700" fontFamily="inherit">WAV/FLAC — lossless</text>
-            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 6; const y = 66 + Math.sin(t) * 6 + Math.sin(t * 2.5) * 3 + Math.sin(t * 4.1) * 1.5 + Math.sin(t * 5.8) * 0.8; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke="#58E880" strokeWidth="1.5" opacity="0.8" />
-            <text x="4" y="86" fill={C.dim} fontSize="8" fontFamily="inherit">Exact original preserved →</text>
+            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 6; const y = 25 + Math.sin(t) * 5 + Math.sin(t * 2.5) * 2.5 + (x % 20 < 3 ? 1.5 : 0); return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke={C.tertiary} strokeWidth="1.5" opacity="0.8" />
+            <text x="4" y="42" fill={C.tertiary} fontSize="7" fontFamily="inherit" opacity="0.5">artifacts in quiet parts</text>
+            <text x="4" y="57" fill="#58E880" fontSize="9" fontWeight="700" fontFamily="inherit">WAV/FLAC — lossless</text>
+            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 6; const y = 76 + Math.sin(t) * 6 + Math.sin(t * 2.5) * 3 + Math.sin(t * 4.1) * 1.5 + Math.sin(t * 5.8) * 0.8; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke="#58E880" strokeWidth="1.5" opacity="0.8" />
+            <text x="4" y="105" fill="#58E880" fontSize="8" fontFamily="inherit">Exact original preserved</text>
+          </svg>
+        </AudioQualityCard>
+        <AudioQualityCard title="Noise Floor">
+          <svg width="200" height="108" viewBox="0 0 200 108" style={{ width: "100%", height: 108 }}>
+            <text x="4" y="10" fill={C.tertiary} fontSize="9" fontWeight="700" fontFamily="inherit">−20dB — noisy</text>
+            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 6; const signal = Math.sin(t) * 5 + Math.sin(t * 2.5) * 3; const noise = (Math.sin(x * 7.3) + Math.sin(x * 13.1) + Math.sin(x * 23.7)) * 3; const y = 29 + signal + noise; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke={C.tertiary} strokeWidth="1.5" opacity="0.8" />
+            <text x="4" y="57" fill="#58E880" fontSize="9" fontWeight="700" fontFamily="inherit">−60dB — clean</text>
+            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 6; const y = 76 + Math.sin(t) * 6 + Math.sin(t * 2.5) * 3.5 + Math.sin(t * 4.1) * 2; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke="#58E880" strokeWidth="1.5" opacity="0.8" />
+            <text x="4" y="105" fill="#58E880" fontSize="8" fontFamily="inherit">Harmonics clearly visible</text>
+          </svg>
+        </AudioQualityCard>
+        <AudioQualityCard title="Clipping">
+          <svg width="200" height="108" viewBox="0 0 200 108" style={{ width: "100%", height: 108 }}>
+            <text x="4" y="10" fill={C.tertiary} fontSize="9" fontWeight="700" fontFamily="inherit">Clipped — distorted</text>
+            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 6; const raw = Math.sin(t) * 12 + Math.sin(t * 2.5) * 6; const clipped = Math.max(-7, Math.min(7, raw)); const y = 29 + clipped; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke={C.tertiary} strokeWidth="1.5" opacity="0.8" />
+            <line x1="0" y1="22" x2="200" y2="22" stroke={C.tertiary} strokeWidth="0.5" strokeDasharray="3,3" opacity="0.4" />
+            <line x1="0" y1="36" x2="200" y2="36" stroke={C.tertiary} strokeWidth="0.5" strokeDasharray="3,3" opacity="0.4" />
+            <text x="4" y="57" fill="#58E880" fontSize="9" fontWeight="700" fontFamily="inherit">Peak ≤ −3dB — headroom</text>
+            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 6; const y = 76 + Math.sin(t) * 8 + Math.sin(t * 2.5) * 4 + Math.sin(t * 4.1) * 2; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke="#58E880" strokeWidth="1.5" opacity="0.8" />
+            <text x="4" y="105" fill="#58E880" fontSize="8" fontFamily="inherit">Waveform intact</text>
           </svg>
         </AudioQualityCard>
       </div>
-      <p style={{ color: C.muted, lineHeight: 1.7, marginTop: 16, fontSize: 13 }}>Each diagram shows the same voice signal under poor conditions (red) and ideal conditions (green). Low sample rates lose upper formants, noise buries subtle harmonics, clipping flattens peaks, low bit depth adds staircase artifacts, short recordings miss phonemes the AI needs to learn, and lossy formats throw away detail the model depends on.</p>
+      <p style={{ color: C.muted, lineHeight: 1.7, marginTop: 16, fontSize: 13 }}>Each diagram shows the same voice signal under <span style={{ color: C.tertiary, fontWeight: 600 }}>poor conditions</span> and <span style={{ color: "#58E880", fontWeight: 600 }}>ideal conditions</span>. Low sample rates lose upper formants, noise buries subtle harmonics, clipping flattens peaks, low bit depth adds staircase artifacts, short recordings miss phonemes the AI needs to learn, and lossy formats throw away detail the model depends on.</p>
     </div>
     <SectionDivider />
     <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 12 }}>Check Your Understanding</div>
