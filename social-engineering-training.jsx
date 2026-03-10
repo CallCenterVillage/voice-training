@@ -97,7 +97,7 @@ const ThreatMeter = ({ label, level, description }) => {
 
 const IntroSection = () => (
   <div>
-    <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
       <img src="/images/ccv-logo.png" alt="CCV" style={{ width: 64, height: 64, borderRadius: 12, border: `2px solid ${C.primary}` }} />
       <div>
         <h1 style={{ margin: 0, fontSize: 42, fontWeight: 800, letterSpacing: -1, lineHeight: 1.1, background: `linear-gradient(135deg, ${C.primary}, ${C.accent})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Social Engineering</h1>
@@ -114,10 +114,10 @@ const IntroSection = () => (
         { label: "Difficulty", value: "Intermediate", icon: "trending-up" },
         { label: "Prerequisites", value: "Basic security awareness", icon: "clipboard" },
       ].map((item, i) => (
-        <div key={i} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 16, textAlign: "center" }}>
-          <div style={{ fontSize: 24, marginBottom: 4 }}><Icon name={item.icon} size={24} /></div>
-          <div style={{ fontSize: 14, color: C.dim, fontWeight: 600, marginBottom: 2 }}>{item.label}</div>
-          <div style={{ fontSize: 14, color: C.text, fontWeight: 700 }}>{item.value}</div>
+        <div key={i} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "24px 16px", textAlign: "center" }}>
+          <div style={{ fontSize: 28, marginBottom: 6 }}><Icon name={item.icon} size={28} /></div>
+          <div style={{ fontSize: 14, color: C.dim, fontWeight: 600, marginBottom: 4 }}>{item.label}</div>
+          <div style={{ fontSize: 16, color: C.text, fontWeight: 700 }}>{item.value}</div>
         </div>
       ))}
     </div>
@@ -137,9 +137,9 @@ const IntroSection = () => (
         </div>
       </div>
     </div>
-    <div style={{ background: C.card, borderRadius: 12, padding: 20, border: `1px solid ${C.secondary}44` }}>
-      <div style={{ fontSize: 14, color: C.secondary, fontWeight: 700, marginBottom: 8 }}><Icon name="warning" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />ETHICAL NOTICE</div>
-      <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.7 }}>
+    <div style={{ background: `${C.tertiary}15`, borderRadius: 12, padding: 20, border: `1px solid ${C.tertiary}44` }}>
+      <div style={{ fontSize: 15, color: C.tertiary, fontWeight: 700, marginBottom: 8 }}><Icon name="warning" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />ETHICAL NOTICE</div>
+      <div style={{ fontSize: 15, color: C.muted, lineHeight: 1.7 }}>
         This training is for <strong style={{ color: C.text }}>authorized security testing only</strong>.
         Social engineering without authorization is illegal and unethical. The techniques taught here should
         only be used in sanctioned red team exercises, security assessments, or educational settings with informed consent.

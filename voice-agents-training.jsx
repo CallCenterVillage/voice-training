@@ -75,7 +75,7 @@ const LatencyMeter = ({ label, ms, max = 2000 }) => (
 
 const IntroSection = () => (
   <div>
-    <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 16 }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
       <img src="/images/ccv-logo.png" alt="CCV" style={{ width: 64, height: 64, borderRadius: 12, border: `2px solid ${C.primary}` }} />
       <div>
         <h1 style={{ margin: 0, fontSize: 42, fontWeight: 800, letterSpacing: -1, lineHeight: 1.1, background: `linear-gradient(135deg, ${C.primary}, ${C.accent})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Voice Agents</h1>
@@ -92,16 +92,16 @@ const IntroSection = () => (
         { label: "Difficulty", value: "Intermediate+", icon: "trending-up" },
         { label: "Prerequisites", value: "Python, APIs, CLI", icon: "clipboard" },
       ].map((item, i) => (
-        <div key={i} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 16, textAlign: "center" }}>
-          <div style={{ fontSize: 24, marginBottom: 4 }}><Icon name={item.icon} size={24} /></div>
-          <div style={{ fontSize: 14, color: C.dim, fontWeight: 600, marginBottom: 2 }}>{item.label}</div>
-          <div style={{ fontSize: 14, color: C.text, fontWeight: 700 }}>{item.value}</div>
+        <div key={i} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "24px 16px", textAlign: "center" }}>
+          <div style={{ fontSize: 28, marginBottom: 6 }}><Icon name={item.icon} size={28} /></div>
+          <div style={{ fontSize: 14, color: C.dim, fontWeight: 600, marginBottom: 4 }}>{item.label}</div>
+          <div style={{ fontSize: 16, color: C.text, fontWeight: 700 }}>{item.value}</div>
         </div>
       ))}
     </div>
-    <div style={{ background: C.card, borderRadius: 12, padding: 20, border: `1px solid ${C.secondary}44` }}>
-      <div style={{ fontSize: 14, color: C.secondary, fontWeight: 700, marginBottom: 8 }}><Icon name="magnifying-glass" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />WHAT YOU'LL BUILD</div>
-      <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.7 }}>
+    <div style={{ background: `${C.tertiary}15`, borderRadius: 12, padding: 20, border: `1px solid ${C.tertiary}44` }}>
+      <div style={{ fontSize: 15, color: C.tertiary, fontWeight: 700, marginBottom: 8 }}><Icon name="magnifying-glass" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />WHAT YOU'LL BUILD</div>
+      <div style={{ fontSize: 15, color: C.muted, lineHeight: 1.7 }}>
         By the end of this module, you'll understand how to build a real-time voice agent that can answer
         phone calls, hold natural conversations, and integrate with tools — using both local AI and cloud services.
         You'll also understand exactly where these systems can be attacked.

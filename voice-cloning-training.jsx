@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from "react";
 import { C, CodeBlock, InteractiveCard, QuizBank, TrainingShell, Icon } from './src/components';
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 
@@ -13,9 +13,309 @@ const SECTIONS = [
   { id: "lab", title: "Interactive Lab", icon: "beaker" },
 ];
 
-const WaveformViz = ({ type = "sine" }) => {
+const SectionDivider = () => <hr style={{ border: "none", borderTop: "1px solid #040208", margin: "48px 0" }} />;
+
+const Lightbox = ({ children, onClose }) => (
+  <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.85)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "zoom-out", padding: 40 }}>
+    <div onClick={e => e.stopPropagation()} style={{ background: "#06040c", borderRadius: 16, padding: 32, border: `1px solid ${C.border}`, maxWidth: 720, width: "100%", cursor: "default", position: "relative" }}>
+      <button onClick={onClose} aria-label="Close" style={{ position: "absolute", top: 12, right: 12, background: "none", border: "none", color: C.muted, cursor: "pointer", fontSize: 20, fontFamily: "inherit", lineHeight: 1 }}>×</button>
+      {children}
+    </div>
+  </div>
+);
+
+const AudioQualityCard = ({ title, children }) => {
+  const [hovered, setHovered] = useState(false);
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <div
+        onClick={() => setOpen(true)}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{
+          background: "#06040c", padding: 14, borderRadius: 8, cursor: "pointer",
+          border: `1px solid ${hovered ? C.accent : C.border}`,
+          transition: "border-color 0.2s ease",
+        }}
+      >
+        <div style={{ fontSize: 13, color: C.accent, fontWeight: 700, marginBottom: 8 }}>{title}</div>
+        {children}
+      </div>
+      {open && (
+        <Lightbox onClose={() => setOpen(false)}>
+          <div style={{ fontSize: 20, color: C.accent, fontWeight: 700, marginBottom: 20 }}>{title}</div>
+          <div className="lightbox-svg-scaled">{children}</div>
+          <style>{`.lightbox-svg-scaled svg { width: 100% !important; height: 280px !important; }`}</style>
+        </Lightbox>
+      )}
+    </>
+  );
+};
+
+// Mini diagrams for voice characteristics
+const PitchDiagram = () => {
+  // Two sine waves: slow (low pitch / male) vs fast (high pitch / female)
+  const w = 240, h = 80, mid = h / 2;
+  const malePath = Array.from({ length: w }, (_, x) => {
+    const y = mid + Math.sin((x / w) * Math.PI * 4) * 18;
+    return `${x === 0 ? "M" : "L"}${x},${y}`;
+  }).join(" ");
+  const femalePath = Array.from({ length: w }, (_, x) => {
+    const y = mid + Math.sin((x / w) * Math.PI * 10) * 14;
+    return `${x === 0 ? "M" : "L"}${x},${y}`;
+  }).join(" ");
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", height: h }}>
+      <path d={malePath} fill="none" stroke="#6C8EEF" strokeWidth="2" opacity="0.8" />
+      <path d={femalePath} fill="none" stroke="#E77CE7" strokeWidth="2" opacity="0.8" />
+      <text x="4" y="14" fill="#6C8EEF" fontSize="10" fontWeight="700" fontFamily="inherit">Male ~120Hz</text>
+      <text x="4" y={h - 4} fill="#E77CE7" fontSize="10" fontWeight="700" fontFamily="inherit">Female ~220Hz</text>
+    </svg>
+  );
+};
+
+const FormantDiagram = () => {
+  // Simplified spectrum with labeled F1-F4 peaks
+  const w = 240, h = 80;
+  const formants = [
+    { x: 0.12, h: 0.85, label: "F1", sub: "vowel" },
+    { x: 0.32, h: 0.95, label: "F2", sub: "vowel" },
+    { x: 0.55, h: 0.60, label: "F3", sub: "identity" },
+    { x: 0.72, h: 0.45, label: "F4", sub: "identity" },
+  ];
+  // Build a smooth envelope path through formant peaks
+  const graphH = h - 16; // reserve bottom 16px for label
+  const points = [{ x: 0, y: graphH }];
+  for (let px = 0; px < w; px++) {
+    const nx = px / w;
+    let val = 0.08;
+    for (const f of formants) {
+      val += f.h * Math.exp(-Math.pow((nx - f.x) / 0.06, 2));
+    }
+    points.push({ x: px, y: graphH - val * (graphH - 16) });
+  }
+  points.push({ x: w, y: graphH });
+  const areaPath = points.map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ") + " Z";
+  const linePath = points.slice(1, -1).map((p, i) => `${i === 0 ? "M" : "L"}${p.x},${p.y}`).join(" ");
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", height: h }}>
+      <defs><linearGradient id="fmtGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={C.accent} stopOpacity="0.3" /><stop offset="100%" stopColor={C.accent} stopOpacity="0.03" /></linearGradient></defs>
+      <path d={areaPath} fill="url(#fmtGrad)" />
+      <path d={linePath} fill="none" stroke={C.accent} strokeWidth="1.5" />
+      {formants.map((f, i) => (
+        <g key={i}>
+          <line x1={f.x * w} y1={graphH - f.h * (graphH - 16)} x2={f.x * w} y2={graphH} stroke={C.accent} strokeWidth="0.5" strokeDasharray="2,2" opacity="0.4" />
+          <text x={f.x * w} y={8} fill={C.accent} fontSize="10" fontWeight="700" textAnchor="middle" fontFamily="inherit">{f.label}</text>
+        </g>
+      ))}
+      <text x={w - 4} y={h - 2} fill={C.dim} fontSize="9" textAnchor="end" fontFamily="inherit">Frequency →</text>
+    </svg>
+  );
+};
+
+const TimbreDiagram = () => {
+  // Same pitch, two different harmonic envelopes (breathy vs rich)
+  const w = 240, h = 96, bars = 16;
+  const graphH = h - 16; // reserve bottom for label
+  const rich =   [0.95, 0.80, 0.70, 0.75, 0.55, 0.60, 0.45, 0.50, 0.35, 0.38, 0.28, 0.30, 0.22, 0.18, 0.12, 0.08];
+  const breathy = [0.90, 0.45, 0.30, 0.25, 0.35, 0.20, 0.15, 0.12, 0.18, 0.10, 0.08, 0.06, 0.05, 0.04, 0.03, 0.02];
+  const leftPad = 52;
+  const barW = (w - leftPad - 4) / bars;
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", height: h }}>
+      {rich.map((v, i) => (
+        <rect key={`r-${i}`} x={leftPad + i * barW + 1} y={graphH - v * (graphH - 14)} width={barW / 2 - 1} height={v * (graphH - 14)} fill="#6C8EEF" opacity="0.7" rx="1" />
+      ))}
+      {breathy.map((v, i) => (
+        <rect key={`b-${i}`} x={leftPad + i * barW + barW / 2} y={graphH - v * (graphH - 14)} width={barW / 2 - 1} height={v * (graphH - 14)} fill="#E77CE7" opacity="0.7" rx="1" />
+      ))}
+      <text x="4" y="12" fill="#6C8EEF" fontSize="9" fontWeight="700" fontFamily="inherit">Rich</text>
+      <text x="4" y="24" fill="#E77CE7" fontSize="9" fontWeight="700" fontFamily="inherit">Breathy</text>
+      <text x={w - 4} y={h - 2} fill={C.dim} fontSize="9" textAnchor="end" fontFamily="inherit">Harmonics →</text>
+    </svg>
+  );
+};
+
+const ProsodyDiagram = () => {
+  // Pitch contour over time showing intonation of a question vs statement
+  const w = 240, h = 96;
+  const graphH = h - 16; // reserve bottom for label
+  const mid = graphH / 2;
+  // Statement: gentle rise then fall
+  const stmtPath = Array.from({ length: w }, (_, x) => {
+    const t = x / w;
+    const y = mid - (Math.sin(t * Math.PI) * 16) + (t > 0.7 ? (t - 0.7) * 30 : 0);
+    return `${x === 0 ? "M" : "L"}${x},${y}`;
+  }).join(" ");
+  // Question: rises at the end
+  const qPath = Array.from({ length: w }, (_, x) => {
+    const t = x / w;
+    const y = mid + 4 - (Math.sin(t * Math.PI * 0.6) * 10) - (t > 0.6 ? Math.pow((t - 0.6) / 0.4, 2) * 28 : 0);
+    return `${x === 0 ? "M" : "L"}${x},${y}`;
+  }).join(" ");
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", height: h }}>
+      <path d={stmtPath} fill="none" stroke="#6C8EEF" strokeWidth="2" opacity="0.8" />
+      <path d={qPath} fill="none" stroke="#E77CE7" strokeWidth="2" opacity="0.8" />
+      <text x="4" y="14" fill="#6C8EEF" fontSize="9" fontWeight="700" fontFamily="inherit">"That's your card." ↘</text>
+      <text x="4" y={graphH - 4} fill="#E77CE7" fontSize="9" fontWeight="700" fontFamily="inherit">"That's your card?" ↗</text>
+      <text x={w / 2} y={h - 2} fill={C.dim} fontSize="9" textAnchor="middle" fontFamily="inherit">Time →</text>
+    </svg>
+  );
+};
+
+const WaveformViz = forwardRef(({ type = "sine", onPlayingChange }, ref) => {
   const canvasRef = useRef(null);
   const frameRef = useRef(0);
+  const audioRef = useRef({ ctx: null, analyser: null, gain: null, source: null });
+  const playingRef = useRef(false);
+  const [playing, setPlaying] = useState(false);
+  const [voiceMode, setVoiceMode] = useState(null); // "file" | "synth" | null
+
+  useEffect(() => { onPlayingChange?.(playing); }, [playing, onPlayingChange]);
+
+  const stopAudio = useCallback(() => {
+    const a = audioRef.current;
+    if (a.source) {
+      try { a.source.stop?.(); } catch (e) { /* already stopped */ }
+      try { a.source.disconnect(); } catch (e) { /* already disconnected */ }
+      a.source = null;
+    }
+    playingRef.current = false;
+    setPlaying(false);
+  }, []);
+
+  // Stop audio when waveform type changes
+  useEffect(() => { stopAudio(); }, [type, stopAudio]);
+
+  // Cleanup on unmount
+  useEffect(() => () => {
+    const a = audioRef.current;
+    if (a.source) { try { a.source.stop?.(); } catch (e) {} try { a.source.disconnect(); } catch (e) {} }
+    if (a.ctx && a.ctx.state !== "closed") { a.ctx.close(); }
+  }, []);
+
+  const ensureAudioCtx = () => {
+    const a = audioRef.current;
+    if (!a.ctx || a.ctx.state === "closed") {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 2048;
+      const gain = ctx.createGain();
+      gain.gain.value = 0.12;
+      analyser.connect(gain);
+      gain.connect(ctx.destination);
+      audioRef.current = { ...audioRef.current, ctx, analyser, gain };
+    }
+    return audioRef.current;
+  };
+
+  const playOscillator = async (oscType) => {
+    const { ctx, analyser } = ensureAudioCtx();
+    if (ctx.state === "suspended") await ctx.resume();
+    const osc = ctx.createOscillator();
+    osc.type = oscType;
+    osc.frequency.value = 440;
+    // Square waves are perceptually much louder — tame them so they don't startle
+    const oscGain = ctx.createGain();
+    oscGain.gain.value = oscType === "square" ? 0.3 : 1.0;
+    osc.connect(oscGain);
+    oscGain.connect(analyser);
+    osc.start();
+    // Auto-stop after 4 seconds
+    osc.stop(ctx.currentTime + 4);
+    osc.onended = () => { playingRef.current = false; setPlaying(false); };
+    audioRef.current.source = osc;
+    playingRef.current = true;
+    setPlaying(true);
+  };
+
+  const synthesizeVowel = (ctx) => {
+    // Create a formant-synthesized "ahh" vowel — demonstrates voice complexity without needing an audio file
+    const duration = 3;
+    const sr = ctx.sampleRate;
+    const buffer = ctx.createBuffer(1, sr * duration, sr);
+    const data = buffer.getChannelData(0);
+    const f0 = 130; // fundamental ~male voice
+    for (let i = 0; i < data.length; i++) {
+      const t = i / sr;
+      let s = 0;
+      // Natural vibrato (~5Hz, subtle)
+      const vibrato = Math.sin(2 * Math.PI * 5.2 * t) * 2.5 + Math.sin(2 * Math.PI * 0.7 * t) * 1.5;
+      const f = f0 + vibrato;
+      // Sum harmonics shaped by formant resonances (vowel "ah")
+      for (let h = 1; h <= 30; h++) {
+        const freq = f * h;
+        // Formant peaks for open "ah" vowel: F1≈700Hz F2≈1100Hz F3≈2600Hz F4≈3300Hz
+        const f1g = Math.exp(-Math.pow((freq - 700) / 100, 2)) * 0.35;
+        const f2g = Math.exp(-Math.pow((freq - 1100) / 120, 2)) * 0.22;
+        const f3g = Math.exp(-Math.pow((freq - 2600) / 150, 2)) * 0.10;
+        const f4g = Math.exp(-Math.pow((freq - 3300) / 180, 2)) * 0.06;
+        const harmonicRolloff = 0.4 / h;
+        const gain = harmonicRolloff + f1g + f2g + f3g + f4g;
+        // Slight phase drift per harmonic for naturalness
+        s += Math.sin(2 * Math.PI * freq * t + h * 0.15) * gain;
+      }
+      // Amplitude envelope (fade in/out) + micro-tremor
+      const env = Math.min(1, t / 0.06) * Math.min(1, (duration - t) / 0.2);
+      const tremor = 1 + Math.sin(2 * Math.PI * 3.8 * t) * 0.015;
+      // Slight breathiness (filtered noise)
+      const breath = (Math.random() - 0.5) * 0.03 * (0.5 + 0.5 * Math.sin(2 * Math.PI * 4 * t));
+      data[i] = (s * 0.08 + breath) * env * tremor;
+    }
+    return buffer;
+  };
+
+  const playVoice = async () => {
+    const { ctx, analyser } = ensureAudioCtx();
+    if (ctx.state === "suspended") await ctx.resume();
+    // Voice is quieter than oscillators — boost it
+    const voiceGain = ctx.createGain();
+    voiceGain.gain.value = 3.5;
+    voiceGain.connect(analyser);
+
+    // Try loading a real voice recording first
+    try {
+      const resp = await fetch("/audio/voice-sample.mp3");
+      if (resp.ok) {
+        const arrayBuf = await resp.arrayBuffer();
+        const audioBuf = await ctx.decodeAudioData(arrayBuf);
+        const source = ctx.createBufferSource();
+        source.buffer = audioBuf;
+        source.connect(voiceGain);
+        source.start();
+        source.onended = () => { playingRef.current = false; setPlaying(false); };
+        audioRef.current.source = source;
+        playingRef.current = true;
+        setPlaying(true);
+        setVoiceMode("file");
+        return;
+      }
+    } catch (e) { /* file not available, use synthesis fallback */ }
+
+    // Fallback: formant-synthesized vowel
+    const buffer = synthesizeVowel(ctx);
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(voiceGain);
+    source.start();
+    source.onended = () => { playingRef.current = false; setPlaying(false); };
+    audioRef.current.source = source;
+    playingRef.current = true;
+    setPlaying(true);
+    setVoiceMode("synth");
+  };
+
+  const togglePlay = () => {
+    if (playing) { stopAudio(); return; }
+    if (type === "sine" || type === "square") playOscillator(type);
+    else playVoice();
+  };
+
+  useImperativeHandle(ref, () => ({ togglePlay, playing }), [playing, type]);
+
+  // Canvas rendering — shows real AnalyserNode data when playing, mathematical approximation when idle
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -25,19 +325,47 @@ const WaveformViz = ({ type = "sine" }) => {
     const draw = () => {
       const w = canvas.width, h = canvas.height;
       ctx.clearRect(0, 0, w, h);
-      ctx.strokeStyle = C.accent;
+      ctx.strokeStyle = playing ? "#58E880" : C.accent;
       ctx.lineWidth = 2;
       ctx.beginPath();
-      const offset = frameRef.current * 0.02;
-      for (let x = 0; x < w; x++) {
-        const t = (x / w) * Math.PI * 6 + offset;
-        let y;
-        if (type === "sine") y = Math.sin(t);
-        else if (type === "square") y = Math.sign(Math.sin(t));
-        else y = Math.sin(t) * 0.5 + Math.sin(t * 2.5) * 0.3 + Math.sin(t * 4.1) * 0.2;
-        ctx.lineTo(x, h / 2 + y * (h / 2 - 10));
+
+      const analyser = audioRef.current.analyser;
+      if (playingRef.current && analyser) {
+        // Real waveform from audio output
+        const bufLen = analyser.frequencyBinCount;
+        const data = new Uint8Array(bufLen);
+        analyser.getByteTimeDomainData(data);
+        const sliceW = w / bufLen;
+        for (let i = 0; i < bufLen; i++) {
+          const x = i * sliceW;
+          const y = (data[i] / 128.0) * (h / 2);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+      } else {
+        // Mathematical preview
+        const offset = frameRef.current * 0.02;
+        for (let x = 0; x < w; x++) {
+          const t = (x / w) * Math.PI * 6 + offset;
+          let y;
+          if (type === "sine") y = Math.sin(t);
+          else if (type === "square") y = Math.sign(Math.sin(t));
+          else {
+            const jitter = Math.sin(t * 0.3) * 0.08;
+            y = Math.sin(t + jitter) * 0.35 + Math.sin(t * 2.02) * 0.2 + Math.sin(t * 3.03 + 0.5) * 0.15 + Math.sin(t * 4.1) * 0.1 + Math.sin(t * 5.97) * 0.06 + Math.sin(t * 7.2 + 1.0) * 0.04 + (Math.sin(t * 13.7) * 0.03 + Math.sin(t * 0.7) * 0.07);
+          }
+          ctx.lineTo(x, h / 2 + y * (h / 2 - 10));
+        }
       }
       ctx.stroke();
+
+      // Glow effect when playing
+      if (playingRef.current) {
+        ctx.shadowColor = "#58E880";
+        ctx.shadowBlur = 8;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+      }
+
       if (!reducedMotion) {
         frameRef.current++;
         animId = requestAnimationFrame(draw);
@@ -45,21 +373,176 @@ const WaveformViz = ({ type = "sine" }) => {
     };
     draw();
     return () => cancelAnimationFrame(animId);
-  }, [type]);
-  return <canvas ref={canvasRef} width={400} height={120} aria-label="Waveform visualization" style={{ width: "100%", maxWidth: 400, height: 120, borderRadius: 8, background: C.codeBg }} />;
+  }, [type, playing]);
+
+  return (
+    <div>
+      <canvas ref={canvasRef} width={400} height={120} aria-label={`${type} waveform visualization${playing ? " — playing audio" : ""}`} style={{ width: "100%", maxWidth: 400, height: 120, borderRadius: 8, background: C.codeBg, border: playing ? "1px solid #58E88044" : `1px solid ${C.primary}44`, transition: "border-color 0.3s ease" }} />
+      {playing && type === "complex" && voiceMode === "synth" && (
+        <div style={{ fontSize: 12, color: C.dim, marginTop: 4, fontStyle: "italic" }}>Formant-synthesized vowel sound. Drop a recording at <span style={{ color: C.accent, fontFamily: "monospace" }}>/audio/voice-sample.mp3</span> for real speech.</div>
+      )}
+    </div>
+  );
+});
+
+// Formant data from Hillenbrand et al. (1995) — vowel /ɑ/ ("ah" as in "father")
+// Each voice says the same vowel; differences come from vocal tract size
+const VOICE_SOURCE = {
+  male: {
+    label: "Adult Male",
+    color: "#6C8EEF",
+    f0: 129,  // fundamental frequency in Hz
+    formants: [
+      { freq: 768, bw: 90, label: "F1" },   // F1: open vowel resonance
+      { freq: 1333, bw: 120, label: "F2" },  // F2: front/back tongue position
+      { freq: 2522, bw: 160, label: "F3" },  // F3: speaker identity
+      { freq: 3687, bw: 200, label: "F4" },  // F4: speaker identity
+    ],
+  },
+  female: {
+    label: "Adult Female",
+    color: "#E77CE7",
+    f0: 220,
+    formants: [
+      { freq: 936, bw: 110, label: "F1" },
+      { freq: 1551, bw: 140, label: "F2" },
+      { freq: 2815, bw: 180, label: "F3" },
+      { freq: 4044, bw: 220, label: "F4" },
+    ],
+  },
+  child: {
+    label: "Child",
+    color: "#7CE7A8",
+    f0: 260,
+    formants: [
+      { freq: 1023, bw: 120, label: "F1" },
+      { freq: 1588, bw: 150, label: "F2" },
+      { freq: 3298, bw: 200, label: "F3" },
+      { freq: 4500, bw: 250, label: "F4" },
+    ],
+  },
 };
 
-const SpectrumViz = ({ bands = 24 }) => {
-  const [heights, setHeights] = useState(Array.from({ length: bands }, () => Math.random()));
+// Compute 32-band spectrum using source-filter model
+// Source: harmonic series from F0 with glottal rolloff (~12dB/octave)
+// Filter: formant resonances modeled as Gaussian peaks
+const NUM_BANDS = 32;
+const BAND_MIN = 100, BAND_MAX = 8000;
+
+const computeSpectrum = ({ f0, formants }) => {
+  const spectrum = new Array(NUM_BANDS).fill(0);
+  for (let b = 0; b < NUM_BANDS; b++) {
+    // Log-spaced band center frequency
+    const freq = BAND_MIN * Math.pow(BAND_MAX / BAND_MIN, b / (NUM_BANDS - 1));
+    // Sum energy from harmonics of f0 that fall near this band
+    for (let h = 1; h <= Math.ceil(BAND_MAX / f0); h++) {
+      const hFreq = f0 * h;
+      const dist = Math.abs(freq - hFreq);
+      const bandWidth = freq * 0.12; // ~12% bandwidth per band
+      if (dist < bandWidth * 2) {
+        // Glottal source: ~12dB/octave rolloff
+        const sourceGain = 1 / Math.pow(h, 1.2);
+        // Formant filter: sum of Gaussian resonance peaks
+        let filterGain = 0.02; // baseline
+        for (const f of formants) {
+          filterGain += Math.exp(-Math.pow((hFreq - f.freq) / f.bw, 2));
+        }
+        spectrum[b] += sourceGain * filterGain * Math.exp(-Math.pow(dist / bandWidth, 2));
+      }
+    }
+  }
+  // Normalize to 0-1
+  const max = Math.max(...spectrum);
+  return spectrum.map(v => max > 0 ? v / max : 0);
+};
+
+// Precompute spectrums and band positions for formant labels
+const VOICE_PROFILES = Object.fromEntries(
+  Object.entries(VOICE_SOURCE).map(([key, src]) => {
+    const spectrum = computeSpectrum(src);
+    const formantLabels = src.formants.map(f => {
+      const band = Math.round((NUM_BANDS - 1) * Math.log(f.freq / BAND_MIN) / Math.log(BAND_MAX / BAND_MIN));
+      return { band, label: f.label, freq: f.freq >= 1000 ? `${(f.freq / 1000).toFixed(1)}kHz` : `${f.freq}Hz` };
+    });
+    return [key, { label: src.label, color: src.color, spectrum, formants: formantLabels }];
+  })
+);
+
+const FREQ_LABELS = [0, 4, 8, 12, 16, 20, 24, 28, 31].map(band => {
+  const freq = BAND_MIN * Math.pow(BAND_MAX / BAND_MIN, band / (NUM_BANDS - 1));
+  return { band, label: freq >= 1000 ? `${(freq / 1000).toFixed(1)}k` : `${Math.round(freq)}` };
+});
+
+const SpectrumViz = () => {
+  const [selected, setSelected] = useState(["male", "female"]);
+  const [jitter, setJitter] = useState(0);
+  const bands = 32;
+
   useEffect(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reducedMotion) return;
-    const iv = setInterval(() => { setHeights(prev => prev.map((h, i) => { const target = 0.2 + Math.sin(Date.now() / 500 + i * 0.5) * 0.3 + Math.random() * 0.3; return h + (target - h) * 0.3; })); }, 80);
+    const iv = setInterval(() => setJitter(Date.now()), 100);
     return () => clearInterval(iv);
-  }, [bands]);
+  }, []);
+
+  const toggle = (key) => {
+    setSelected(prev => prev.includes(key) ? (prev.length > 1 ? prev.filter(k => k !== key) : prev) : [...prev, key]);
+  };
+
+  const getJitteredHeight = (base, bandIdx) => {
+    const noise = Math.sin(jitter / 400 + bandIdx * 1.7) * 0.04 + Math.sin(jitter / 250 + bandIdx * 0.9) * 0.03;
+    return Math.max(0.05, Math.min(1, base + noise));
+  };
+
   return (
-    <div style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 100, padding: "8px 0" }}>
-      {heights.map((h, i) => (<div key={i} style={{ flex: 1, height: `${h * 100}%`, background: `linear-gradient(to top, ${C.primary}, ${C.tertiary})`, borderRadius: "2px 2px 0 0", transition: "height 0.1s ease", opacity: 0.8 }} />))}
+    <div>
+      <div role="tablist" style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+        {Object.entries(VOICE_PROFILES).map(([key, prof]) => (
+          <button key={key} role="tab" aria-selected={selected.includes(key)} onClick={() => toggle(key)} style={{ background: selected.includes(key) ? `${prof.color}20` : "#06040c", border: `1px solid ${selected.includes(key) ? prof.color : C.border}`, borderRadius: 6, padding: "6px 14px", color: selected.includes(key) ? prof.color : C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600 }}>{prof.label}</button>
+        ))}
+      </div>
+      <div style={{ background: C.codeBg, borderRadius: 8, padding: "16px 12px 4px 12px", position: "relative", border: `1px solid ${C.primary}44` }}>
+        <div style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 140, position: "relative" }}>
+          {Array.from({ length: bands }).map((_, i) => {
+            const activeProfiles = selected.map(k => VOICE_PROFILES[k]);
+            const maxH = Math.max(...activeProfiles.map(p => getJitteredHeight(p.spectrum[i], i)));
+            return (
+              <div key={i} style={{ flex: 1, height: "100%", position: "relative", display: "flex", alignItems: "flex-end" }}>
+                {activeProfiles.length === 1 ? (
+                  <div style={{ width: "100%", height: `${getJitteredHeight(activeProfiles[0].spectrum[i], i) * 100}%`, background: `linear-gradient(to top, ${activeProfiles[0].color}44, ${activeProfiles[0].color})`, borderRadius: "2px 2px 0 0", transition: "height 0.12s ease" }} />
+                ) : (
+                  activeProfiles.map((prof, pi) => {
+                    const h = getJitteredHeight(prof.spectrum[i], i);
+                    return <div key={pi} style={{ position: "absolute", bottom: 0, left: `${pi * 20}%`, width: `${100 - (activeProfiles.length - 1) * 15}%`, height: `${h * 100}%`, background: `linear-gradient(to top, ${prof.color}33, ${prof.color}AA)`, borderRadius: "2px 2px 0 0", transition: "height 0.12s ease", border: `1px solid ${prof.color}44`, borderBottom: "none" }} />;
+                  })
+                )}
+              </div>
+            );
+          })}
+        </div>
+        {/* Formant annotations */}
+        {selected.map(key => {
+          const prof = VOICE_PROFILES[key];
+          return prof.formants.map((f, fi) => (
+            <div key={`${key}-${fi}`} style={{ position: "absolute", left: `${(f.band / bands) * 100}%`, top: 4, transform: "translateX(-50%)", textAlign: "center", pointerEvents: "none", zIndex: 2 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: prof.color, lineHeight: 1 }}>{f.label}</div>
+              <div style={{ width: 1, height: 8, background: `${prof.color}66`, margin: "1px auto" }} />
+            </div>
+          ));
+        })}
+        {/* Frequency axis */}
+        <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0 0 0", borderTop: `1px solid ${C.border}` }}>
+          {FREQ_LABELS.map((f, i) => (
+            <div key={i} style={{ fontSize: 10, color: C.dim, textAlign: "center", flex: 1 }}>{f.label}Hz</div>
+          ))}
+        </div>
+      </div>
+      <div style={{ fontSize: 13, color: C.dim, marginTop: 8, lineHeight: 1.6 }}>
+        {selected.length > 1
+          ? "The formant peaks (F1–F4) shift higher as the vocal tract gets smaller: lowest for the adult male, highest for the child. This is why you can instantly tell these voices apart, and it's the core challenge voice cloning AI has to solve."
+          : `Showing the ${VOICE_PROFILES[selected[0]].label.toLowerCase()} spectral profile for the vowel \"ah.\" The peaks labeled F1–F4 are formant resonances — shaped by the size and geometry of the vocal tract. Toggle another voice to see how the same vowel looks completely different from a different speaker.`}
+      </div>
+      <div style={{ fontSize: 11, color: C.dim, marginTop: 6, fontStyle: "italic" }}>Based on formant measurements from <a href="https://homepages.wmich.edu/~hillenbr/Papers/HillsGettyClarke1995.pdf" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }} onMouseEnter={e => e.target.style.textDecoration = "underline"} onMouseLeave={e => e.target.style.textDecoration = "none"}>Hillenbrand, Getty, Clark &amp; Wheeler (1995)</a>. Spectrum computed using <a href="https://en.wikipedia.org/wiki/Source%E2%80%93filter_model" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }} onMouseEnter={e => e.target.style.textDecoration = "underline"} onMouseLeave={e => e.target.style.textDecoration = "none"}>source-filter model</a> with glottal rolloff.</div>
     </div>
   );
 };
@@ -106,12 +589,12 @@ const IntroSection = () => (
       <img src="/images/ccv-logo.png" alt="CCV" style={{ width: 64, height: 64, borderRadius: 12, border: `2px solid ${C.primary}` }} />
       <div>
         <h1 style={{ margin: 0, fontSize: 42, fontWeight: 800, letterSpacing: -1, lineHeight: 1.1, background: `linear-gradient(135deg, ${C.primary}, ${C.accent})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Voice Cloning</h1>
-        <div style={{ fontSize: 14, color: C.muted, marginTop: 4 }}>Call Center Village — Training Module</div>
+        <div style={{ fontSize: 14, color: C.muted, marginTop: 4 }}>Call Center Village Training Module 01</div>
       </div>
     </div>
-    <div style={{ fontSize: 17, color: C.muted, maxWidth: 540, lineHeight: 1.7, marginBottom: 32 }}>Learn how voices can be replicated, modified, and synthesized — from traditional audio engineering to cutting-edge AI. Understand the attack surface to build better defenses.</div>
+    <div style={{ fontSize: 17, color: C.muted, maxWidth: 540, lineHeight: 1.7, marginBottom: 32 }}>Learn how voices can be replicated, modified, and synthesized — from traditional audio engineering to cutting-edge AI.</div>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginBottom: 32 }}>
-      {[{ label: "Duration", value: "~45 min", icon: "clock" }, { label: "Difficulty", value: "Intermediate", icon: "trending-up" }, { label: "Prerequisites", value: "CLI basics, audio concepts", icon: "clipboard" }].map((item, i) => (
+      {[{ label: "Duration", value: "~45 min", icon: "clock" }, { label: "Difficulty", value: "Intermediate", icon: "trending-up" }, { label: "Prerequisites", value: "CLI & audio basics", icon: "clipboard" }].map((item, i) => (
         <div key={i} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "24px 16px", textAlign: "center" }}>
           <div style={{ fontSize: 28, marginBottom: 6 }}><Icon name={item.icon} size={28} /></div>
           <div style={{ fontSize: 14, color: C.dim, fontWeight: 600, marginBottom: 4 }}>{item.label}</div>
@@ -119,46 +602,186 @@ const IntroSection = () => (
         </div>
       ))}
     </div>
-    <div style={{ background: `${C.tertiary}15`, borderRadius: 12, padding: 20, border: `1px solid ${C.tertiary}44` }}>
-      <div style={{ fontSize: 15, color: C.tertiary, fontWeight: 700, marginBottom: 8 }}>ETHICAL NOTICE</div>
-      <div style={{ fontSize: 15, color: C.muted, lineHeight: 1.7 }}>This training is for <strong style={{ color: C.text }}>defensive security research only</strong>. Voice cloning without consent is illegal in many jurisdictions. Always obtain explicit permission.</div>
+    <div style={{ borderRadius: 12, border: `1px solid ${C.tertiary}44`, overflow: "hidden" }}>
+      <div style={{ background: `${C.tertiary}25`, padding: 20 }}>
+        <div style={{ fontSize: 15, color: C.tertiary, fontWeight: 700, marginBottom: 8 }}><Icon name="warning" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />ETHICAL NOTICE</div>
+        <div style={{ fontSize: 15, color: C.muted, lineHeight: 1.7 }}>This training is for <strong style={{ color: C.text }}>defensive security research only</strong>. Voice cloning without consent is illegal in many jurisdictions. Always obtain explicit permission.</div>
+      </div>
+      <div style={{ background: `${C.tertiary}10`, borderTop: `1px solid ${C.tertiary}44`, padding: 20 }}>
+        <div style={{ fontSize: 13, color: C.dim, fontWeight: 600, marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}><Icon name="book-open" size={14} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Further Reading</div>
+        <ol style={{ margin: 0, padding: 0, paddingLeft: 24, display: "flex", flexDirection: "column", gap: 6, color: C.dim }}>
+          {[
+            { href: "https://www.ftc.gov/policy/advocacy-research/tech-at-ftc/2023/11/preventing-harms-ai-enabled-voice-cloning", label: "FTC — Preventing Harms from AI-Enabled Voice Cloning" },
+            { href: "https://sites.law.duq.edu/juris/2025/11/25/the-law-speaks-up-ai-voice-cloning-and-consent/", label: "Duquesne Law — AI Voice Cloning and Consent" },
+            { href: "https://en.wikipedia.org/wiki/Telephone_call_recording_laws", label: "Wikipedia — Telephone Call Recording Laws by Jurisdiction" },
+            { href: "https://en.wikipedia.org/wiki/Audio_deepfake", label: "Wikipedia — Audio Deepfakes" },
+            { href: "https://www.ncsl.org/technology-and-communication/artificial-intelligence-2024-legislation", label: "NCSL — AI Legislation Tracker (State Laws)" },
+            { href: "https://artificialintelligenceact.eu/", label: "EU AI Act — Official Text and Resources" },
+          ].map((link, i) => (
+            <li key={i}>
+              <a href={link.href} target="_blank" rel="noopener noreferrer" style={{ fontSize: 14, color: C.accent, textDecoration: "none", lineHeight: 1.6 }}
+                onMouseEnter={e => e.target.style.textDecoration = "underline"}
+                onMouseLeave={e => e.target.style.textDecoration = "none"}
+              ><Icon name="arrow-top-right-on-square" size={12} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 5 }} />{link.label}</a>
+            </li>
+          ))}
+        </ol>
+      </div>
     </div>
   </div>
 );
 
 const FundamentalsSection = () => {
   const [waveType, setWaveType] = useState("sine");
+  const waveRef = useRef(null);
+  const [wavePlaying, setWavePlaying] = useState(false);
   return (<div>
     <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Audio Fundamentals</h2>
-    <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>Voice identity comes from the physical shape of your vocal tract, learned speech patterns, and emotional expression.</p>
+    <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 12 }}>Before we can understand how voices are cloned, we need to understand what sound actually looks like. Every sound — from a simple beep to a human voice — is a pressure wave moving through the air, and we can visualize these waves to see how they differ.</p>
+    <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>A <strong style={{ color: C.text }}>sine wave</strong> is the simplest possible sound: one smooth, repeating frequency. A <strong style={{ color: C.text }}>square wave</strong> snaps abruptly between two levels, producing a harsher tone packed with extra harmonics. Then look at the <strong style={{ color: C.text }}>human voice</strong> — it's dramatically more complex, made up of dozens of overlapping frequencies that shift constantly. That complexity is what makes every voice unique, and it's what voice cloning AI has to learn to reproduce.</p>
     <div style={{ marginBottom: 24 }}>
       <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 12 }}>Interactive Waveform Explorer</div>
-      <div role="tablist" style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+      <div role="tablist" style={{ display: "flex", gap: 8, marginBottom: 12, alignItems: "center" }}>
         {["sine", "square", "complex"].map(t => <button key={t} role="tab" aria-selected={waveType === t} onClick={() => setWaveType(t)} style={{ background: waveType === t ? `${C.primary}20` : "#06040c", border: `1px solid ${waveType === t ? C.secondary : C.border}`, borderRadius: 6, padding: "6px 12px", color: waveType === t ? C.accent : C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600 }}>{t === "complex" ? "Human Voice" : `${t[0].toUpperCase()+t.slice(1)} Wave`}</button>)}
+        <button
+          onClick={() => waveRef.current?.togglePlay()}
+          aria-label={wavePlaying ? "Stop audio" : "Play audio"}
+          style={{
+            display: "inline-flex", alignItems: "center", gap: 6,
+            background: wavePlaying ? "#58E88025" : `${C.primary}25`,
+            border: `1px solid ${wavePlaying ? "#58E88066" : C.border}`,
+            borderRadius: 6, padding: "6px 12px",
+            color: wavePlaying ? "#58E880" : C.accent,
+            cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600,
+            transition: "all 0.2s ease",
+          }}
+        >
+          <Icon name={wavePlaying ? "stop" : "play"} size={14} />{wavePlaying ? "Stop" : "Play"}
+        </button>
       </div>
-      <WaveformViz type={waveType} />
-      <div style={{ fontSize: 14, color: C.dim, marginTop: 8 }}>{waveType === "sine" ? "A pure tone — single frequency." : waveType === "square" ? "A harsh digital signal. Never found in voice." : "Human voice: overlapping harmonics shaped by throat, mouth, and nasal cavity."}</div>
+      <WaveformViz ref={waveRef} type={waveType} onPlayingChange={setWavePlaying} />
+      <div style={{ fontSize: 14, color: C.dim, marginTop: 8 }}>{waveType === "sine" ? "A pure tone — single frequency, 440Hz (the 'A' note). Hit play to hear it. Think tuning forks, hearing tests, and the reference pitch used to tune instruments. Sine waves are the building blocks of all complex sounds." : waveType === "square" ? "An abrupt on/off signal — rich in odd harmonics. Hit play to hear the harsh, buzzy tone. Used as clock sources in digital circuits, sync signals in audio gear, and the basis for chiptune / 8-bit video game music. Never found in natural voice." : "Human voice: many overlapping harmonics with micro-variations in pitch, amplitude, and timing. Hit play to hear a synthesized vowel and watch the waveform — notice how much more chaotic it is compared to the pure tones."}</div>
     </div>
-    <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 12 }}>Frequency Spectrum — Your Vocal Fingerprint</div>
-    <SpectrumViz bands={32} />
-    <InteractiveCard title={<><Icon name="microphone" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Key Voice Characteristics</>}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-        {[{ name: "Pitch (F0)", desc: "Fundamental frequency. Male ~85-180Hz, Female ~165-255Hz" }, { name: "Formants", desc: "Resonance peaks from vocal tract. F1-F4 encode vowel identity" }, { name: "Timbre", desc: "Harmonic content, breathiness, nasality — the 'color'" }, { name: "Prosody", desc: "Rhythm, stress, intonation — how you 'sing' speech" }].map((c, i) => (
-          <div key={i} style={{ background: "#06040c", padding: 12, borderRadius: 8 }}><div style={{ fontSize: 14, color: C.accent, fontWeight: 700 }}>{c.name}</div><div style={{ fontSize: 14, marginTop: 4 }}>{c.desc}</div></div>
+
+    <SectionDivider />
+    <div>
+      <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 8 }}>Key Voice Characteristics</div>
+      <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 16, fontSize: 14 }}>Every voice has a set of measurable properties that, taken together, form a unique acoustic signature — no two people share the same combination.</p>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
+        {[
+          { name: "Pitch (F0)", desc: "The fundamental frequency — the lowest note your vocal cords produce. Male voices typically sit around 85–180Hz, female voices around 165–255Hz. This is the 'base note' of your voice that everything else builds on.", diagram: <PitchDiagram /> },
+          { name: "Formants (F1–F4)", desc: "Resonance peaks created by the shape of your throat, mouth, and nasal cavity. F1 and F2 determine which vowel you're saying. F3 and F4 add the personal 'color' that distinguishes your voice from someone else's — even when saying the same word.", diagram: <FormantDiagram /> },
+          { name: "Timbre", desc: "The overall 'texture' of a voice — how breathy, nasal, or rich it sounds. Timbre comes from the relative strength of all the harmonics above the fundamental. Same pitch, completely different character.", diagram: <TimbreDiagram /> },
+          { name: "Prosody", desc: "The rhythm, stress, and intonation of speech — how you 'sing' your words. Prosody is the hardest characteristic for AI to clone because it depends on meaning and emotion, not just acoustic patterns.", diagram: <ProsodyDiagram /> },
+        ].map((c, i) => (
+          <div key={i} style={{ background: "#06040c", padding: 14, borderRadius: 8, border: `1px solid ${C.border}` }}>
+            <div style={{ fontSize: 14, color: C.accent, fontWeight: 700, marginBottom: 10 }}>{c.name}</div>
+            <div style={{ background: "#0a0812", borderRadius: 6, padding: "24px 6px", marginBottom: 8, border: `1px solid ${C.border}` }}>{c.diagram}</div>
+            <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.6 }}>{c.desc}</div>
+          </div>
         ))}
       </div>
-    </InteractiveCard>
-    <InteractiveCard title={<><Icon name="scale" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Audio Quality Requirements for Cloning</>}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
-        {[{ label: "Sample Rate", value: "≥16kHz", ideal: "44.1kHz+" }, { label: "Bit Depth", value: "≥16-bit", ideal: "24-bit" }, { label: "Duration", value: "≥30s", ideal: "3-10 min" }, { label: "Format", value: "WAV/FLAC", ideal: "WAV" }, { label: "Noise Floor", value: "<-40dB", ideal: "<-60dB" }, { label: "Clipping", value: "None", ideal: "Peak <-3dB" }].map((r, i) => (
-          <div key={i} style={{ background: "#06040c", padding: 10, borderRadius: 8, textAlign: "center" }}><div style={{ fontSize: 12, color: C.dim }}>{r.label}</div><div style={{ fontSize: 14, color: C.text, fontWeight: 700 }}>{r.value}</div><div style={{ fontSize: 12, color: C.accent }}>Ideal: {r.ideal}</div></div>
+      <SectionDivider />
+      <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 8 }}>Frequency Spectrum — Your Vocal Fingerprint</div>
+      <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 16, fontSize: 14 }}>Imagine three people — an adult man, an adult woman, and a child — all saying the same vowel sound: "ah" (as in "father"). The graph below shows what each voice looks like in the frequency domain, plotted from low frequencies on the left to high frequencies on the right. The height of each bar represents how loud that frequency is. The peaks labeled F1–F4 are the formant resonances, and they land at different positions for each speaker because their vocal tracts are different sizes.</p>
+      <SpectrumViz />
+    </div>
+    <SectionDivider />
+    <div>
+      <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 8 }}>Audio Quality Recommendations for Cloning</div>
+      <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 20, fontSize: 14 }}>Now that you know what makes a voice unique — the fundamental pitch, the formant peaks, the harmonic texture — the question becomes: how good does a recording need to be to preserve all of that? If the sample rate is too low, the upper formants get cut off. If there's too much background noise, the subtle harmonics that define timbre get buried. If the audio clips, the waveform gets distorted beyond recognition. There's no hard cutoff, but these are the general thresholds where most cloning tools start producing usable results.</p>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 24 }}>
+        {[{ label: "Sample Rate", value: "≥16kHz", ideal: "44.1kHz+" }, { label: "Bit Depth", value: "≥16-bit", ideal: "24-bit" }, { label: "Duration", value: "≥30s", ideal: "3-10 min" }, { label: "Format", value: "WAV/FLAC", ideal: "WAV" }, { label: "Noise Floor", value: "≤ −40dB", ideal: "≤ −60dB" }, { label: "Clipping", value: "None", ideal: "Peak ≤ −3dB" }].map((r, i) => (
+          <div key={i} style={{ background: "#06040c", padding: "20px 10px", borderRadius: 8, textAlign: "center", border: `1px solid ${C.border}` }}><div style={{ fontSize: 12, color: C.dim }}>{r.label}</div><div style={{ fontSize: 14, color: C.text, fontWeight: 700 }}>{r.value}</div><div style={{ fontSize: 12, color: C.accent }}>Ideal: {r.ideal}</div></div>
         ))}
       </div>
-    </InteractiveCard>
+      <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 12 }}>Why These Numbers Matter</div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+        <AudioQualityCard title="Sample Rate">
+          <svg width="200" height="90" viewBox="0 0 200 90" style={{ width: "100%", height: 90 }}>
+            <text x="4" y="10" fill={C.tertiary} fontSize="9" fontWeight="700" fontFamily="inherit">8kHz — too low</text>
+            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 8; const y = 24 + Math.sin(t) * 6; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke={C.tertiary} strokeWidth="1.5" opacity="0.8" />
+            <rect x="100" y="14" width="100" height="20" fill="#06040c" opacity="0.7" />
+            <text x="130" y="27" fill={C.tertiary} fontSize="8" fontFamily="inherit" opacity="0.6">F3, F4 lost</text>
+            <text x="4" y="52" fill="#58E880" fontSize="9" fontWeight="700" fontFamily="inherit">44.1kHz — full detail</text>
+            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 8; const y = 66 + Math.sin(t) * 5 + Math.sin(t * 2.5) * 3 + Math.sin(t * 4.1) * 2 + Math.sin(t * 6) * 1; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke="#58E880" strokeWidth="1.5" opacity="0.8" />
+            <text x="4" y="86" fill={C.dim} fontSize="8" fontFamily="inherit">All formants preserved →</text>
+          </svg>
+        </AudioQualityCard>
+        <AudioQualityCard title="Noise Floor">
+          <svg width="200" height="90" viewBox="0 0 200 90" style={{ width: "100%", height: 90 }}>
+            <text x="4" y="10" fill={C.tertiary} fontSize="9" fontWeight="700" fontFamily="inherit">−20dB — noisy</text>
+            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 6; const signal = Math.sin(t) * 5 + Math.sin(t * 2.5) * 3; const noise = (Math.sin(x * 7.3) + Math.sin(x * 13.1) + Math.sin(x * 23.7)) * 3; const y = 24 + signal + noise; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke={C.tertiary} strokeWidth="1.5" opacity="0.8" />
+            <text x="4" y="52" fill="#58E880" fontSize="9" fontWeight="700" fontFamily="inherit">−60dB — clean</text>
+            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 6; const y = 66 + Math.sin(t) * 6 + Math.sin(t * 2.5) * 3.5 + Math.sin(t * 4.1) * 2; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke="#58E880" strokeWidth="1.5" opacity="0.8" />
+            <text x="4" y="86" fill={C.dim} fontSize="8" fontFamily="inherit">Harmonics clearly visible →</text>
+          </svg>
+        </AudioQualityCard>
+        <AudioQualityCard title="Clipping">
+          <svg width="200" height="90" viewBox="0 0 200 90" style={{ width: "100%", height: 90 }}>
+            <text x="4" y="10" fill={C.tertiary} fontSize="9" fontWeight="700" fontFamily="inherit">Clipped — distorted</text>
+            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 6; const raw = Math.sin(t) * 12 + Math.sin(t * 2.5) * 6; const clipped = Math.max(-7, Math.min(7, raw)); const y = 24 + clipped; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke={C.tertiary} strokeWidth="1.5" opacity="0.8" />
+            <line x1="0" y1="17" x2="200" y2="17" stroke={C.tertiary} strokeWidth="0.5" strokeDasharray="3,3" opacity="0.4" />
+            <line x1="0" y1="31" x2="200" y2="31" stroke={C.tertiary} strokeWidth="0.5" strokeDasharray="3,3" opacity="0.4" />
+            <text x="4" y="52" fill="#58E880" fontSize="9" fontWeight="700" fontFamily="inherit">Peak ≤ −3dB — headroom</text>
+            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 6; const y = 66 + Math.sin(t) * 8 + Math.sin(t * 2.5) * 4 + Math.sin(t * 4.1) * 2; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke="#58E880" strokeWidth="1.5" opacity="0.8" />
+            <text x="4" y="86" fill={C.dim} fontSize="8" fontFamily="inherit">Waveform intact →</text>
+          </svg>
+        </AudioQualityCard>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginTop: 12 }}>
+        <AudioQualityCard title="Bit Depth">
+          <svg width="200" height="90" viewBox="0 0 200 90" style={{ width: "100%", height: 90 }}>
+            <text x="4" y="10" fill={C.tertiary} fontSize="9" fontWeight="700" fontFamily="inherit">8-bit — coarse steps</text>
+            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 6; const raw = Math.sin(t) * 8 + Math.sin(t * 2.5) * 4; const quantized = Math.round(raw / 3) * 3; const y = 24 + quantized; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke={C.tertiary} strokeWidth="1.5" opacity="0.8" />
+            <text x="4" y="52" fill="#58E880" fontSize="9" fontWeight="700" fontFamily="inherit">24-bit — smooth detail</text>
+            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 6; const y = 66 + Math.sin(t) * 8 + Math.sin(t * 2.5) * 4 + Math.sin(t * 4.1) * 2; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke="#58E880" strokeWidth="1.5" opacity="0.8" />
+            <text x="4" y="86" fill={C.dim} fontSize="8" fontFamily="inherit">Subtle dynamics preserved →</text>
+          </svg>
+        </AudioQualityCard>
+        <AudioQualityCard title="Duration">
+          <svg width="200" height="90" viewBox="0 0 200 90" style={{ width: "100%", height: 90 }}>
+            <text x="4" y="10" fill={C.tertiary} fontSize="9" fontWeight="700" fontFamily="inherit">5s — limited phonemes</text>
+            <g opacity="0.8">
+              {["ah","ee","oh"].map((p, i) => (
+                <g key={i}>
+                  <rect x={8 + i * 28} y="15" width="22" height="16" rx="3" fill={`${C.tertiary}30`} stroke={C.tertiary} strokeWidth="0.5" />
+                  <text x={19 + i * 28} y="26" fill={C.tertiary} fontSize="7" textAnchor="middle" fontFamily="inherit">{p}</text>
+                </g>
+              ))}
+              <text x="100" y="26" fill={C.tertiary} fontSize="8" fontFamily="inherit" opacity="0.5">missing most sounds</text>
+            </g>
+            <text x="4" y="52" fill="#58E880" fontSize="9" fontWeight="700" fontFamily="inherit">3+ min — full coverage</text>
+            <g opacity="0.8">
+              {["ah","ee","oh","oo","ss","th","mm","rr","pp","kk","ll","ng"].map((p, i) => (
+                <g key={i}>
+                  <rect x={4 + i * 16} y="57" width="13" height="14" rx="2" fill="#58E88020" stroke="#58E880" strokeWidth="0.5" />
+                  <text x={10.5 + i * 16} y="67" fill="#58E880" fontSize="6" textAnchor="middle" fontFamily="inherit">{p}</text>
+                </g>
+              ))}
+            </g>
+            <text x="4" y="86" fill={C.dim} fontSize="8" fontFamily="inherit">All phonemes represented →</text>
+          </svg>
+        </AudioQualityCard>
+        <AudioQualityCard title="Format">
+          <svg width="200" height="90" viewBox="0 0 200 90" style={{ width: "100%", height: 90 }}>
+            <text x="4" y="10" fill={C.tertiary} fontSize="9" fontWeight="700" fontFamily="inherit">MP3 — lossy compression</text>
+            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 6; const y = 24 + Math.sin(t) * 6 + Math.sin(t * 2.5) * 3 + (x % 20 < 3 ? 2 : 0); return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke={C.tertiary} strokeWidth="1.5" opacity="0.8" />
+            <text x="100" y="10" fill={C.tertiary} fontSize="7" fontFamily="inherit" opacity="0.5">artifacts in quiet parts</text>
+            <text x="4" y="52" fill="#58E880" fontSize="9" fontWeight="700" fontFamily="inherit">WAV/FLAC — lossless</text>
+            <path d={Array.from({ length: 200 }, (_, x) => { const t = (x / 200) * Math.PI * 6; const y = 66 + Math.sin(t) * 6 + Math.sin(t * 2.5) * 3 + Math.sin(t * 4.1) * 1.5 + Math.sin(t * 5.8) * 0.8; return `${x === 0 ? "M" : "L"}${x},${y}`; }).join(" ")} fill="none" stroke="#58E880" strokeWidth="1.5" opacity="0.8" />
+            <text x="4" y="86" fill={C.dim} fontSize="8" fontFamily="inherit">Exact original preserved →</text>
+          </svg>
+        </AudioQualityCard>
+      </div>
+      <p style={{ color: C.muted, lineHeight: 1.7, marginTop: 16, fontSize: 13 }}>Each diagram shows the same voice signal under poor conditions (red) and ideal conditions (green). Low sample rates lose upper formants, noise buries subtle harmonics, clipping flattens peaks, low bit depth adds staircase artifacts, short recordings miss phonemes the AI needs to learn, and lossy formats throw away detail the model depends on.</p>
+    </div>
+    <SectionDivider />
+    <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 12 }}>Check Your Understanding</div>
     <QuizBank questions={[
-      { question: "What are formants?", options: ["The base frequency of your voice", "Resonance peaks shaped by your vocal tract", "The volume of each syllable", "Digital encoding of speech"], correctIndex: 1, explanation: "Formants are resonance frequencies from your vocal tract shape. They're the primary feature that makes each voice unique." },
-      { question: "What's the minimum sample rate for voice cloning?", options: ["8kHz", "16kHz", "44.1kHz", "96kHz"], correctIndex: 1, explanation: "16kHz is the minimum. Below this, too much frequency info is lost. 44.1kHz+ is ideal but 16kHz captures essential voice frequencies." },
-      { question: "Which voice characteristic is HARDEST for AI to clone?", options: ["Base pitch", "Prosody and emotional expression", "Vowel formants", "Volume"], correctIndex: 1, explanation: "Prosody — rhythm, stress, intonation, emotion — requires understanding meaning and context, not just acoustic patterns." },
+      { question: "What are formants?", options: ["The base frequency of your voice", "Resonance peaks shaped by your vocal tract", "The volume of each syllable", "Digital encoding of speech"], correctIndex: 1, explanation: "Formants are resonance frequencies shaped by your vocal tract. They're one of the primary features that makes each voice unique." },
+      { question: "What sample rate is generally considered the minimum for voice cloning?", options: ["8kHz", "16kHz", "44.1kHz", "96kHz"], correctIndex: 1, explanation: "16kHz is the commonly accepted baseline — below this, too much frequency information tends to be lost for most cloning tools. 44.1kHz or higher is ideal, but 16kHz usually captures enough of the essential voice frequencies." },
+      { question: "Which voice characteristic tends to be the HARDEST for AI to clone?", options: ["Base pitch", "Prosody and emotional expression", "Vowel formants", "Volume"], correctIndex: 1, explanation: "Prosody — rhythm, stress, intonation, emotion — generally requires understanding meaning and context, not just acoustic patterns. Most current AI models struggle with this more than the other characteristics." },
     ]} />
   </div>);
 };
