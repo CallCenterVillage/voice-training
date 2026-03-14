@@ -1,18 +1,68 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { C } from "./components";
-import VoiceCloning from "../voice-cloning-training.jsx";
-import VoiceAgents from "../voice-agents-training.jsx";
-import SocialEngineering from "../social-engineering-training.jsx";
+import { SECTIONS as VC_SECTIONS, COMPS as VC_COMPS } from "../voice-cloning-training.jsx";
+import { SECTIONS as VA_SECTIONS, COMPS as VA_COMPS } from "../voice-agents-training.jsx";
+import { SECTIONS as SE_SECTIONS, COMPS as SE_COMPS } from "../social-engineering-training.jsx";
+import TrainingShell from "./components/TrainingShell";
 
-const modules = [
-  { name: "Voice Cloning", component: VoiceCloning },
-  { name: "Voice Agents", component: VoiceAgents },
-  { name: "Social Engineering", component: SocialEngineering },
-];
+const MODULES = {
+  "voice-cloning": { sections: VC_SECTIONS, comps: VC_COMPS, title: "Voice Cloning", name: "Voice Cloning" },
+  "voice-agents": { sections: VA_SECTIONS, comps: VA_COMPS, title: "Voice Agents", name: "Voice Agents" },
+  "social-engineering": { sections: SE_SECTIONS, comps: SE_COMPS, title: "Social Engineering", name: "Social Engineering" },
+};
+
+const MODULE_SLUGS = Object.keys(MODULES);
+
+function getRouteFromPath(pathname) {
+  const parts = pathname.split("/").filter(Boolean);
+  const moduleSlug = parts[0] && MODULES[parts[0]] ? parts[0] : "voice-cloning";
+  const sectionId = parts[1] || null;
+  return { moduleSlug, sectionId };
+}
+
+function resolveSectionIndex(moduleSlug, sectionId) {
+  const mod = MODULES[moduleSlug];
+  if (!sectionId) return 0;
+  const idx = mod.sections.findIndex(s => s.id === sectionId);
+  return idx >= 0 ? idx : 0;
+}
 
 export default function App() {
-  const [active, setActive] = useState(0);
-  const Module = modules[active].component;
+  const getState = useCallback(() => {
+    const { moduleSlug, sectionId } = getRouteFromPath(window.location.pathname);
+    return { moduleSlug, sectionIndex: resolveSectionIndex(moduleSlug, sectionId) };
+  }, []);
+
+  const [route, setRoute] = useState(() => {
+    const state = getState();
+    // Redirect if URL needs normalization
+    const expectedPath = `/${state.moduleSlug}/${MODULES[state.moduleSlug].sections[state.sectionIndex].id}`;
+    if (window.location.pathname !== expectedPath) {
+      history.replaceState(null, "", expectedPath);
+    }
+    return state;
+  });
+
+  const navigate = useCallback((moduleSlug, sectionIndex) => {
+    const mod = MODULES[moduleSlug];
+    const sectionId = mod.sections[sectionIndex].id;
+    const path = `/${moduleSlug}/${sectionId}`;
+    history.pushState(null, "", path);
+    setRoute({ moduleSlug, sectionIndex });
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
+    const onPopState = () => {
+      const state = getState();
+      setRoute(state);
+      window.scrollTo(0, 0);
+    };
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
+  }, [getState]);
+
+  const mod = MODULES[route.moduleSlug];
 
   return (
     <div style={{ fontFamily: "'DM Sans', 'Segoe UI', sans-serif" }}>
@@ -22,27 +72,40 @@ export default function App() {
         padding: "8px 16px", display: "flex", gap: 8, justifyContent: "center",
         backdropFilter: "blur(10px)",
       }} role="tablist">
-        {modules.map((m, i) => (
-          <button
-            key={i}
-            onClick={() => setActive(i)}
-            role="tab"
-            aria-selected={i === active}
-            style={{
-              background: i === active ? C.primary : "transparent",
-              border: `1px solid ${i === active ? C.primary : C.border}`,
-              borderRadius: 6, padding: "8px 20px",
-              color: i === active ? "#fff" : C.muted,
-              cursor: "pointer", fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
-              fontSize: 14, fontWeight: 600,
-            }}
-          >
-            {m.name}
-          </button>
-        ))}
+        {MODULE_SLUGS.map((slug) => {
+          const isActive = slug === route.moduleSlug;
+          return (
+            <button
+              key={slug}
+              onClick={() => navigate(slug, 0)}
+              role="tab"
+              aria-selected={isActive}
+              onMouseEnter={e => { if (!isActive) { e.target.style.borderColor = C.accent; e.target.style.color = C.text; e.target.style.background = `${C.accent}15`; } }}
+              onMouseLeave={e => { if (!isActive) { e.target.style.borderColor = C.border; e.target.style.color = C.muted; e.target.style.background = "transparent"; } }}
+              style={{
+                background: isActive ? C.primary : "transparent",
+                border: `1px solid ${isActive ? C.primary : C.border}`,
+                borderRadius: 6, padding: "8px 20px",
+                color: isActive ? "#fff" : C.muted,
+                cursor: "pointer", fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
+                fontSize: 14, fontWeight: 600,
+                transition: "all 0.2s ease",
+              }}
+            >
+              {MODULES[slug].name}
+            </button>
+          );
+        })}
       </nav>
       <main style={{ paddingTop: 48 }}>
-        <Module />
+        <TrainingShell
+          sections={mod.sections}
+          sectionComponents={mod.comps}
+          moduleTitle={mod.title}
+          topOffset={48}
+          currentSection={route.sectionIndex}
+          onNavigate={(index) => navigate(route.moduleSlug, index)}
+        />
       </main>
     </div>
   );

@@ -615,6 +615,8 @@ const LabSection = () => {
 /* ─── MAIN APP ─── */
 const COMPS = [IntroSection, ArchitectureSection, STTSection, BrainSection, TTSSection, LiveKitSection, BuildingSection, AttackSurfaceSection, LabSection];
 
+export { SECTIONS, COMPS };
+
 export default function VoiceAgentsTraining() {
   return <TrainingShell sections={SECTIONS} sectionComponents={COMPS} moduleTitle="Voice Agents" topOffset={48} />;
 }

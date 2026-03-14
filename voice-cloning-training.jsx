@@ -53,6 +53,60 @@ const AudioQualityCard = ({ title, children }) => {
   );
 };
 
+const RecommendationCard = ({ label, value, ideal, detail }) => {
+  const [hovered, setHovered] = useState(false);
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <div
+        onClick={() => setOpen(true)}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{ background: "#06040c", padding: "28px 10px", borderRadius: 8, textAlign: "center", border: `1px solid ${hovered ? C.accent : C.border}`, cursor: "pointer", transition: "border-color 0.2s ease" }}
+      >
+        <div style={{ fontSize: 12, color: C.dim, marginBottom: 4 }}>{label}</div>
+        <div style={{ fontSize: 14, color: C.text, fontWeight: 700, marginBottom: 4 }}>{value}</div>
+        <div style={{ fontSize: 12, color: C.accent }}>Ideal: {ideal}</div>
+      </div>
+      {open && (
+        <Lightbox onClose={() => setOpen(false)}>
+          <div style={{ fontSize: 12, color: C.dim, marginBottom: 4 }}>{label}</div>
+          <div style={{ fontSize: 22, color: C.text, fontWeight: 800, marginBottom: 4 }}>Recommended: {value}</div>
+          <div style={{ fontSize: 16, color: C.accent, fontWeight: 600, marginBottom: 20 }}>Ideal: {ideal}</div>
+          <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.8 }}>{detail}</div>
+        </Lightbox>
+      )}
+    </>
+  );
+};
+
+const VoiceCharacteristicCard = ({ name, desc, diagram }) => {
+  const [hovered, setHovered] = useState(false);
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <div
+        onClick={() => setOpen(true)}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{ background: "#06040c", padding: 14, borderRadius: 8, border: `1px solid ${hovered ? C.accent : C.border}`, cursor: "pointer", transition: "border-color 0.2s ease" }}
+      >
+        <div style={{ fontSize: 14, color: C.accent, fontWeight: 700, marginBottom: 10 }}>{name}</div>
+        <div style={{ background: "#0a0812", borderRadius: 6, padding: "24px 6px", marginBottom: 8, border: `1px solid ${C.border}` }}>{diagram}</div>
+        <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.6 }}>{desc}</div>
+      </div>
+      {open && (
+        <Lightbox onClose={() => setOpen(false)}>
+          <div style={{ fontSize: 20, color: C.accent, fontWeight: 700, marginBottom: 20 }}>{name}</div>
+          <div className="lightbox-svg-scaled" style={{ background: "#0a0812", borderRadius: 8, padding: "28px 12px", marginBottom: 20, border: `1px solid ${C.border}` }}>{diagram}</div>
+          <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.8 }}>{desc}</div>
+          <style>{`.lightbox-svg-scaled svg { width: 100% !important; height: 280px !important; }`}</style>
+        </Lightbox>
+      )}
+    </>
+  );
+};
+
 // Mini diagrams for voice characteristics
 const PitchDiagram = () => {
   // Two sine waves: slow (low pitch / male) vs fast (high pitch / female)
@@ -597,11 +651,15 @@ const SpectrumViz = () => {
   );
 };
 
-const PipelineDiagram = ({ steps, activeStep = -1 }) => (
+const PipelineDiagram = ({ steps, activeStep = -1, onStepClick }) => (
   <div style={{ display: "flex", alignItems: "center", gap: 0, overflowX: "auto", padding: "16px 0" }}>
     {steps.map((step, i) => (
       <div key={i} style={{ display: "flex", alignItems: "center" }}>
-        <div style={{ background: i === activeStep ? `${C.primary}20` : C.card, border: `1px solid ${i === activeStep ? C.secondary : C.border}`, borderRadius: 12, padding: "12px 16px", minWidth: 100, textAlign: "center", transition: "all 0.3s ease", boxShadow: i === activeStep ? `0 0 20px ${C.primary}22` : "none" }}>
+        <div
+          onClick={onStepClick ? () => onStepClick(i) : undefined}
+          onMouseEnter={onStepClick ? e => { if (i !== activeStep) { e.currentTarget.style.borderColor = C.secondary; e.currentTarget.style.background = `${C.primary}12`; } } : undefined}
+          onMouseLeave={onStepClick ? e => { if (i !== activeStep) { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.background = C.card; } } : undefined}
+          style={{ background: i === activeStep ? `${C.primary}20` : C.card, border: `1px solid ${i === activeStep ? C.secondary : C.border}`, borderRadius: 12, padding: "12px 16px", minWidth: 100, textAlign: "center", transition: "all 0.3s ease", boxShadow: i === activeStep ? `0 0 20px ${C.primary}22` : "none", cursor: onStepClick ? "pointer" : "default" }}>
           <div style={{ fontSize: 22, marginBottom: 4 }}><Icon name={step.icon} size={22} /></div>
           <div style={{ fontSize: 13, color: i === activeStep ? C.accent : C.muted, fontWeight: 600 }}>{step.label}</div>
         </div>
@@ -610,6 +668,16 @@ const PipelineDiagram = ({ steps, activeStep = -1 }) => (
     ))}
   </div>
 );
+
+const inlineCode = (text) => {
+  const parts = text.split(/(`[^`]+`)/);
+  if (parts.length === 1) return text;
+  return parts.map((part, i) =>
+    part.startsWith("`") && part.endsWith("`")
+      ? <code key={i} style={{ background: `${C.primary}20`, border: `1px solid ${C.primary}44`, borderRadius: 4, padding: "1px 5px", fontSize: 12, fontFamily: "'JetBrains Mono', 'Fira Code', monospace", color: C.accent }}>{part.slice(1, -1)}</code>
+      : part
+  );
+};
 
 const ToolComparison = ({ tools }) => {
   const [idx, setIdx] = useState(0);
@@ -626,7 +694,23 @@ const ToolComparison = ({ tools }) => {
           <div style={{ background: "#06040c", padding: 10, borderRadius: 8 }}><div style={{ fontSize: 12, color: C.accent, fontWeight: 700, marginBottom: 4 }}>PROS</div>{t.pros.map((p, i) => <div key={i}>+ {p}</div>)}</div>
           <div style={{ background: "#06040c", padding: 10, borderRadius: 8 }}><div style={{ fontSize: 12, color: C.tertiary, fontWeight: 700, marginBottom: 4 }}>CONS</div>{t.cons.map((c, i) => <div key={i}>- {c}</div>)}</div>
         </div>
-        {t.install && <div style={{ marginTop: 10 }}><CodeBlock code={t.install} language="bash" /></div>}
+        {t.prereq && <div style={{ marginTop: 10, fontSize: 13, color: C.accent, fontWeight: 600 }}>{t.prereq}</div>}
+        {t.install && <div style={{ marginTop: t.prereq ? 6 : 10 }}><CodeBlock code={t.install} language="bash" /></div>}
+        {t.guide && <div style={{ marginTop: 12, background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16, position: "relative" }}>
+          <div style={{ position: "absolute", top: 8, right: 12, fontSize: 12, color: C.dim, textTransform: "uppercase", letterSpacing: 1 }}>{t.guideLabel || t.name}</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            {t.guide.map((g, gi) => (
+              <div key={gi}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 4 }}>{g.heading}</div>
+                {g.action && <div style={{ fontSize: 14, color: C.accent, marginBottom: 4 }}>{inlineCode(g.action)}</div>}
+                {g.steps && <ol style={{ margin: 0, paddingLeft: 20, fontSize: 13, color: C.muted, lineHeight: 1.8 }}>
+                  {g.steps.map((s, si) => <li key={si}>{inlineCode(s)}</li>)}
+                </ol>}
+              </div>
+            ))}
+          </div>
+        </div>}
+        {t.image && <div style={{ marginTop: 12 }}><img src={t.image} alt={`${t.name} screenshot`} style={{ width: "100%", borderRadius: 8, border: `1px solid ${C.border}` }} /></div>}
       </div>
     </div>
   );
@@ -644,7 +728,7 @@ const IntroSection = () => (
     </div>
     <div style={{ fontSize: 17, color: C.muted, maxWidth: 540, lineHeight: 1.7, marginBottom: 32 }}>Learn how voices can be replicated, modified, and synthesized — from traditional audio engineering to cutting-edge AI.</div>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginBottom: 32 }}>
-      {[{ label: "Duration", value: "~45 min", icon: "clock" }, { label: "Difficulty", value: "Intermediate", icon: "trending-up" }, { label: "Prerequisites", value: "CLI & audio basics", icon: "clipboard" }].map((item, i) => (
+      {[{ label: "Duration", value: "~25 min", icon: "clock" }, { label: "Difficulty", value: "Intermediate", icon: "trending-up" }, { label: "Prerequisites", value: "CLI & audio basics", icon: "clipboard" }].map((item, i) => (
         <div key={i} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "24px 16px", textAlign: "center" }}>
           <div style={{ fontSize: 28, marginBottom: 6 }}><Icon name={item.icon} size={28} /></div>
           <div style={{ fontSize: 14, color: C.dim, fontWeight: 600, marginBottom: 4 }}>{item.label}</div>
@@ -724,11 +808,7 @@ const FundamentalsSection = () => {
           { name: "Timbre", desc: "The overall 'texture' of a voice — how breathy, nasal, or rich it sounds. Timbre comes from the relative strength of all the harmonics above the fundamental. Same pitch, completely different character.", diagram: <TimbreDiagram /> },
           { name: "Prosody", desc: "The rhythm, stress, and intonation of speech — how you 'sing' your words. Prosody is the hardest characteristic for AI to clone because it depends on meaning and emotion, not just acoustic patterns.", diagram: <ProsodyDiagram /> },
         ].map((c, i) => (
-          <div key={i} style={{ background: "#06040c", padding: 14, borderRadius: 8, border: `1px solid ${C.border}` }}>
-            <div style={{ fontSize: 14, color: C.accent, fontWeight: 700, marginBottom: 10 }}>{c.name}</div>
-            <div style={{ background: "#0a0812", borderRadius: 6, padding: "24px 6px", marginBottom: 8, border: `1px solid ${C.border}` }}>{c.diagram}</div>
-            <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.6 }}>{c.desc}</div>
-          </div>
+          <VoiceCharacteristicCard key={i} name={c.name} desc={c.desc} diagram={c.diagram} />
         ))}
       </div>
       <SectionDivider />
@@ -741,8 +821,15 @@ const FundamentalsSection = () => {
       <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 8 }}>Audio Quality Recommendations for Cloning</div>
       <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 20, fontSize: 14 }}>Now that you know what makes a voice unique — the fundamental pitch, the formant peaks, the harmonic texture — the question becomes: how good does a recording need to be to preserve all of that? If the sample rate is too low, the upper formants get cut off. If there's too much background noise, the subtle harmonics that define timbre get buried. If the audio clips, the waveform gets distorted beyond recognition. There's no hard cutoff, but these are the general thresholds where most cloning tools start producing usable results.</p>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 24 }}>
-        {[{ label: "Sample Rate", value: "≥16kHz", ideal: "44.1kHz+" }, { label: "Bit Depth", value: "≥16-bit", ideal: "24-bit" }, { label: "Duration", value: "≥30s", ideal: "3-10 min" }, { label: "Format", value: "WAV/FLAC", ideal: "WAV" }, { label: "Noise Floor", value: "≤ −40dB", ideal: "≤ −60dB" }, { label: "Clipping", value: "None", ideal: "Peak ≤ −3dB" }].map((r, i) => (
-          <div key={i} style={{ background: "#06040c", padding: "28px 10px", borderRadius: 8, textAlign: "center", border: `1px solid ${C.border}` }}><div style={{ fontSize: 12, color: C.dim, marginBottom: 4 }}>{r.label}</div><div style={{ fontSize: 14, color: C.text, fontWeight: 700, marginBottom: 4 }}>{r.value}</div><div style={{ fontSize: 12, color: C.accent }}>Ideal: {r.ideal}</div></div>
+        {[
+          { label: "Sample Rate", value: "≥16kHz", ideal: "44.1kHz+", detail: "Sample rate determines the highest frequency a recording can capture — specifically, half the sample rate (the Nyquist limit). At 16kHz, the maximum captured frequency is 8kHz, which barely covers the third formant (F3) for most speakers and cuts off F4 entirely. Since upper formants are a key part of what makes a voice recognizable, losing them means the cloning model has less to work with. At 44.1kHz (CD quality), the capture range extends to 22kHz — well beyond the useful range of human speech — preserving every harmonic and formant the model needs to accurately reproduce the voice." },
+          { label: "Bit Depth", value: "≥16-bit", ideal: "24-bit", detail: "Bit depth controls how many discrete amplitude levels are available to represent the waveform. At 16-bit, there are 65,536 levels, which provides about 96dB of dynamic range — adequate for most speech. At 24-bit, that jumps to over 16 million levels and 144dB of dynamic range. The extra headroom matters because voice cloning models learn from subtle amplitude variations — the slight volume differences between voiced and unvoiced consonants, the natural decay of breath at the end of a phrase. With 24-bit, these quiet details are captured cleanly instead of being rounded into quantization noise." },
+          { label: "Duration", value: "≥30s", ideal: "3-10 min", detail: "Traditional voice cloning models need enough speech to encounter every phoneme the target language uses — English has roughly 44. A 30-second clip might only cover a handful of vowels and common consonants, leaving the model guessing on sounds like 'zh,' 'th,' or 'ng.' With 3-10 minutes of varied speech, the model sees each phoneme in multiple phonetic contexts (word-initial, word-final, stressed, unstressed), which is what it needs to generalize naturally. Longer recordings also give the model more examples of the speaker's prosody patterns — how they raise pitch for questions, where they pause, how they emphasize words." },
+          { label: "Format", value: "WAV/FLAC", ideal: "WAV", detail: "WAV stores raw, uncompressed PCM audio — every sample exactly as the microphone captured it. FLAC compresses the file size (typically 50-60% smaller) but is mathematically lossless, meaning the decoded audio is bit-for-bit identical to the original. MP3 and other lossy formats achieve smaller files by permanently discarding audio information the encoder considers less perceptible — but 'less perceptible to a human listener' is not the same as 'unimportant to a neural network.' Lossy compression introduces subtle artifacts in transients and quiet passages that a cloning model can pick up and reproduce. WAV avoids this entirely." },
+          { label: "Noise Floor", value: "≤ −40dB", ideal: "≤ −60dB", detail: "The noise floor is the level of background sound present when the speaker is silent — air conditioning hum, electrical interference, room reverb. At −40dB, background noise is roughly 1% of the signal level, which sounds quiet to a casual listener but is clearly visible on a spectrogram. A cloning model trained on noisy audio will bake that noise into its learned representation of the voice, producing output that sounds like it was recorded in the same noisy room. At −60dB (0.1% of signal level), the noise is low enough that the model can cleanly isolate the vocal characteristics without learning artifacts from the recording environment." },
+          { label: "Clipping", value: "None", ideal: "Peak ≤ −3dB", detail: "Clipping occurs when the audio signal exceeds the maximum level the recorder can represent — the waveform peaks get flattened, introducing harsh distortion. Even brief clips on loud consonants like 'p' or 'k' permanently destroy the waveform shape at those moments, and there's no way to reconstruct what was lost. Keeping peaks at or below −3dB provides headroom for natural volume spikes without hitting the ceiling. This is especially important for speech, where plosive consonants and emphatic syllables can spike 6-10dB above the average level. Once audio clips, no amount of post-processing can fix it." }
+        ].map((r, i) => (
+          <RecommendationCard key={i} label={r.label} value={r.value} ideal={r.ideal} detail={r.detail} />
         ))}
       </div>
       <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 12 }}>Why These Numbers Matter</div>
@@ -788,7 +875,7 @@ const FundamentalsSection = () => {
                 </g>
               ))}
             </g>
-            <text x="4" y="105" fill="#58E880" fontSize="8" fontFamily="inherit">All phonemes represented</text>
+            <text x="4" y="105" fill="#58E880" fontSize="8" fontFamily="inherit">Broader phoneme coverage</text>
           </svg>
         </AudioQualityCard>
       </div>
@@ -827,7 +914,6 @@ const FundamentalsSection = () => {
       <p style={{ color: C.muted, lineHeight: 1.7, marginTop: 16, fontSize: 13 }}>Each diagram shows the same voice signal under <span style={{ color: C.tertiary, fontWeight: 600 }}>poor conditions</span> and <span style={{ color: "#58E880", fontWeight: 600 }}>ideal conditions</span>. Low sample rates lose upper formants, noise buries subtle harmonics, clipping flattens peaks, low bit depth adds staircase artifacts, short recordings miss phonemes the AI needs to learn, and lossy formats throw away detail the model depends on.</p>
     </div>
     <SectionDivider />
-    <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 12 }}>Check Your Understanding</div>
     <QuizBank questions={[
       { question: "What are formants?", options: ["The base frequency of your voice", "Resonance peaks shaped by your vocal tract", "The volume of each syllable", "Digital encoding of speech"], correctIndex: 1, explanation: "Formants are resonance frequencies shaped by your vocal tract. They're one of the primary features that makes each voice unique." },
       { question: "What sample rate is generally considered the minimum for voice cloning?", options: ["8kHz", "16kHz", "44.1kHz", "96kHz"], correctIndex: 1, explanation: "16kHz is the commonly accepted baseline — below this, too much frequency information tends to be lost for most cloning tools. 44.1kHz or higher is ideal, but 16kHz usually captures enough of the essential voice frequencies." },
@@ -837,30 +923,91 @@ const FundamentalsSection = () => {
 };
 
 const TraditionalSection = () => {
-  const [activeStep, setActiveStep] = useState(-1);
+  const [activeStep, setActiveStep] = useState(0);
   return (<div>
     <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Non-AI Voice Modification</h2>
-    <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>Before AI, attackers already had powerful tools. These techniques are simpler, faster, and harder to detect.</p>
-    <PipelineDiagram activeStep={activeStep} steps={[{ icon: "microphone", label: "Input" }, { icon: "chart-bar", label: "EQ/Filter" }, { icon: "arrow-path", label: "Pitch Shift" }, { icon: "scale", label: "Formant" }, { icon: "speaker-wave", label: "FX Chain" }, { icon: "headphones", label: "Output" }]} />
-    <div style={{ display: "flex", gap: 6, marginBottom: 24, flexWrap: "wrap" }}>
-      {[0,1,2,3,4,5].map(i => <button key={i} onClick={() => setActiveStep(i === activeStep ? -1 : i)} style={{ background: "#06040c", border: `1px solid ${C.border}`, borderRadius: 6, padding: "8px 12px", color: C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 13 }}>Step {i + 1}</button>)}
-    </div>
+    <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 12 }}>Long before AI voice cloning, traditional audio tools could alter pitch, tone, and timbre characteristics. These techniques are well-understood and leave detectable signatures — but they're fast, accessible, widely used, and can still be combined with newer AI tools.</p>
+    <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 8 }}>We're representing the voice modification pipeline here as six steps, but real-world chains can be longer or shorter depending on the goal. Only <span style={{ fontStyle: "italic" }}>Input</span> and <span style={{ fontStyle: "italic" }}>Output</span> are required — <span style={{ fontStyle: "italic" }}>EQ/Filter</span>, <span style={{ fontStyle: "italic" }}>Pitch Shift</span>, <span style={{ fontStyle: "italic" }}>Formant</span>, and <span style={{ fontStyle: "italic" }}>FX Chain</span> are all optional stages you can mix and match to manipulate the audio.</p>
+    <div style={{ borderLeft: `3px solid ${C.secondary}`, paddingLeft: 16, margin: "12px 0", fontStyle: "italic", color: C.dim, fontSize: 13, lineHeight: 1.7 }}>"This is my audio-toolkit. There are many like it, but this one is mine."<br />"My audio-toolkit is my best friend. It is my life. I must master it as I must master my life."<br />"Without me, my audio-toolkit is useless."<br />"Without my audio-toolkit, I am useless."<br />— <a href="https://en.wikipedia.org/wiki/Soundwave_(Transformers)" target="_blank" rel="noopener noreferrer" style={{ color: C.dim, textDecoration: "underline" }}>Soundwave</a>, probably</div>
+    <p style={{ color: C.secondary, lineHeight: 1.7, marginBottom: 24, fontSize: 13 }}>Click each step below to see common tools for that stage. All tools referenced are already preinstalled.</p>
+    <PipelineDiagram activeStep={activeStep} onStepClick={i => setActiveStep(i)} steps={[{ icon: "microphone", label: "Input" }, { icon: "chart-bar", label: "EQ/Filter" }, { icon: "arrow-path", label: "Pitch Shift" }, { icon: "scale", label: "Formant" }, { icon: "speaker-wave", label: "FX Chain" }, { icon: "headphones", label: "Output" }]} />
+    <p style={{ color: C.accent, fontSize: 14, lineHeight: 1.7, marginBottom: 12 }}>{[
+      "Record or obtain an audio file and convert it into a format your tool chain can work with. This is the starting point for any voice modification workflow.",
+      "Equalization and filtering let you selectively boost, cut, or remove frequency ranges from the audio. In voice modification, this is used to alter the tonal quality of a voice — for example, cutting low frequencies to thin out a deep voice, boosting higher frequencies to add brightness, or bandpass filtering to simulate a phone line. It's also useful for cleaning up recordings by removing rumble, hiss, or background noise before further processing.",
+      "Shift the fundamental frequency of the audio up or down. This changes how high or low the voice sounds without necessarily altering the speed or duration of the recording.",
+      "Adjust the resonance characteristics that define a voice's identity. Formants are what make a voice sound distinctly male, female, or childlike — independent of pitch.",
+      "Layer multiple effects together to create a more convincing or dramatic transformation. This is where you combine reverb, compression, distortion, and other effects into a single processing chain.",
+      "Export and finalize your processed audio. Normalize levels, trim silence, and convert to your target format for delivery or further use.",
+    ][activeStep]}</p>
     <ToolComparison tools={[
-      { name: "SoX", desc: "Swiss Army knife of CLI audio processing.", pros: ["Blazing fast", "Scriptable", "Zero latency"], cons: ["CLI only", "No formant control"], install: `sudo apt install sox libsox-fmt-all\nsox input.wav output.wav pitch 300\nsox input.wav output.wav reverb 50 equalizer 300 2q -8 equalizer 3000 1q 6` },
-      { name: "FFmpeg", desc: "Universal multimedia tool with complex filter chains.", pros: ["Universal formats", "Filter graphs", "Ubiquitous"], cons: ["Verbose syntax", "Steep learning curve"], install: `ffmpeg -i input.wav -af "rubberband=pitch=1.2" output.wav\nffmpeg -i input.wav -af "highpass=f=300,lowpass=f=3400" phone.wav` },
-      { name: "Audacity", desc: "Free GUI audio editor. Great for spectrograms and learning.", pros: ["Visual", "Real-time preview", "Plugins"], cons: ["GUI only", "No scripting"], install: `sudo apt install audacity\n# Effect → Change Pitch | Equalization\n# Analyze → Plot Spectrum` },
-      { name: "RubberBand", desc: "Best pitch-shifting quality with time preservation.", pros: ["Top quality", "Preserves timing", "Real-time"], cons: ["Pitch/time only"], install: `sudo apt install rubberband-cli\nrubberband -p 2 input.wav output.wav   # +2 semitones\nrubberband -t 1.2 input.wav output.wav  # 120% duration` },
-    ]} />
-    <div style={{ marginTop: 24 }}>
-      <InteractiveCard title={<><Icon name="user-group" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Voice Disguise Recipes</>} color={C.tertiary}>
-        <div style={{ display: "grid", gap: 12 }}>
-          {[
-            { name: "Male → Female (rough)", cmd: "sox input.wav output.wav pitch 500 equalizer 250 2q -6 equalizer 4000 1q 5" },
-            { name: "Robot / Anonymizer", cmd: 'ffmpeg -i input.wav -af "vibrato=f=8:d=0.5,chorus=0.5:0.9:50:0.4:0.25:2" output.wav' },
-            { name: "Phone Call Simulation", cmd: "sox input.wav output.wav highpass 300 lowpass 3400 compand 0.3,1 6:-70,-60,-20 -5 -90 0.2" },
-          ].map((r, i) => <div key={i} style={{ background: "#06040c", padding: 12, borderRadius: 8 }}><div style={{ color: C.tertiary, fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{r.name}</div><CodeBlock code={r.cmd} language="bash" /></div>)}
-        </div>
-      </InteractiveCard>
+      // Step 0: Input
+      [
+        { name: "SoX", desc: "Record audio and convert file formats.", pros: ["Records from mic", "Format conversion", "Scriptable"], cons: ["CLI only"], prereq: "Open a console / terminal window, then run:", install: `# Preinstalled on Call Center Village laptops\n# sudo apt install sox libsox-fmt-all\n\n# Navigate to shared working directory\ncd ~/callcentervillage/voice-cloning\n\n# Record from default mic (16kHz mono, stop with Ctrl+C)\nrec -r 16000 -c 1 input.wav\n\n# Convert format\nsox input.wav output.mp3` },
+        { name: "Audacity", desc: "Record, visualize, and trim audio with a GUI.", pros: ["Visual waveform", "Easy trimming", "Monitor levels"], cons: ["GUI only", "No scripting"], prereq: "Open the Audacity application (GUI):", install: `# Preinstalled on Call Center Village laptops\n# sudo apt install audacity`, guide: [
+          { heading: "Configure audio devices", action: "Edit → Preferences → Audio Settings", steps: ["Set Playback Device to your speakers/headphones", "Set Recording Device to your microphone"] },
+          { heading: "Record your audio", action: "File → New to create a blank project", steps: ["Click the red Record button (or press R) to start", "Click Stop (or press Space) when finished"] },
+          { heading: "Save your recording", action: "File → Export Audio", steps: ["Navigate to `~/callcentervillage/voice-cloning/`", "Save as `input.wav` (WAV 16-bit PCM)"] },
+        ], image: "/images/audacity-screenshot.png" },
+      ],
+      // Step 1: EQ/Filter
+      [
+        { name: "SoX", desc: "Apply EQ bands, highpass/lowpass filters, and noise reduction.", pros: ["Fast", "Chainable filters", "Scriptable"], cons: ["No visual feedback"], install: `# Highpass + lowpass (bandpass 300-3400Hz)\nsox input.wav output.wav highpass 300 lowpass 3400\n\n# Parametric EQ: boost 3kHz by 6dB\nsox input.wav output.wav equalizer 3000 1q 6\n\n# Cut low rumble\nsox input.wav output.wav highpass 80` },
+        { name: "FFmpeg", desc: "Complex filter graphs for multi-band EQ and filtering.", pros: ["Filter chaining", "Precise control", "Any format"], cons: ["Steep learning curve"], install: `# Bandpass filter (telephone band)\nffmpeg -i input.wav -af "highpass=f=300,lowpass=f=3400" output.wav\n\n# Multi-band EQ\nffmpeg -i input.wav -af "equalizer=f=300:t=q:w=2:g=-8,equalizer=f=3000:t=q:w=1:g=6" output.wav` },
+        { name: "Audacity", desc: "Visual EQ curves and real-time spectrum analysis.", pros: ["Graphic EQ", "Spectrum view", "Preview"], cons: ["GUI only", "No batch"], install: `# Preinstalled on Call Center Village laptops\n# sudo apt install audacity`, guide: [
+          { heading: "Open your file", action: "File → Open → `~/callcentervillage/voice-cloning/input.wav`" },
+          { heading: "Apply EQ and filters", steps: ["Effect → EQ and Filters → Filter Curve EQ (draw a custom EQ curve)", "Effect → EQ and Filters → High-Pass Filter / Low-Pass Filter", "Analyze → Plot Spectrum (to visualize frequencies before and after)"] },
+          { heading: "Save your result", action: "File → Export Audio → save to `~/callcentervillage/voice-cloning/`" },
+        ] },
+      ],
+      // Step 2: Pitch Shift
+      [
+        { name: "SoX", desc: "Quick pitch shifts in cents. Simple but no formant preservation.", pros: ["Blazing fast", "Scriptable", "Simple syntax"], cons: ["No formant control", "Artifacts at extremes"], install: `# Shift pitch up 300 cents (3 semitones)\nsox input.wav output.wav pitch 300\n\n# Shift pitch down 500 cents\nsox input.wav output.wav pitch -500\n\n# Speed-based pitch (changes duration too)\nsox input.wav output.wav speed 1.2` },
+        { name: "RubberBand", desc: "High-quality pitch shifting that preserves timing.", pros: ["Best quality", "Preserves duration", "Real-time capable"], cons: ["Pitch/time only"], install: `# Preinstalled on Call Center Village laptops\n# sudo apt install rubberband-cli\n\n# Shift up 2 semitones (preserves duration)\nrubberband -p 2 input.wav output.wav\n\n# Shift down 3 semitones\nrubberband -p -3 input.wav output.wav` },
+        { name: "FFmpeg", desc: "Pitch shifting via the RubberBand filter or asetrate.", pros: ["Integrates with pipelines", "Multiple methods"], cons: ["Verbose syntax"], install: `# RubberBand pitch shift via FFmpeg\nffmpeg -i input.wav -af "rubberband=pitch=1.2" output.wav\n\n# Crude pitch shift (changes speed too)\nffmpeg -i input.wav -af "asetrate=48000*1.25,aresample=48000" output.wav` },
+      ],
+      // Step 3: Formant
+      [
+        { name: "Praat", desc: "The gold standard for formant analysis and manipulation.", pros: ["Precise formant control", "Scientific accuracy", "Scripting"], cons: ["Dated UI", "Learning curve"], install: `# Preinstalled on Call Center Village laptops\n# sudo apt install praat\n\n# Praat script: shift formants\nRead from file: "input.wav"\nTo Manipulation: 0.01, 75, 600\nExtract formant grid\nFormula (frequencies): "self * 1.2"\nReplace formant grid\nGet resynthesis (overlap-add)\n\nSave as WAV file: "output.wav"` },
+        { name: "Audacity + Praat", desc: "Visualize in Audacity, manipulate formants in Praat.", pros: ["Visual + precise", "Best of both"], cons: ["Two-tool workflow"], guide: [
+          { heading: "Analyze in Audacity", action: "File → Open → `~/callcentervillage/voice-cloning/input.wav`", steps: ["Analyze → Plot Spectrum → identify formant peaks (F1, F2, F3, F4)"] },
+          { heading: "Manipulate in Praat", steps: ["Export audio to Praat for formant manipulation", "Re-import result to Audacity to verify"] },
+          { heading: "Save your result", action: "File → Export Audio → save to `~/callcentervillage/voice-cloning/`" },
+        ], guideLabel: "Audacity + Praat" },
+        { name: "SoX", desc: "Approximate formant shifts using EQ bands (limited but fast).", pros: ["Fast", "No extra tools"], cons: ["Not true formant shifting", "Crude approximation"], install: `# Approximate female formant shift:\n# boost higher formant regions, cut lower ones\nsox input.wav output.wav \\\n  equalizer 250 2q -8 \\\n  equalizer 800 2q 4 \\\n  equalizer 3000 1q 6` },
+      ],
+      // Step 4: FX Chain
+      [
+        { name: "SoX", desc: "Chain multiple effects: reverb, compression, distortion.", pros: ["All-in-one chains", "Scriptable", "Fast"], cons: ["CLI only"], install: `# Reverb + compression + EQ chain\nsox input.wav output.wav \\\n  reverb 50 \\\n  compand 0.3,1 6:-70,-60,-20 -5 -90 0.2 \\\n  equalizer 300 2q -8 equalizer 3000 1q 6\n\n# Telephone effect\nsox input.wav output.wav highpass 300 lowpass 3400 compand 0.3,1 6:-70,-60,-20 -5 -90 0.2` },
+        { name: "FFmpeg", desc: "Complex filter graphs for layered effects processing.", pros: ["Filter chaining", "Parallel processing", "Any format"], cons: ["Verbose", "Hard to debug"], install: `# Chorus + vibrato chain\nffmpeg -i input.wav -af "vibrato=f=8:d=0.5,chorus=0.5:0.9:50:0.4:0.25:2" output.wav\n\n# Tremolo + bandpass\nffmpeg -i input.wav -af "tremolo=f=5:d=0.6,highpass=f=300,lowpass=f=3400" output.wav` },
+        { name: "Audacity", desc: "Preview and stack effects with real-time playback.", pros: ["Real-time preview", "Effect stacking", "Visual feedback"], cons: ["GUI only", "No batch"], guide: [
+          { heading: "Open your file", action: "File → Open → `~/callcentervillage/voice-cloning/input.wav`" },
+          { heading: "Stack effects", steps: ["Effect → Reverb → adjust Room Size, Dampening", "Effect → Compressor → set threshold, ratio", "Effect → Distortion → choose type, amount", "Chain via Effect → Repeat Last Effect (Ctrl+R)"] },
+          { heading: "Save your result", action: "File → Export Audio → save to `~/callcentervillage/voice-cloning/`" },
+        ] },
+      ],
+      // Step 5: Output
+      [
+        { name: "SoX", desc: "Export, normalize, and format final audio.", pros: ["Normalize levels", "Format conversion", "Trim silence"], cons: ["CLI only"], install: `# Normalize to -1dB\nsox input.wav output.wav gain -n -1\n\n# Trim leading/trailing silence\nsox input.wav output.wav silence 1 0.1 1% reverse silence 1 0.1 1% reverse\n\n# Convert to specific format\nsox input.wav -r 16000 -c 1 -b 16 output.wav` },
+        { name: "FFmpeg", desc: "Export to any format with precise codec control.", pros: ["Any codec", "Metadata control", "Streaming formats"], cons: ["Many options to learn"], install: `# Export as high-quality MP3\nffmpeg -i input.wav -codec:a libmp3lame -qscale:a 2 output.mp3\n\n# Export as Opus (small, high quality)\nffmpeg -i input.wav -codec:a libopus -b:a 128k output.opus\n\n# Normalize volume\nffmpeg -i input.wav -af "loudnorm=I=-16:LRA=11:TP=-1" output.wav` },
+        { name: "Audacity", desc: "Final review with visual waveform before export.", pros: ["Visual verification", "Multiple export formats", "Metadata editor"], cons: ["GUI only"], guide: [
+          { heading: "Open your file", action: "File → Open → `~/callcentervillage/voice-cloning/input.wav`" },
+          { heading: "Review and normalize", steps: ["Effect → Normalize → set peak level", "View → Show Clipping (check for distortion)"] },
+          { heading: "Export final audio", steps: ["File → Export Audio → save to `~/callcentervillage/voice-cloning/`", "File → Export Multiple (batch from labels)"] },
+        ] },
+      ],
+    ][activeStep]} />
+    <SectionDivider />
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, color: C.text, fontSize: 15, fontWeight: 600 }}>
+        <Icon name="user-group" size={16} style={{ color: C.tertiary }} />Voice Disguise Recipes
+      </div>
+      <div style={{ display: "grid", gap: 12, color: C.muted, fontSize: 14, lineHeight: 1.8 }}>
+        {[
+          { name: "Male → Female (rough)", cmd: "sox input.wav output.wav pitch 500 equalizer 250 2q -6 equalizer 4000 1q 5" },
+          { name: "Robot / Anonymizer", cmd: 'ffmpeg -i input.wav -af "vibrato=f=8:d=0.5,chorus=0.5:0.9:50:0.4:0.25:2" output.wav' },
+          { name: "Phone Call Simulation", cmd: "sox input.wav output.wav highpass 300 lowpass 3400 compand 0.3,1 6:-70,-60,-20 -5 -90 0.2" },
+        ].map((r, i) => <div key={i} style={{ background: "#06040c", padding: 12, borderRadius: 8 }}><div style={{ color: C.tertiary, fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{r.name}</div><CodeBlock code={r.cmd} language="bash" /></div>)}
+      </div>
     </div>
     <QuizBank questions={[
       { question: "Which technique changes pitch while preserving duration?", options: ["Speed change", "PSOLA / time-domain pitch shifting", "Lowpass filter", "Amplitude modulation"], correctIndex: 1, explanation: "PSOLA and RubberBand shift pitch independently of time. Speed changes alter both together." },
@@ -1012,6 +1159,8 @@ const LabSection = () => {
 };
 
 const COMPS = [IntroSection, FundamentalsSection, TraditionalSection, AISection, LocalToolsSection, CommercialSection, DefenseSection, LabSection];
+
+export { SECTIONS, COMPS };
 
 export default function VoiceCloningTraining() {
   return <TrainingShell sections={SECTIONS} sectionComponents={COMPS} moduleTitle="Voice Cloning" topOffset={48} />;

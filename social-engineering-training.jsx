@@ -692,6 +692,8 @@ const LabSection = () => {
 
 const COMPS = [IntroSection, PsychologySection, HumanTargetsSection, AITargetsSection, CallCenterSection, CombinedSection, DefenseSection, LabSection];
 
+export { SECTIONS, COMPS };
+
 export default function SocialEngineeringTraining() {
   return <TrainingShell sections={SECTIONS} sectionComponents={COMPS} moduleTitle="Social Engineering" topOffset={48} />;
 }
