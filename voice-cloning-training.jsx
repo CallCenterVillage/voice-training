@@ -706,6 +706,7 @@ const ToolComparison = ({ tools }) => {
                 {g.steps && <ol style={{ margin: 0, paddingLeft: 20, fontSize: 13, color: C.muted, lineHeight: 1.8 }}>
                   {g.steps.map((s, si) => <li key={si}>{inlineCode(s)}</li>)}
                 </ol>}
+                {g.note && <div style={{ marginTop: 8, fontSize: 12, color: C.dim, fontStyle: "italic", lineHeight: 1.7 }}>{g.note}</div>}
               </div>
             ))}
           </div>
@@ -928,7 +929,7 @@ const TraditionalSection = () => {
     <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Non-AI Voice Modification</h2>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 12 }}>Long before AI voice cloning, traditional audio tools could alter pitch, tone, and timbre characteristics. These techniques are well-understood and leave detectable signatures — but they're fast, accessible, widely used, and can still be combined with newer AI tools.</p>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 8 }}>We're representing the voice modification pipeline here as six steps, but real-world chains can be longer or shorter depending on the goal. Only <span style={{ fontStyle: "italic" }}>Input</span> and <span style={{ fontStyle: "italic" }}>Output</span> are required — <span style={{ fontStyle: "italic" }}>EQ/Filter</span>, <span style={{ fontStyle: "italic" }}>Pitch Shift</span>, <span style={{ fontStyle: "italic" }}>Formant</span>, and <span style={{ fontStyle: "italic" }}>FX Chain</span> are all optional stages you can mix and match to manipulate the audio.</p>
-    <div style={{ borderLeft: `3px solid ${C.secondary}`, paddingLeft: 16, margin: "12px 0", fontStyle: "italic", color: C.dim, fontSize: 13, lineHeight: 1.7 }}>"This is my audio-toolkit. There are many like it, but this one is mine."<br />"My audio-toolkit is my best friend. It is my life. I must master it as I must master my life."<br />"Without me, my audio-toolkit is useless."<br />"Without my audio-toolkit, I am useless."<br />— <a href="https://en.wikipedia.org/wiki/Soundwave_(Transformers)" target="_blank" rel="noopener noreferrer" style={{ color: C.dim, textDecoration: "underline" }}>Soundwave</a>, probably</div>
+    <div style={{ borderLeft: `3px solid ${C.secondary}`, paddingLeft: 16, margin: "12px 0", fontStyle: "italic", color: C.dim, fontSize: 13, lineHeight: 1.7 }}>"This is my audio-toolkit. There are many like it, but this one is mine."<br />"My audio-toolkit is my best friend. It is my life."<br />"I must master it as I must master my life."<br />"Without me, my audio-toolkit is useless."<br />"Without my audio-toolkit, I am useless."<br />— <a href="https://en.wikipedia.org/wiki/Soundwave_(Transformers)" target="_blank" rel="noopener noreferrer" style={{ color: C.dim, textDecoration: "underline" }}>Soundwave</a>, probably</div>
     <p style={{ color: C.secondary, lineHeight: 1.7, marginBottom: 24, fontSize: 13 }}>Click each step below to see common tools for that stage. All tools referenced are already preinstalled.</p>
     <PipelineDiagram activeStep={activeStep} onStepClick={i => setActiveStep(i)} steps={[{ icon: "microphone", label: "Input" }, { icon: "chart-bar", label: "EQ/Filter" }, { icon: "arrow-path", label: "Pitch Shift" }, { icon: "scale", label: "Formant" }, { icon: "speaker-wave", label: "FX Chain" }, { icon: "headphones", label: "Output" }]} />
     <p style={{ color: C.accent, fontSize: 14, lineHeight: 1.7, marginBottom: 12 }}>{[
@@ -961,7 +962,7 @@ const TraditionalSection = () => {
       ],
       // Step 2: Pitch Shift
       [
-        { name: "SoX", desc: "Quick pitch shifts in cents. Simple but no formant preservation.", pros: ["Blazing fast", "Scriptable", "Simple syntax"], cons: ["No formant control", "Artifacts at extremes"], install: `# Shift pitch up 300 cents (3 semitones)\nsox input.wav output.wav pitch 300\n\n# Shift pitch down 500 cents\nsox input.wav output.wav pitch -500\n\n# Speed-based pitch (changes duration too)\nsox input.wav output.wav speed 1.2` },
+        { name: "SoX", desc: "Quick pitch shifts in cents (1/100th of a semitone). Simple but no formant preservation.", pros: ["Blazing fast", "Scriptable", "Simple syntax"], cons: ["No formant control", "Artifacts at extremes"], install: `# Shift pitch up 300 cents (3 semitones)\nsox input.wav output.wav pitch 300\n\n# Shift pitch down 500 cents\nsox input.wav output.wav pitch -500\n\n# Speed-based pitch (changes duration too)\nsox input.wav output.wav speed 1.2` },
         { name: "RubberBand", desc: "High-quality pitch shifting that preserves timing.", pros: ["Best quality", "Preserves duration", "Real-time capable"], cons: ["Pitch/time only"], install: `# Preinstalled on Call Center Village laptops\n# sudo apt install rubberband-cli\n\n# Shift up 2 semitones (preserves duration)\nrubberband -p 2 input.wav output.wav\n\n# Shift down 3 semitones\nrubberband -p -3 input.wav output.wav` },
         { name: "FFmpeg", desc: "Pitch shifting via the RubberBand filter or asetrate.", pros: ["Integrates with pipelines", "Multiple methods"], cons: ["Verbose syntax"], install: `# RubberBand pitch shift via FFmpeg\nffmpeg -i input.wav -af "rubberband=pitch=1.2" output.wav\n\n# Crude pitch shift (changes speed too)\nffmpeg -i input.wav -af "asetrate=48000*1.25,aresample=48000" output.wav` },
       ],
@@ -969,7 +970,7 @@ const TraditionalSection = () => {
       [
         { name: "Praat", desc: "The gold standard for formant analysis and manipulation.", pros: ["Precise formant control", "Scientific accuracy", "Scripting"], cons: ["Dated UI", "Learning curve"], install: `# Preinstalled on Call Center Village laptops\n# sudo apt install praat\n\n# Praat script: shift formants\nRead from file: "input.wav"\nTo Manipulation: 0.01, 75, 600\nExtract formant grid\nFormula (frequencies): "self * 1.2"\nReplace formant grid\nGet resynthesis (overlap-add)\n\nSave as WAV file: "output.wav"` },
         { name: "Audacity + Praat", desc: "Visualize in Audacity, manipulate formants in Praat.", pros: ["Visual + precise", "Best of both"], cons: ["Two-tool workflow"], guide: [
-          { heading: "Analyze in Audacity", action: "File → Open → `~/callcentervillage/voice-cloning/input.wav`", steps: ["Analyze → Plot Spectrum → identify formant peaks (F1, F2, F3, F4)"] },
+          { heading: "Analyze in Audacity", action: "File → Open → `~/callcentervillage/voice-cloning/input.wav`", steps: ["Analyze → Plot Spectrum (set Algorithm to Spectrum, Size to 2048 or higher)", "Look for prominent peaks in the curve — these are your formant frequencies"], note: <>Typical formant ranges: <strong>F1</strong> ≈ 300–900 Hz, <strong>F2</strong> ≈ 1000–2500 Hz, <strong>F3</strong> ≈ 2500–3500 Hz</> },
           { heading: "Manipulate in Praat", steps: ["Export audio to Praat for formant manipulation", "Re-import result to Audacity to verify"] },
           { heading: "Save your result", action: "File → Export Audio → save to `~/callcentervillage/voice-cloning/`" },
         ], guideLabel: "Audacity + Praat" },
@@ -977,11 +978,11 @@ const TraditionalSection = () => {
       ],
       // Step 4: FX Chain
       [
-        { name: "SoX", desc: "Chain multiple effects: reverb, compression, distortion.", pros: ["All-in-one chains", "Scriptable", "Fast"], cons: ["CLI only"], install: `# Reverb + compression + EQ chain\nsox input.wav output.wav \\\n  reverb 50 \\\n  compand 0.3,1 6:-70,-60,-20 -5 -90 0.2 \\\n  equalizer 300 2q -8 equalizer 3000 1q 6\n\n# Telephone effect\nsox input.wav output.wav highpass 300 lowpass 3400 compand 0.3,1 6:-70,-60,-20 -5 -90 0.2` },
+        { name: "SoX", desc: "Chain multiple effects: reverb, compression, distortion.", pros: ["All-in-one chains", "Scriptable", "Fast"], cons: ["CLI only"], install: `# Reverb + compression + EQ chain\nsox input.wav output.wav \\\n  gain -6 \\\n  reverb 50 \\\n  compand 0.3,1 6:-70,-60,-20 -5 -90 0.2 \\\n  equalizer 300 2q -8 equalizer 3000 1q 6 \\\n  gain -n -1\n\n# Telephone effect\nsox input.wav output.wav \\\n  gain -6 \\\n  highpass 300 lowpass 3400 \\\n  compand 0.3,1 6:-70,-60,-20 -5 -90 0.2 \\\n  gain -n -1` },
         { name: "FFmpeg", desc: "Complex filter graphs for layered effects processing.", pros: ["Filter chaining", "Parallel processing", "Any format"], cons: ["Verbose", "Hard to debug"], install: `# Chorus + vibrato chain\nffmpeg -i input.wav -af "vibrato=f=8:d=0.5,chorus=0.5:0.9:50:0.4:0.25:2" output.wav\n\n# Tremolo + bandpass\nffmpeg -i input.wav -af "tremolo=f=5:d=0.6,highpass=f=300,lowpass=f=3400" output.wav` },
         { name: "Audacity", desc: "Preview and stack effects with real-time playback.", pros: ["Real-time preview", "Effect stacking", "Visual feedback"], cons: ["GUI only", "No batch"], guide: [
           { heading: "Open your file", action: "File → Open → `~/callcentervillage/voice-cloning/input.wav`" },
-          { heading: "Stack effects", steps: ["Effect → Reverb → adjust Room Size, Dampening", "Effect → Compressor → set threshold, ratio", "Effect → Distortion → choose type, amount", "Chain via Effect → Repeat Last Effect (Ctrl+R)"] },
+          { heading: "Stack effects", steps: ["Effect → Delay and Reverb → Reverb → adjust Room Size, Dampening", "Effect → Volume and Compression → Compressor → set threshold, ratio", "Effect → Distortion and Modulation → Distortion → choose type, amount", "Chain via Effect → Repeat Last Effect (Ctrl+R)"] },
           { heading: "Save your result", action: "File → Export Audio → save to `~/callcentervillage/voice-cloning/`" },
         ] },
       ],
@@ -991,7 +992,7 @@ const TraditionalSection = () => {
         { name: "FFmpeg", desc: "Export to any format with precise codec control.", pros: ["Any codec", "Metadata control", "Streaming formats"], cons: ["Many options to learn"], install: `# Export as high-quality MP3\nffmpeg -i input.wav -codec:a libmp3lame -qscale:a 2 output.mp3\n\n# Export as Opus (small, high quality)\nffmpeg -i input.wav -codec:a libopus -b:a 128k output.opus\n\n# Normalize volume\nffmpeg -i input.wav -af "loudnorm=I=-16:LRA=11:TP=-1" output.wav` },
         { name: "Audacity", desc: "Final review with visual waveform before export.", pros: ["Visual verification", "Multiple export formats", "Metadata editor"], cons: ["GUI only"], guide: [
           { heading: "Open your file", action: "File → Open → `~/callcentervillage/voice-cloning/input.wav`" },
-          { heading: "Review and normalize", steps: ["Effect → Normalize → set peak level", "View → Show Clipping (check for distortion)"] },
+          { heading: "Review and normalize", steps: ["Effect → Volume and Compression → Normalize", "View → Show Clipping (check for distortion)"] },
           { heading: "Export final audio", steps: ["File → Export Audio → save to `~/callcentervillage/voice-cloning/`", "File → Export Multiple (batch from labels)"] },
         ] },
       ],
