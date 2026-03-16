@@ -110,8 +110,8 @@ const IntroSection = () => (
     </div>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginBottom: 32 }}>
       {[
-        { label: "Duration", value: "~50 min", icon: "clock" },
-        { label: "Difficulty", value: "Intermediate", icon: "trending-up" },
+        { label: "Duration", value: "~30 min", icon: "clock" },
+        { label: "Difficulty", value: "Beginner Friendly", icon: "trending-up" },
         { label: "Prerequisites", value: "Basic security awareness", icon: "clipboard" },
       ].map((item, i) => (
         <div key={i} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "24px 16px", textAlign: "center" }}>
@@ -137,12 +137,30 @@ const IntroSection = () => (
         </div>
       </div>
     </div>
-    <div style={{ background: `${C.tertiary}15`, borderRadius: 12, padding: 20, border: `1px solid ${C.tertiary}44` }}>
-      <div style={{ fontSize: 15, color: C.tertiary, fontWeight: 700, marginBottom: 8 }}><Icon name="warning" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />ETHICAL NOTICE</div>
-      <div style={{ fontSize: 15, color: C.muted, lineHeight: 1.7 }}>
-        This training is for <strong style={{ color: C.text }}>authorized security testing only</strong>.
-        Social engineering without authorization is illegal and unethical. The techniques taught here should
-        only be used in sanctioned red team exercises, security assessments, or educational settings with informed consent.
+    <div style={{ borderRadius: 12, border: `1px solid ${C.tertiary}44`, overflow: "hidden" }}>
+      <div style={{ background: `${C.tertiary}25`, padding: 20 }}>
+        <div style={{ fontSize: 15, color: C.tertiary, fontWeight: 700, marginBottom: 8 }}><Icon name="warning" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />ETHICAL NOTICE</div>
+        <div style={{ fontSize: 15, color: C.muted, lineHeight: 1.7 }}>This training is for <strong style={{ color: C.text }}>authorized security testing only</strong>. Social engineering without authorization is illegal and unethical. The techniques taught here should only be used in sanctioned red team exercises, security assessments, or educational settings with informed consent.</div>
+      </div>
+      <div style={{ background: `${C.tertiary}10`, borderTop: `1px solid ${C.tertiary}44`, padding: 20 }}>
+        <div style={{ fontSize: 13, color: C.dim, fontWeight: 600, marginBottom: 8, textTransform: "uppercase", letterSpacing: 0.5 }}><Icon name="book-open" size={14} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Further Reading</div>
+        <ol style={{ margin: 0, padding: 0, paddingLeft: 24, display: "flex", flexDirection: "column", gap: 6, color: C.dim }}>
+          {[
+            { href: "https://attack.mitre.org/techniques/T1598/", label: "MITRE ATT&CK — Phishing for Information" },
+            { href: "https://en.wikipedia.org/wiki/Social_engineering_(security)", label: "Wikipedia — Social Engineering (Security)" },
+            { href: "https://www.ftc.gov/news-events/topics/identity-theft/phishing-scams", label: "FTC — Phishing Scams and Prevention" },
+            { href: "https://www.cisa.gov/secure-our-world/recognize-and-report-phishing", label: "CISA — Recognize and Report Phishing" },
+            { href: "https://csrc.nist.gov/glossary/term/social_engineering", label: "NIST — Social Engineering Definition and Resources" },
+            { href: "https://www.ncsl.org/technology-and-communication/computer-crime-statutes", label: "NCSL — Computer Crime Statutes by State" },
+          ].map((link, i) => (
+            <li key={i}>
+              <a href={link.href} target="_blank" rel="noopener noreferrer" style={{ fontSize: 14, color: C.accent, textDecoration: "none", lineHeight: 1.6 }}
+                onMouseEnter={e => e.target.style.textDecoration = "underline"}
+                onMouseLeave={e => e.target.style.textDecoration = "none"}
+              ><Icon name="arrow-top-right-on-square" size={12} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 5 }} />{link.label}</a>
+            </li>
+          ))}
+        </ol>
       </div>
     </div>
   </div>
