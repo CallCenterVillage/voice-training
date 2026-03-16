@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from "react";
-import { C, CodeBlock, InteractiveCard, QuizBank, TrainingShell, Icon } from './src/components';
+import { C, CodeBlock, InteractiveCard, QuizBank, TrainingShell, Icon, InfoBox } from './src/components';
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 
 const SECTIONS = [
@@ -12,6 +12,32 @@ const SECTIONS = [
   { id: "defense", title: "Detection & Defense", icon: "shield" },
   { id: "lab", title: "Interactive Lab", icon: "beaker" },
 ];
+
+const ArtifactLightbox = ({ sign, desc, renderViz }) => {
+  const [hovered, setHovered] = useState(false);
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <div
+        onClick={() => setOpen(true)}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{ background: "#06040c", padding: 14, borderRadius: 8, cursor: "pointer", border: `1px solid ${hovered ? C.tertiary : "transparent"}`, transition: "border-color 0.2s ease" }}
+      >
+        <div style={{ color: C.tertiary, fontWeight: 700, fontSize: 13, marginBottom: 2 }}>{sign}</div>
+        <div style={{ fontSize: 12, color: C.dim, marginBottom: 10 }}>{desc}</div>
+        {renderViz(60)}
+      </div>
+      {open && (
+        <Lightbox onClose={() => setOpen(false)}>
+          <div style={{ fontSize: 20, color: C.tertiary, fontWeight: 700, marginBottom: 8 }}>{sign}</div>
+          <div style={{ fontSize: 14, color: C.muted, marginBottom: 16, lineHeight: 1.7 }}>{desc}</div>
+          {renderViz(180)}
+        </Lightbox>
+      )}
+    </>
+  );
+};
 
 const SectionDivider = () => <hr style={{ border: "none", borderTop: "1px solid #040208", margin: "48px 0" }} />;
 
@@ -729,7 +755,7 @@ const IntroSection = () => (
     </div>
     <div style={{ fontSize: 17, color: C.muted, maxWidth: 540, lineHeight: 1.7, marginBottom: 32 }}>Learn how voices can be replicated, modified, and synthesized — from traditional audio engineering to cutting-edge AI.</div>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginBottom: 32 }}>
-      {[{ label: "Duration", value: "~25 min", icon: "clock" }, { label: "Difficulty", value: "Intermediate", icon: "trending-up" }, { label: "Prerequisites", value: "CLI & audio basics", icon: "clipboard" }].map((item, i) => (
+      {[{ label: "Duration", value: "~30 min", icon: "clock" }, { label: "Difficulty", value: "Intermediate", icon: "trending-up" }, { label: "Prerequisites", value: "CLI & audio basics", icon: "clipboard" }].map((item, i) => (
         <div key={i} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "24px 16px", textAlign: "center" }}>
           <div style={{ fontSize: 28, marginBottom: 6 }}><Icon name={item.icon} size={28} /></div>
           <div style={{ fontSize: 14, color: C.dim, fontWeight: 600, marginBottom: 4 }}>{item.label}</div>
@@ -930,6 +956,7 @@ const TraditionalSection = () => {
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 12 }}>Long before AI voice cloning, traditional audio tools could alter pitch, tone, and timbre characteristics. These techniques are well-understood and leave detectable signatures — but they're fast, accessible, widely used, and can still be combined with newer AI tools.</p>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 8 }}>We're representing the voice modification pipeline here as six steps, but real-world chains can be longer or shorter depending on the goal. Only <span style={{ fontStyle: "italic" }}>Input</span> and <span style={{ fontStyle: "italic" }}>Output</span> are required — <span style={{ fontStyle: "italic" }}>EQ/Filter</span>, <span style={{ fontStyle: "italic" }}>Pitch Shift</span>, <span style={{ fontStyle: "italic" }}>Formant</span>, and <span style={{ fontStyle: "italic" }}>FX Chain</span> are all optional stages you can mix and match to manipulate the audio.</p>
     <div style={{ borderLeft: `3px solid ${C.secondary}`, paddingLeft: 16, margin: "12px 0", fontStyle: "italic", color: C.dim, fontSize: 13, lineHeight: 1.7 }}>"This is my audio-toolkit. There are many like it, but this one is mine."<br />"My audio-toolkit is my best friend. It is my life."<br />"I must master it as I must master my life."<br />"Without me, my audio-toolkit is useless."<br />"Without my audio-toolkit, I am useless."<br />— <a href="https://en.wikipedia.org/wiki/Soundwave_(Transformers)" target="_blank" rel="noopener noreferrer" style={{ color: C.dim, textDecoration: "underline" }}>Soundwave</a>, probably</div>
+    <h3 style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8 }}>Example Tool Chains</h3>
     <p style={{ color: C.secondary, lineHeight: 1.7, marginBottom: 24, fontSize: 13 }}>Click each step below to see common tools for that stage. All tools referenced are already preinstalled.</p>
     <PipelineDiagram activeStep={activeStep} onStepClick={i => setActiveStep(i)} steps={[{ icon: "microphone", label: "Input" }, { icon: "chart-bar", label: "EQ/Filter" }, { icon: "arrow-path", label: "Pitch Shift" }, { icon: "scale", label: "Formant" }, { icon: "speaker-wave", label: "FX Chain" }, { icon: "headphones", label: "Output" }]} />
     <p style={{ color: C.accent, fontSize: 14, lineHeight: 1.7, marginBottom: 12 }}>{[
@@ -988,7 +1015,7 @@ const TraditionalSection = () => {
       ],
       // Step 5: Output
       [
-        { name: "SoX", desc: "Export, normalize, and format final audio.", pros: ["Normalize levels", "Format conversion", "Trim silence"], cons: ["CLI only"], install: `# Normalize to -1dB\nsox input.wav output.wav gain -n -1\n\n# Trim leading/trailing silence\nsox input.wav output.wav silence 1 0.1 1% reverse silence 1 0.1 1% reverse\n\n# Convert to specific format\nsox input.wav -r 16000 -c 1 -b 16 output.wav` },
+        { name: "SoX", desc: "Export, normalize, and format final audio.", pros: ["Normalize levels", "Format conversion", "Trim silence"], cons: ["CLI only"], install: `# Normalize to -1dB\nsox input.wav output.wav gain -n -1\n\n# Trim leading/trailing silence\nsox input.wav output.wav silence 1 0.1 1% reverse silence 1 0.1 1% reverse\n\n# Convert to 16kHz mono 16-bit PCM WAV\nsox input.wav -r 16000 -c 1 -b 16 output.wav` },
         { name: "FFmpeg", desc: "Export to any format with precise codec control.", pros: ["Any codec", "Metadata control", "Streaming formats"], cons: ["Many options to learn"], install: `# Export as high-quality MP3\nffmpeg -i input.wav -codec:a libmp3lame -qscale:a 2 output.mp3\n\n# Export as Opus (small, high quality)\nffmpeg -i input.wav -codec:a libopus -b:a 128k output.opus\n\n# Normalize volume\nffmpeg -i input.wav -af "loudnorm=I=-16:LRA=11:TP=-1" output.wav` },
         { name: "Audacity", desc: "Final review with visual waveform before export.", pros: ["Visual verification", "Multiple export formats", "Metadata editor"], cons: ["GUI only"], guide: [
           { heading: "Open your file", action: "File → Open → `~/callcentervillage/voice-cloning/input.wav`" },
@@ -998,60 +1025,422 @@ const TraditionalSection = () => {
       ],
     ][activeStep]} />
     <SectionDivider />
+    <h3 style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8 }}>Voice Disguise Recipes</h3>
+    <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 14 }}>Here are a few ready-made effect chains to try. You can also pipe tools together (e.g. FFmpeg into SoX) to chain different tools in a single command. Copy them into your terminal, swap in your own audio file, and experiment — tweak the values, stack them differently, or combine techniques. The best way to learn this stuff is to play around and hear what happens.</p>
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, color: C.text, fontSize: 15, fontWeight: 600 }}>
-        <Icon name="user-group" size={16} style={{ color: C.tertiary }} />Voice Disguise Recipes
+        <Icon name="beaker" size={16} style={{ color: C.tertiary }} />Try It Out
       </div>
       <div style={{ display: "grid", gap: 12, color: C.muted, fontSize: 14, lineHeight: 1.8 }}>
         {[
           { name: "Male → Female (rough)", cmd: "sox input.wav output.wav pitch 500 equalizer 250 2q -6 equalizer 4000 1q 5" },
+          { name: "Female → Male (rough)", cmd: "sox input.wav output.wav pitch -400 equalizer 200 2q 4 equalizer 3500 1q -5" },
           { name: "Robot / Anonymizer", cmd: 'ffmpeg -i input.wav -af "vibrato=f=8:d=0.5,chorus=0.5:0.9:50:0.4:0.25:2" output.wav' },
-          { name: "Phone Call Simulation", cmd: "sox input.wav output.wav highpass 300 lowpass 3400 compand 0.3,1 6:-70,-60,-20 -5 -90 0.2" },
+          { name: "Phone Call Simulation", cmd: "sox input.wav output.wav gain -6 highpass 300 lowpass 3400 compand 0.3,1 6:-70,-60,-20 -5 -90 0.2 gain -n -1" },
+          { name: "Whisper Effect", cmd: 'ffmpeg -i input.wav -af "highpass=f=500,lowpass=f=4000,volume=0.4,afftdn=nf=-20" output.wav' },
+          { name: "Underwater / Muffled", cmd: "sox input.wav output.wav lowpass 600 reverb 80 gain -n -1" },
+          { name: "Aged / Gravelly Voice", cmd: "sox input.wav output.wav pitch -200 overdrive 8 equalizer 800 2q 4 reverb 20 gain -n -1" },
+          { name: "Piped: Record → Pitch Shift → Telephone Effect", cmd: "sox input.wav -t wav - pitch 300 | sox -t wav - output.wav highpass 300 lowpass 3400 gain -n -1" },
+          { name: "Piped: Pitch Up → Reverb → Normalize", cmd: "sox input.wav -t wav - pitch 500 | sox -t wav - output.wav reverb 40 gain -n -1" },
+          { name: "Piped: FFmpeg Filter → SoX Post-Processing", cmd: 'ffmpeg -i input.wav -af "vibrato=f=6:d=0.3" -f s16le -ar 16000 -ac 1 - | sox -t raw -r 16000 -e signed -b 16 -c 1 - output.wav equalizer 3000 1q 4 gain -n -1' },
         ].map((r, i) => <div key={i} style={{ background: "#06040c", padding: 12, borderRadius: 8 }}><div style={{ color: C.tertiary, fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{r.name}</div><CodeBlock code={r.cmd} language="bash" /></div>)}
       </div>
     </div>
+    <SectionDivider />
     <QuizBank questions={[
-      { question: "Which technique changes pitch while preserving duration?", options: ["Speed change", "PSOLA / time-domain pitch shifting", "Lowpass filter", "Amplitude modulation"], correctIndex: 1, explanation: "PSOLA and RubberBand shift pitch independently of time. Speed changes alter both together." },
-      { question: "Which tool is BEST for batch processing 1000 audio files?", options: ["Audacity", "SoX", "Praat", "Ableton"], correctIndex: 1, explanation: "SoX is purpose-built for CLI audio processing — blazing fast and scriptable." },
+      { question: "Which tool shifts pitch while preserving the original duration?", options: ["SoX", "RubberBand", "FFmpeg", "Praat"], correctIndex: 1, explanation: "RubberBand uses time-stretching algorithms to shift pitch independently of duration. The SoX speed effect changes both pitch and duration together." },
+      { question: "Which tool is BEST for batch processing 1000 audio files?", options: ["Audacity", "SoX", "Praat", "RubberBand"], correctIndex: 1, explanation: "SoX is purpose-built for CLI audio processing — blazing fast and scriptable." },
       { question: "How does a telephone effect help disguise a voice?", options: ["Adds reverb", "Removes frequencies outside 300-3400Hz, destroying identifying harmonics", "Speeds up audio", "Adds masking noise"], correctIndex: 1, explanation: "PSTN bandwidth (300-3400Hz) removes chest resonance and sibilance — key voice identity features." },
     ]} />
   </div>);
 };
 
+const MelSpectrogramViz = () => {
+  const bands = 48;
+  const frames = 80;
+  // Magma-inspired colormap: black → deep purple → red-orange → yellow-white
+  const colormap = (v) => {
+    const clamp = Math.max(0, Math.min(1, v));
+    const stops = [
+      [0, 2, 4, 12], [12, 7, 40], [52, 10, 80], [110, 20, 100],
+      [160, 40, 90], [200, 60, 70], [230, 100, 50], [250, 170, 40],
+      [252, 230, 100], [252, 252, 200],
+    ];
+    const idx = clamp * (stops.length - 1);
+    const lo = Math.floor(idx), hi = Math.min(lo + 1, stops.length - 1);
+    const t = idx - lo;
+    const r = Math.round(stops[lo][0] + (stops[hi][0] - stops[lo][0]) * t);
+    const g = Math.round(stops[lo][1] + (stops[hi][1] - stops[lo][1]) * t);
+    const b = Math.round(stops[lo][2] + (stops[hi][2] - stops[lo][2]) * t);
+    return `rgb(${r},${g},${b})`;
+  };
+  // Seed a deterministic pseudo-random for consistent rendering
+  const seed = (x) => { let s = Math.sin(x * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); };
+  // Simulate speech: "Hello, this is your bank calling"
+  // Word boundaries (in frame positions): He-llo | this | is | your | bank | call-ing
+  const wordRegions = [[2,12],[14,22],[24,28],[30,38],[40,50],[52,62],[64,74]];
+  const isVoiced = (col) => wordRegions.some(([s, e]) => col >= s && col <= e);
+  const data = Array.from({ length: bands }, (_, row) =>
+    Array.from({ length: frames }, (_, col) => {
+      const freq = 1 - row / bands; // 0=top(high freq), 1=bottom(low freq)
+      if (!isVoiced(col)) return 0.02 + seed(row * 80 + col) * 0.04;
+      // Fundamental frequency and harmonics
+      const f0 = 0.85 + Math.sin(col * 0.15) * 0.03;
+      const harmonicSpacing = 0.08;
+      let energy = 0;
+      // Create harmonic bands (horizontal lines characteristic of voiced speech)
+      for (let h = 0; h < 8; h++) {
+        const hFreq = f0 - h * harmonicSpacing;
+        const dist = Math.abs(freq - hFreq);
+        const harmonicStrength = Math.exp(-h * 0.4) * Math.exp(-dist * dist * 800);
+        energy += harmonicStrength;
+      }
+      // Formant envelope: F1 (~500Hz), F2 (~1500Hz), F3 (~2500Hz)
+      const f1Center = 0.75 + Math.sin(col * 0.2) * 0.05;
+      const f2Center = 0.55 + Math.sin(col * 0.25 + 1) * 0.08;
+      const f3Center = 0.35 + Math.sin(col * 0.18 + 2) * 0.04;
+      const formantEnv =
+        0.9 * Math.exp(-((freq - f1Center) ** 2) * 30) +
+        0.6 * Math.exp(-((freq - f2Center) ** 2) * 40) +
+        0.3 * Math.exp(-((freq - f3Center) ** 2) * 50);
+      energy *= (0.3 + formantEnv * 0.7);
+      // High frequencies roll off
+      energy *= Math.exp(-Math.max(0, (1 - freq) - 0.5) * 3);
+      // Add slight noise texture
+      energy += seed(row * 80 + col) * 0.06;
+      // Onset/offset fade
+      const wordRegion = wordRegions.find(([s, e]) => col >= s && col <= e);
+      if (wordRegion) {
+        const [s, e] = wordRegion;
+        const onset = Math.min(1, (col - s) / 2);
+        const offset = Math.min(1, (e - col) / 2);
+        energy *= onset * offset;
+      }
+      return Math.min(1, energy * 1.2);
+    })
+  );
+  const cellW = 100 / frames;
+  const cellH = 100 / bands;
+  return (
+    <div>
+      <div style={{ display: "flex", gap: 8 }}>
+        <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", fontSize: 10, color: C.dim, paddingBottom: 18, textAlign: "right", minWidth: 36 }}>
+          <span>8 kHz</span><span>4 kHz</span><span>1 kHz</span><span>0 Hz</span>
+        </div>
+        <div style={{ flex: 1 }}>
+          <svg viewBox={`0 0 ${frames} ${bands}`} preserveAspectRatio="none" style={{ width: "100%", height: 180, display: "block", borderRadius: 4, border: `1px solid ${C.border}` }}>
+            {data.map((row, ri) => row.map((val, ci) => (
+              <rect key={`${ri}-${ci}`} x={ci} y={ri} width={1.1} height={1.1} fill={colormap(val)} />
+            )))}
+          </svg>
+          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: C.dim, marginTop: 2 }}>
+            <span>0s</span>
+            <div style={{ display: "flex", gap: 16, color: C.dim, fontSize: 9 }}>
+              <span>He-llo</span><span>this</span><span>is</span><span>your</span><span>bank</span><span>call-ing</span>
+            </div>
+            <span>~2s</span>
+          </div>
+        </div>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 10, justifyContent: "center" }}>
+        <span style={{ fontSize: 10, color: C.dim }}>Quiet</span>
+        <div style={{ width: 120, height: 8, borderRadius: 2, background: `linear-gradient(to right, ${colormap(0)}, ${colormap(0.2)}, ${colormap(0.4)}, ${colormap(0.6)}, ${colormap(0.8)}, ${colormap(1)})` }} />
+        <span style={{ fontSize: 10, color: C.dim }}>Loud</span>
+      </div>
+      <div style={{ fontSize: 11, color: C.dim, marginTop: 6, lineHeight: 1.5, textAlign: "center" }}>
+        Simulated mel spectrogram for "Hello, this is your bank calling" — horizontal bands are harmonics, bright regions are formants
+      </div>
+    </div>
+  );
+};
+
+const VocoderViz = () => {
+  const seed = (x) => { let s = Math.sin(x * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); };
+  // Waveform bars — mimic real speech: bursts of energy with gaps between syllables
+  const barCount = 60;
+  const waveBars = Array.from({ length: barCount }, (_, i) => {
+    const t = i / barCount;
+    const syllables = [[0.02, 0.12], [0.15, 0.28], [0.32, 0.42], [0.45, 0.58], [0.62, 0.78], [0.82, 0.95]];
+    let env = 0.03;
+    for (const [s, e] of syllables) {
+      if (t >= s && t <= e) {
+        const mid = (s + e) / 2;
+        const halfW = (e - s) / 2;
+        env = 0.85 * (1 - ((t - mid) / halfW) ** 2) + 0.05;
+        break;
+      }
+    }
+    return env * (0.6 + seed(i * 7) * 0.4);
+  });
+
+  const vocoders = [
+    { name: "HiFi-GAN", speed: 90, quality: 95, note: "Most widely used" },
+    { name: "WaveGlow", speed: 60, quality: 90, note: "Smooth output" },
+    { name: "WaveRNN", speed: 70, quality: 80, note: "Lightweight" },
+  ];
+
+  return (
+    <div>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 16 }}>
+        <div style={{ flex: 1, textAlign: "center" }}>
+          <div style={{ fontSize: 11, color: C.dim, marginBottom: 4, textTransform: "uppercase", letterSpacing: 1 }}>Spectrogram</div>
+          <img src="/images/melspec.png" alt="Spectrogram" style={{ width: "100%", height: 120, objectFit: "cover", objectPosition: "top", borderRadius: 4, border: `1px solid ${C.border}` }} />
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0, padding: "0 4px" }}>
+          <div style={{ background: `${C.primary}20`, border: `1px solid ${C.primary}44`, borderRadius: 8, padding: "6px 12px", fontSize: 11, color: C.accent, fontWeight: 700 }}>Vocoder</div>
+          <ArrowRightIcon style={{ width: 20, height: 20, color: C.accent, marginTop: 4 }} />
+        </div>
+        <div style={{ flex: 1, textAlign: "center" }}>
+          <div style={{ fontSize: 11, color: C.dim, marginBottom: 4, textTransform: "uppercase", letterSpacing: 1 }}>Waveform</div>
+          <div style={{ width: "100%", height: 120, borderRadius: 4, border: `1px solid ${C.border}`, background: "#08060f", display: "flex", alignItems: "center", justifyContent: "center", gap: 1, padding: "0 4px" }}>
+            {waveBars.map((v, i) => (
+              <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
+                <div style={{ width: "100%", height: Math.round(v * 50), borderRadius: 1, background: `${C.accent}${Math.round(60 + v * 40).toString(16)}` }} />
+                <div style={{ width: "100%", height: Math.round(v * 50), borderRadius: 1, background: `${C.accent}${Math.round(60 + v * 40).toString(16)}` }} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+        {vocoders.map((v, i) => (
+          <div key={i} style={{ background: "#06040c", border: `1px solid ${C.border}`, borderRadius: 8, padding: 12 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: C.text, marginBottom: 8 }}>{v.name}</div>
+            <div style={{ marginBottom: 6 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: C.dim, marginBottom: 2 }}><span>Speed</span><span>{v.speed}%</span></div>
+              <div style={{ height: 4, borderRadius: 2, background: C.border }}><div style={{ height: 4, borderRadius: 2, background: C.accent, width: `${v.speed}%` }} /></div>
+            </div>
+            <div style={{ marginBottom: 6 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: C.dim, marginBottom: 2 }}><span>Quality</span><span>{v.quality}%</span></div>
+              <div style={{ height: 4, borderRadius: 2, background: C.border }}><div style={{ height: 4, borderRadius: 2, background: C.secondary, width: `${v.quality}%` }} /></div>
+            </div>
+            <div style={{ fontSize: 11, color: C.dim, fontStyle: "italic" }}>{v.note}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{ fontSize: 11, color: C.dim, marginTop: 8, textAlign: "center" }}>You don't pick a vocoder yourself — it's built into the TTS tool (e.g. Coqui TTS uses HiFi-GAN automatically)</div>
+    </div>
+  );
+};
+
+const AI_FLOW_DETAILS = {
+  TTS: [
+    { title: "Text Input", detail: "Raw text is fed into the system. This can be anything — a script, a sentence, or even a single word.", example: '"Hello, this is your bank calling about your account."' },
+    { title: "Phoneme Conversion", detail: "Text is converted into phonemes — the distinct units of sound in a language. This step handles pronunciation, abbreviations, and numbers.", example: "HH AH L OW / DH IH S / IH Z / Y AO R / B AE NG K / K AO L IH NG ...", footnote: <>Most English TTS models use the <a href="https://en.wikipedia.org/wiki/ARPABET" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "underline" }}>ARPAbet phoneme</a> set.</> },
+    { title: "Voice Model", detail: "The neural network applies the cloned voice's characteristics — pitch, timbre, speaking style — to the phoneme sequence. Think of it like a voice filter: the phonemes say WHAT to speak, and the voice model says HOW to speak it — matching the target person's unique sound. This is the step where fine-tuned vs. zero-shot matters most.", example: "How the voice model learns the target voice:\n\nFine-tuned: The model is trained on 10-30 min of the\ntarget's audio over hours of GPU time. This bakes the\nvoice deeply into the model. Highest quality.\n\nZero-shot: A pre-trained speaker encoder extracts a\nvoice embedding from just 3-10 seconds of audio.\nNo training needed — a voicemail greeting is enough.\nFaster but lower quality.\n\nModel architectures:\n\nAutoregressive (Coqui TTS, Tortoise)\n  One frame at a time — high quality, slower\n\nDiffusion (Grad-TTS, NaturalSpeech)\n  Refines noise into speech — great quality\n\nNon-autoregressive (FastSpeech, StyleTTS2)\n  All frames in parallel — very fast" },
+    { title: "Mel Spectrogram", detail: "Most models output a mel spectrogram — a visual representation of the audio's frequency content over time. Think of it as a detailed blueprint for the sound. Each row is a frequency band (low at bottom, high at top) and each column is a moment in time. Brighter colors mean more energy at that frequency. Some newer models (VALL-E, Bark) use discrete audio tokens instead, and end-to-end models like VITS skip this step entirely and generate waveforms directly.", exampleComponent: "melspec" , exampleCaption: <><div>Spectrogram generated from a speech recording using SoX — horizontal bands are harmonics, bright regions show where vocal energy concentrates.</div><div style={{ marginTop: 4 }}>A true mel spectrogram compresses the upper frequencies to match human hearing perception.</div></> },
+    { title: "Vocoder", detail: "The previous step created a blueprint (the spectrogram) — but you can't play a blueprint through a speaker. The vocoder's job is to turn that blueprint into actual sound waves. Think of it like a 3D printer for audio: it takes the visual plan and builds the real thing, sample by sample, 22,050 times per second.", exampleComponent: "vocoder" },
+    { title: "Audio Output", detail: "The final waveform is saved as an audio file. At this point it sounds like the cloned voice speaking the input text. With fine-tuned models this takes minutes of generation time; with zero-shot, the entire process from reference clip to output can take under a minute.", exampleComponent: "tts-audio" },
+  ],
+  "Voice Conversion": [
+    { title: "Source Audio", detail: "You start with a recording of someone speaking — this could be your own voice, or any audio clip. The key thing is that the words, timing, rhythm, and emotion in this recording will all be preserved in the final output. Only the voice identity changes.", example: "Think of it like lip-syncing in reverse: you provide the\nperformance (what to say and how to say it), and the\nmodel swaps in a different voice.\n\nSource: You recording yourself saying\n\"I need to verify your account details.\"\n\nThe words, pacing, and emotion stay — only the voice changes." },
+    { title: "Feature Extraction", detail: "The system analyzes the source audio and pulls out everything about how the words are spoken — but strips away who is speaking. It separates the content (what was said) from the identity (who said it). This is the critical step that makes voice conversion possible.", example: "What gets extracted:\n\n• Pitch contour — the melody of the speech (rising for questions, etc.)\n• Phoneme timing — how long each sound lasts\n• Energy envelope — which words are louder/softer\n• Speaking rate — pauses, rhythm, speed\n\nWhat gets discarded:\n\n• Speaker identity (timbre, vocal tract shape)\n• Voice-specific resonance characteristics" },
+    { title: "Speaker Embedding", detail: "The target voice's identity is loaded in as a speaker embedding — the same kind of numerical vector we covered in the Speaker Embeddings section. This is where fine-tuned vs. zero-shot matters most for voice conversion.", example: "The embedding acts like a voice \"skin\" that gets\napplied to the extracted features:\n\nSource features (what to say + how to say it)\n  + Target embedding (whose voice to use)\n  = Instructions for the conversion model\n\nFine-tuned (RVC, so-vits-svc):\n  Built from 10-30 min of clean training audio\n  Hours of GPU training\n  Highest quality, near-perfect clones\n\nZero-shot (OpenVoice, FreeVC):\n  Extracted from just 3-10 seconds of audio\n  No training needed — a voicemail is enough\n  Lower quality but instant and dangerous" },
+    { title: "Conversion Model", detail: "The neural network takes the extracted features (content + style) and the target speaker embedding (identity) and generates a new spectrogram that sounds like the target speaker performing the source speech. This is where the actual voice swap happens.", example: "Different tools approach this differently:\n\nRVC — uses a retrieval-based approach, finding the\nclosest matching voice segments from training data\nand blending them. Very high quality, real-time capable.\n\nso-vits-svc — combines a variational autoencoder\nwith a vocoder for singing voice conversion.\n\nFreeVC — text-free approach that works without\ntranscription, making it language-agnostic." },
+    { title: "Vocoder", detail: "Just like in TTS, the vocoder converts the generated spectrogram into an actual audio waveform you can hear. Most voice conversion tools use HiFi-GAN for this step. The vocoder doesn't change the voice — it just turns the blueprint into playable sound.", exampleComponent: "vocoder" },
+    { title: "Target Audio", detail: "The final output sounds like the target speaker saying the exact same words, with the same emotion, timing, and rhythm as the original source recording. Only the voice identity has changed — everything else is preserved from the source.", example: "What stayed the same:\n• Words and pronunciation\n• Emotional tone and emphasis\n• Speaking speed and pauses\n• Rhythm and cadence\n\nWhat changed:\n• Voice identity (timbre, resonance, vocal texture)\n\nWith zero-shot, the full attack chain takes under\na minute — find a 5s clip, extract embedding,\nrecord yourself speaking, convert. With fine-tuned\nmodels like RVC, quality is near-perfect but\nrequires hours of preparation.\n\nThe result is convincing because all the natural\nvariations in human speech are preserved — only\nthe \"who\" has been swapped." },
+  ],
+};
+
 const AISection = () => {
   const [archIdx, setArchIdx] = useState(0);
+  const [flowStep, setFlowStep] = useState(0);
   const archs = [
-    { name: "TTS", desc: "Text-to-speech with cloned voice. Learns characteristics from samples, generates from any text.", flow: [{ icon: "document", label: "Text" }, { icon: "variable", label: "Phonemes" }, { icon: "cpu", label: "Voice Model" }, { icon: "chart-bar", label: "Mel Spec" }, { icon: "speaker-wave", label: "Vocoder" }, { icon: "headphones", label: "Audio" }], models: "XTTS, Bark, VALL-E, Tortoise, StyleTTS2" },
-    { name: "Voice Conversion", desc: "Converts one speaker's speech to sound like another, preserving words and emotion.", flow: [{ icon: "microphone", label: "Source" }, { icon: "chart-bar", label: "Features" }, { icon: "arrows-right-left", label: "Embed" }, { icon: "cpu", label: "Convert" }, { icon: "speaker-wave", label: "Vocoder" }, { icon: "headphones", label: "Target" }], models: "RVC, so-vits-svc, FreeVC, OpenVoice" },
-    { name: "Zero-Shot", desc: "Clone from seconds of audio — no fine-tuning. Generalizes from brief reference.", flow: [{ icon: "microphone", label: "3-10s" }, { icon: "fingerprint", label: "Encode" }, { icon: "document", label: "Input" }, { icon: "cpu", label: "Generate" }, { icon: "headphones", label: "Output" }], models: "XTTS v2, OpenVoice, VALL-E, MetaVoice" },
+    { name: "TTS", desc: "Text-to-speech with cloned voice. Learns characteristics from samples, generates from any text.", flow: [{ icon: "document", label: "Text" }, { icon: "variable", label: "Phonemes" }, { icon: "cpu", label: "Voice Model" }, { icon: "chart-bar", label: "Mel Spec" }, { icon: "speaker-wave", label: "Vocoder" }, { icon: "headphones", label: "Audio" }], tools: [
+      { name: "Coqui TTS", url: "https://github.com/coqui-ai/TTS", tag: "both" },
+      { name: "Bark", url: "https://github.com/suno-ai/bark", tag: "zero-shot" },
+      { name: "Tortoise", url: "https://github.com/neonbjb/tortoise-tts", tag: "fine-tuned" },
+      { name: "Piper", url: "https://github.com/OHF-Voice/piper1-gpl", tag: "fine-tuned" },
+      { name: "StyleTTS2", url: "https://github.com/yl4579/StyleTTS2", tag: "fine-tuned" },
+      { name: "MetaVoice", url: "https://github.com/metavoiceio/metavoice-src", tag: "zero-shot" },
+      { name: "Qwen3-TTS", url: "https://github.com/QwenLM/Qwen3-TTS", tag: "both" },
+    ] },
+    { name: "Voice Conversion", desc: "Converts one speaker's speech to sound like another, preserving words and emotion.", flow: [{ icon: "microphone", label: "Source" }, { icon: "chart-bar", label: "Features" }, { icon: "arrows-right-left", label: "Embed" }, { icon: "cpu", label: "Convert" }, { icon: "speaker-wave", label: "Vocoder" }, { icon: "headphones", label: "Target" }], tools: [
+      { name: "RVC", url: "https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI", tag: "fine-tuned" },
+      { name: "so-vits-svc", url: "https://github.com/svc-develop-team/so-vits-svc", tag: "fine-tuned" },
+      { name: "FreeVC", url: "https://github.com/OlaWod/FreeVC", tag: "zero-shot" },
+      { name: "OpenVoice", url: "https://github.com/myshell-ai/OpenVoice", tag: "zero-shot" },
+    ] },
   ];
+  const currentArch = archs[archIdx];
+  const flowDetails = AI_FLOW_DETAILS[currentArch.name];
+  const activeDetail = flowStep >= 0 && flowStep < flowDetails.length ? flowDetails[flowStep] : null;
   return (<div>
     <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>AI Voice Cloning</h2>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>Modern neural networks clone a voice from minutes — or seconds — of audio.</p>
-    <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
-      {archs.map((a, i) => <button key={i} onClick={() => setArchIdx(i)} style={{ flex: 1, background: i === archIdx ? `${C.primary}15` : C.card, border: `1px solid ${i === archIdx ? C.secondary : C.border}`, borderRadius: 10, padding: "12px 8px", color: i === archIdx ? C.accent : C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 700, textAlign: "center" }}>{a.name}</button>)}
+
+    <h3 style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8 }}>Non-AI Powered TTS</h3>
+    <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.7, marginBottom: 14 }}>Before AI-based TTS, rule-based synthesizers used formant models and pre-recorded phoneme snippets to generate speech. They sound robotic and can't clone voices, but they're lightweight, fast, and require no GPU or training data. These tools are useful as a baseline to compare against AI-generated speech.</p>
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        <div style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: 14 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>eSpeak NG</div>
+            <a href="https://github.com/espeak-ng/espeak-ng" target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: C.accent, textDecoration: "none" }}>GitHub ↗</a>
+          </div>
+          <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.6, marginBottom: 10 }}>Formant-based synthesizer supporting 100+ languages. Robotic but extremely fast and runs anywhere.</p>
+          <CodeBlock code={'# Preinstalled on Call Center Village laptops\n# sudo apt install espeak-ng\n\n# Generate speech to audio file\nespeak-ng "Hello, this is your bank calling" -w output.wav\n\n# Change voice/language (Spanish)\nespeak-ng -v es "Gracias" -w output.wav\n\n# List available voices\nespeak-ng --voices'} language="bash" />
+        </div>
+        <div style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: 14 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>Festival</div>
+            <a href="http://www.cstr.ed.ac.uk/projects/festival/" target="_blank" rel="noopener noreferrer" style={{ fontSize: 11, color: C.accent, textDecoration: "none" }}>Project Page ↗</a>
+          </div>
+          <p style={{ fontSize: 12, color: C.muted, lineHeight: 1.6, marginBottom: 10 }}>Unit-selection synthesizer from University of Edinburgh. Uses pre-recorded speech snippets stitched together — more natural than formant synthesis.</p>
+          <CodeBlock code={'# Preinstalled on Call Center Village laptops\n# sudo apt install festival\n\n# Save speech to audio file\necho "Hello, this is your bank calling" | text2wave > output.wav\n\n# Play speech interactively\n# Must be run in a GUI session\necho "Hello, this is your bank calling" | festival --tts'} language="bash" />
+        </div>
+      </div>
+      <p style={{ fontSize: 12, color: C.dim, lineHeight: 1.6, marginTop: 12, fontStyle: "italic" }}>Compare the output of these tools to the AI-generated TTS example later on this page — the difference in quality is what makes AI voice cloning such a powerful (and dangerous) technology.</p>
+    </div>
+
+    <SectionDivider />
+    <h3 style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8 }}>AI-Powered TTS and Voice Conversion</h3>
+    <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.7, marginBottom: 16 }}>Unlike the rule-based tools above, these use neural networks to generate human-sounding speech — and can clone specific voices.</p>
+    <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+      {archs.map((a, i) => <button key={i} onClick={() => { setArchIdx(i); setFlowStep(0); }} style={{ flex: 1, background: i === archIdx ? `${C.primary}15` : C.card, border: `1px solid ${i === archIdx ? C.secondary : C.border}`, borderRadius: 10, padding: "12px 8px", color: i === archIdx ? C.accent : C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 700, textAlign: "center" }}>{a.name}</button>)}
+    </div>
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: 16, marginBottom: 12 }}>
+      <div style={{ fontSize: 14, color: C.text, fontWeight: 600, marginBottom: 6 }}>{currentArch.name === "TTS" ? "How TTS Cloning Works" : "How Voice Conversion Differs from TTS"}</div>
+      <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, margin: "0 0 12px" }}>{
+        currentArch.name === "TTS"
+          ? "Text-to-speech cloning takes typed text and generates audio that sounds like a specific person. You provide the words, and the AI handles everything else — pronunciation, rhythm, and vocal style. The output is entirely AI-generated; there is no original human recording being modified."
+          : "Unlike TTS, voice conversion starts with an actual human recording. Instead of generating speech from text, it takes an existing recording and swaps the speaker's identity while keeping everything else intact — the words, emotion, pacing, and rhythm all stay exactly as they were. Think of it as a real-time voice filter: you speak naturally, and the output sounds like someone else said it. This makes it especially powerful because the natural human speech patterns (hesitations, emphasis, breathing) are preserved, which is much harder to detect as fake."
+      }</p>
+      <div style={{ fontSize: 13, color: C.text, fontWeight: 600, marginBottom: 6 }}>Fine-tuned vs. Zero-shot</div>
+      <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, margin: "0 0 10px" }}>{currentArch.name === "TTS"
+        ? "Both approaches use the same pipeline below, but differ in how the voice model learns the target voice:"
+        : "Both approaches use the same pipeline below, but differ in how the speaker embedding is created:"
+      }</p>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+        <div style={{ background: C.codeBg, borderRadius: 8, padding: 12, border: `1px solid ${C.border}` }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: C.accent, marginBottom: 4 }}>Fine-tuned</div>
+          <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.6 }}>Requires 10-30 min of clean audio and hours of GPU training. Produces the highest quality clones.</div>
+        </div>
+        <div style={{ background: C.codeBg, borderRadius: 8, padding: 12, border: `1px solid ${C.border}` }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: C.tertiary, marginBottom: 4 }}>Zero-shot</div>
+          <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.6 }}>Needs just 3-10 seconds of audio, no training at all. Lower quality, but fast and dangerous — a voicemail or YouTube clip is enough.</div>
+        </div>
+      </div>
+    </div>
+    <div style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: 14, marginBottom: 16 }}>
+      <div style={{ fontSize: 12, color: C.dim, textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>Example {currentArch.name} Tools</div>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 0, alignItems: "start" }}>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: 11, color: C.accent, fontWeight: 700, marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>Fine-tuned</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "center" }}>
+            {currentArch.tools.filter(t => t.tag === "fine-tuned").map((t, i) => (
+              <a key={i} href={t.url} target="_blank" rel="noopener noreferrer" style={{ background: `${C.primary}15`, border: `1px solid ${C.primary}33`, borderRadius: 6, padding: "4px 12px", fontSize: 13, color: C.accent, fontWeight: 600, textDecoration: "none", transition: "all 0.2s ease" }} onMouseEnter={e => { e.currentTarget.style.background = `${C.primary}30`; e.currentTarget.style.borderColor = C.accent; }} onMouseLeave={e => { e.currentTarget.style.background = `${C.primary}15`; e.currentTarget.style.borderColor = `${C.primary}33`; }}>{t.name} ↗</a>
+            ))}
+          </div>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "0 12px" }}>
+          <div style={{ fontSize: 11, color: C.dim, fontWeight: 700, marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>Both</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "center" }}>
+            {currentArch.tools.filter(t => t.tag === "both").map((t, i) => (
+              <a key={i} href={t.url} target="_blank" rel="noopener noreferrer" style={{ background: `${C.secondary}20`, border: `1px solid ${C.secondary}44`, borderRadius: 6, padding: "4px 12px", fontSize: 13, color: C.accent, fontWeight: 600, textDecoration: "none", transition: "all 0.2s ease" }} onMouseEnter={e => { e.currentTarget.style.background = `${C.secondary}40`; e.currentTarget.style.borderColor = C.accent; }} onMouseLeave={e => { e.currentTarget.style.background = `${C.secondary}20`; e.currentTarget.style.borderColor = `${C.secondary}44`; }}>{t.name} ↗</a>
+            ))}
+          </div>
+        </div>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: 11, color: C.tertiary, fontWeight: 700, marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>Zero-shot</div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "center" }}>
+            {currentArch.tools.filter(t => t.tag === "zero-shot").map((t, i) => (
+              <a key={i} href={t.url} target="_blank" rel="noopener noreferrer" style={{ background: `${C.tertiary}15`, border: `1px solid ${C.tertiary}33`, borderRadius: 6, padding: "4px 12px", fontSize: 13, color: C.tertiary, fontWeight: 600, textDecoration: "none", transition: "all 0.2s ease" }} onMouseEnter={e => { e.currentTarget.style.background = `${C.tertiary}30`; e.currentTarget.style.borderColor = C.tertiary; }} onMouseLeave={e => { e.currentTarget.style.background = `${C.tertiary}15`; e.currentTarget.style.borderColor = `${C.tertiary}33`; }}>{t.name} ↗</a>
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
     <div style={{ background: C.card, borderRadius: 12, padding: 20, border: `1px solid ${C.border}`, marginBottom: 20 }}>
-      <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 12 }}>{archs[archIdx].desc}</div>
-      <PipelineDiagram steps={archs[archIdx].flow} />
-      <div style={{ fontSize: 14, color: C.dim, marginTop: 8 }}><strong style={{ color: C.accent }}>Models:</strong> {archs[archIdx].models}</div>
+      <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 12 }}>{currentArch.desc}</div>
+      <p style={{ fontSize: 12, color: C.dim, marginBottom: 4 }}>Click a step to learn more:</p>
+      <PipelineDiagram steps={currentArch.flow} activeStep={flowStep} onStepClick={i => setFlowStep(flowStep === i ? -1 : i)} />
+      {activeDetail && activeDetail.exampleComponent !== "tts-audio" && (
+        <div style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16, marginTop: 8 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: C.accent, marginBottom: 6 }}>{activeDetail.title}</div>
+          <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 10 }}>{activeDetail.detail}</div>
+          <div style={{ background: `${C.primary}10`, border: `1px solid ${C.primary}33`, borderRadius: 6, padding: 10 }}>
+            <div style={{ fontSize: 11, color: C.dim, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Example</div>
+            {activeDetail.exampleComponent === "vocoder" ? <VocoderViz /> : activeDetail.exampleComponent === "melspec" ? <div>
+              <CodeBlock code={'# Generate a spectrogram from your audio file\n# SoX produces a linear spectrogram\n# similar to a mel spectrogram, but with an evenly spaced frequency axis\nsox input.wav -n spectrogram -o spectrogram.png\n\n# View the spectrogram in the terminal\nimg2txt spectrogram.png'} language="bash" />
+              <img src="/images/melspec.png" alt="Mel spectrogram of speech" style={{ width: "100%", borderRadius: 4, border: `1px solid ${C.border}`, marginTop: 10 }} />
+              {activeDetail.exampleCaption && <div style={{ fontSize: 11, color: C.dim, marginTop: 6, lineHeight: 1.5, textAlign: "center" }}>{activeDetail.exampleCaption}</div>}
+            </div> : <div style={{ fontSize: 13, color: C.text, fontFamily: "'JetBrains Mono', 'Fira Code', monospace", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{activeDetail.example}</div>}
+          </div>
+          {activeDetail.footnote && <div style={{ marginTop: 10, fontSize: 12, color: C.dim, lineHeight: 1.6 }}>{activeDetail.footnote}</div>}
+        </div>
+      )}
+      {activeDetail && activeDetail.exampleComponent === "tts-audio" && <>
+        <div style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16, marginTop: 8 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: C.accent, marginBottom: 6 }}>AI-generated TTS</div>
+          <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 10 }}>{activeDetail.detail}</div>
+          <div style={{ fontSize: 13, color: C.muted, fontStyle: "italic", marginBottom: 10 }}>"Hello, this is your bank calling about your account."</div>
+          <audio controls style={{ width: "100%" }} src="/audio/tts-example.mp3" />
+        </div>
+        <div style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16, marginTop: 10 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: C.accent, marginBottom: 6 }}>eSpeak NG (non-AI)</div>
+          <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 10 }}>Same phrase generated by a rule-based synthesizer for comparison.</div>
+          <audio controls style={{ width: "100%" }} src="/audio/espeak-compare.wav" />
+        </div>
+      </>}
     </div>
-    <InteractiveCard title={<><Icon name="chart-bar" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Quality vs. Effort</>}>
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
-        <thead><tr style={{ borderBottom: `1px solid ${C.border}` }}>{["Method", "Audio", "Compute", "Quality", "RT?"].map(h => <th key={h} style={{ padding: 8, textAlign: "left", color: C.accent, fontWeight: 700 }}>{h}</th>)}</tr></thead>
-        <tbody>{[["Zero-shot TTS", "3-10s", "Medium", 3, "Sometimes"], ["Fine-tuned TTS", "5-30min", "High", 4, "No"], ["RVC", "10-30min", "High", 5, "Yes*"], ["Commercial", "10-30s", "None", 4, "Yes"]].map((row, i) => <tr key={i} style={{ borderBottom: "1px solid #06040c" }}>{row.map((cell, j) => <td key={j} style={{ padding: 8, color: j === 0 ? C.text : C.muted }}>{j === 3 ? Array.from({ length: cell }, (_, k) => <Icon key={k} name="star" size={14} style={{ display: "inline-block", color: C.accent }} />) : cell}</td>)}</tr>)}</tbody>
-      </table>
-    </InteractiveCard>
-    <InteractiveCard title={<><Icon name="fingerprint" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Speaker Embeddings</>}>
-      <p>A 256-512 dimension vector capturing what makes a voice unique — a mathematical fingerprint.</p>
-      <div style={{ margin: "12px 0", display: "flex", gap: 8, flexWrap: "wrap" }}>
-        {["Pitch Range", "Formants", "Breathiness", "Vibrato", "Pace", "Nasality", "...256+ dims"].map((d, i) => <span key={i} style={{ background: "#06040c", border: `1px solid ${C.border}`, borderRadius: 6, padding: "8px 12px", fontSize: 13, color: i === 6 ? C.dim : C.accent }}>{d}</span>)}
+    <SectionDivider />
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, marginBottom: 12, overflow: "hidden" }}>
+      <div style={{ padding: "16px 20px", fontSize: 15, fontWeight: 600, color: C.text, display: "flex", alignItems: "center" }}><Icon name="chart-bar" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Quality vs. Effort</div>
+      <div style={{ padding: "0 20px 20px", color: C.muted, fontSize: 14, lineHeight: 1.8 }}>
+        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+          <thead><tr style={{ borderBottom: `1px solid ${C.border}` }}>{["Method", "Audio", "Compute", "Quality", "Real-Time"].map(h => <th key={h} style={{ padding: 8, textAlign: "left", color: C.accent, fontWeight: 700 }}>{h}</th>)}</tr></thead>
+          <tbody>{[["eSpeak NG / Festival", "None", "None", 1, "Yes"], ["TTS (zero-shot)", "3-10s", "Medium", 3, "Sometimes"], ["TTS (fine-tuned)", "5-30min", "High", 4, "No"], ["VC (zero-shot)", "3-10s", "Medium", 3, "Yes"], ["VC (fine-tuned / RVC)", "10-30min", "High", 5, "Yes*"], ["Commercial API", "10-30s", "None", 4, "Yes"]].map((row, i) => <tr key={i} onMouseEnter={e => e.currentTarget.style.background = `${C.primary}10`} onMouseLeave={e => e.currentTarget.style.background = "transparent"} style={{ borderBottom: "1px solid #06040c", transition: "background 0.15s ease", cursor: "default" }}>{row.map((cell, j) => <td key={j} style={{ padding: 8, color: j === 0 ? C.text : C.muted }}>{j === 3 ? Array.from({ length: cell }, (_, k) => <Icon key={k} name="star" size={14} style={{ display: "inline-block", color: C.accent }} />) : cell}</td>)}</tr>)}</tbody>
+        </table>
       </div>
-    </InteractiveCard>
+    </div>
+    <SectionDivider />
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, marginBottom: 12, overflow: "hidden" }}>
+      <div style={{ padding: "16px 20px", fontSize: 15, fontWeight: 600, color: C.text, display: "flex", alignItems: "center" }}><Icon name="fingerprint" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Speaker Embeddings</div>
+      <div style={{ padding: "0 20px 20px", color: C.muted, fontSize: 14, lineHeight: 1.8 }}>
+        <p>A 256-512 dimension vector capturing what makes a voice unique — a mathematical fingerprint.</p>
+        <div style={{ margin: "12px 0", display: "flex", gap: 8, flexWrap: "wrap" }}>
+          {["Pitch Range", "Formants", "Breathiness", "Vibrato", "Pace", "Nasality", "...256+ dims"].map((d, i) => <span key={i} style={{ background: "#06040c", border: `1px solid ${C.border}`, borderRadius: 6, padding: "8px 12px", fontSize: 13, color: i === 6 ? C.dim : C.accent }}>{d}</span>)}
+        </div>
+        <div style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16, marginTop: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 8 }}>What does this actually look like?</div>
+          <p style={{ margin: "0 0 10px", fontSize: 13, lineHeight: 1.7 }}>A <strong style={{ color: C.text }}>dimension</strong> (dim) is a single measurement of a voice characteristic. A <strong style={{ color: C.text }}>vector</strong> is just a list of these measurements — like a row of numbers that together describe a voice.</p>
+          <p style={{ margin: "0 0 12px", fontSize: 13, lineHeight: 1.7 }}>Each dimension is a number (usually between -1 and 1) representing how much of that characteristic the voice has. For example:</p>
+          <div style={{ fontFamily: "'JetBrains Mono', 'Fira Code', monospace", fontSize: 13, lineHeight: 1.8, whiteSpace: "pre-wrap", color: C.text }}>
+            <div><span style={{ color: C.dim }}>dim 1 (pitch range):</span>  <span style={{ color: C.accent }}>0.72</span>  <span style={{ color: C.dim }}>← wide pitch variation</span></div>
+            <div><span style={{ color: C.dim }}>dim 2 (breathiness):</span>  <span style={{ color: C.accent }}>-0.15</span> <span style={{ color: C.dim }}>← not very breathy</span></div>
+            <div><span style={{ color: C.dim }}>dim 3 (nasality):</span>    <span style={{ color: C.accent }}>0.41</span>  <span style={{ color: C.dim }}>← somewhat nasal</span></div>
+            <div><span style={{ color: C.dim }}>dim 4 (pace):</span>        <span style={{ color: C.accent }}>-0.63</span> <span style={{ color: C.dim }}>← slower speaker</span></div>
+            <div><span style={{ color: C.dim }}>...256 more dimensions</span></div>
+          </div>
+          <p style={{ margin: "12px 0 0", fontSize: 13, lineHeight: 1.7 }}>The full vector — all 256+ numbers together — is the voice's unique fingerprint. In code, it's just an array of numbers:</p>
+          <div style={{ background: `${C.primary}10`, border: `1px solid ${C.primary}33`, borderRadius: 6, padding: 10, marginTop: 8, fontFamily: "'JetBrains Mono', 'Fira Code', monospace", fontSize: 12, lineHeight: 1.6, color: C.text, whiteSpace: "pre-wrap" }}>
+            <span style={{ color: C.dim }}>// Speaker embedding for "Patrick's voice"</span>{"\n"}
+            <span style={{ color: C.accent }}>speaker_vector</span> = [{"\n"}
+            {"  "}<span style={{ color: C.text }}>0.72, -0.15, 0.41, -0.63, 0.28, 0.89, -0.44, 0.17,</span>{"\n"}
+            {"  "}<span style={{ color: C.text }}>0.55, -0.31, 0.08, 0.93, -0.72, 0.36, -0.19, 0.61,</span>{"\n"}
+            {"  "}<span style={{ color: C.dim }}>...  // additional dimensions</span>{"\n"}
+            {"  "}<span style={{ color: C.text }}>0.47, -0.05, 0.33, -0.28, 0.14, 0.82, -0.51, 0.69</span>{"\n"}
+            ]
+          </div>
+          <p style={{ margin: "10px 0 0", fontSize: 13, lineHeight: 1.7 }}>Two voices with similar vectors will sound alike. The AI compares and manipulates these vectors to clone a voice.</p>
+          <p style={{ margin: "10px 0 0", fontSize: 12, color: C.dim, lineHeight: 1.7 }}>The number of dimensions (256, 512, etc.) is a design choice by the model's creators — not a fixed rule. More dimensions can capture finer details but cost more compute. 256 is common because it's proven to be "enough" for most voice cloning tasks. Also, the individual dimensions don't map neatly to concepts like "breathiness" or "pitch" — the model learns its own abstract representations during training. The labels above are simplified for illustration.</p>
+        </div>
+        <div style={{ marginTop: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: C.text, display: "flex", alignItems: "center", marginBottom: 8 }}>
+            <Icon name="magnifying-glass" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Vector Databases & Voice Lookup
+          </div>
+          <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 8 }}>These dimensions can be stored and searched in vector databases, which find similar voices by comparing the mathematical distance between embeddings. This is how systems can take an unknown voice and quickly match it against thousands of known voiceprints.</p>
+          <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.7 }}>To learn more about how this works, see <a href="https://en.wikipedia.org/wiki/Nearest_neighbor_search" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "underline" }}>nearest neighbor search</a> and <a href="https://en.wikipedia.org/wiki/Vector_database" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "underline" }}>vector databases</a>.</p>
+        </div>
+      </div>
+    </div>
+    <SectionDivider />
     <QuizBank questions={[
-      { question: "Which produces the highest quality voice clone?", options: ["Zero-shot from 5s", "RVC fine-tuned on 20min clean audio", "Pitch shifting with SoX", "Commercial API with 10s"], correctIndex: 1, explanation: "RVC fine-tuned on sufficient clean data produces the highest quality and can even run in real-time." },
+      { question: "Which produces the highest quality voice clone?", options: ["Zero-shot from 5s", "RVC fine-tuned on 20min clean audio", "Pitch shifting with SoX", "Commercial API with 10s"], correctIndex: 1, explanation: "RVC fine-tuned on sufficient clean data produces the highest quality clone." },
       { question: "What is a speaker embedding?", options: ["A hidden microphone", "A numerical vector of unique voice characteristics", "An audio format", "A steganography technique"], correctIndex: 1, explanation: "Speaker embeddings are high-dimensional vectors that mathematically represent what makes a voice unique." },
       { question: "Why is zero-shot cloning considered the biggest threat to phone security?", options: ["It produces perfect quality", "It requires no training and works from a brief voicemail or public clip", "It's undetectable", "It's free"], correctIndex: 1, explanation: "Zero-shot cloning needs just seconds of audio — a voicemail greeting, a YouTube clip, or a conference recording. No training, no GPU, minimal effort." },
+      { question: "What is the main limitation of non-AI TTS tools like eSpeak NG and Festival?", options: ["They can't generate speech from text", "They produce robotic-sounding speech and can't clone voices", "They require a GPU to run", "They only support English"], correctIndex: 1, explanation: "Rule-based synthesizers like eSpeak NG and Festival generate speech using formant models or pre-recorded snippets — fast and lightweight, but they sound robotic and have no ability to mimic a specific person's voice." },
     ]} />
   </div>);
 };
@@ -1060,50 +1449,128 @@ const LocalToolsSection = () => (<div>
   <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Local AI Tools</h2>
   <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>Run everything locally — no cloud, no API keys, no data leaving your machine.</p>
   <ToolComparison tools={[
-    { name: "XTTS", desc: "Open-source TTS with zero-shot cloning. 16+ languages.", pros: ["Zero-shot", "Multi-language", "Fine-tunable"], cons: ["Coqui shut down (community forks active)", "GPU recommended"], install: `pip install coqui-tts\ntts --model_name tts_models/multilingual/multi-dataset/xtts_v2 \\\n    --speaker_wav sample.wav --language_idx en \\\n    --text "Cloned voice output." --out_path output.wav` },
-    { name: "RVC", desc: "Voice conversion. Real-time on consumer GPUs. Huge community.", pros: ["Best VC quality", "Real-time", "Large community"], cons: ["Complex setup", "GPU required"], install: `git clone https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI\npip install -r requirements.txt\npython infer-web.py` },
-    { name: "OpenVoice", desc: "Instant cloning with tone/emotion control. MIT license.", pros: ["Fast", "Emotion control", "Lightweight"], cons: ["Best quality in English", "Less natural"], install: `git clone https://github.com/myshell-ai/OpenVoice\ncd OpenVoice && pip install -e .` },
-    { name: "Piper", desc: "Neural TTS for edge devices. Runs on Raspberry Pi.", pros: ["Runs anywhere", "Super fast", "Many voices"], cons: ["Not zero-shot", "Training needed"], install: `pip install piper-tts\necho "Hello" | piper --model en_US-lessac-medium.onnx --output_file out.wav` },
+    { name: "Coqui TTS", desc: "Open-source TTS with zero-shot cloning via XTTS v2 model. 16+ languages.", pros: ["Zero-shot", "Multi-language", "Fine-tunable"], cons: ["Coqui shut down (community forks active)", "GPU recommended"], install: `# Preinstalled on Call Center Village laptops\n# pip install coqui-tts\n\ntts --model_name tts_models/multilingual/multi-dataset/xtts_v2 \\\n    --speaker_wav sample.wav --language_idx en \\\n    --text "Cloned voice output." --out_path output.wav` },
+    { name: "Piper TTS", desc: "Neural TTS for edge devices. Runs on Raspberry Pi.", pros: ["Runs anywhere", "Super fast", "Many voices"], cons: ["Not zero-shot", "Training needed"], install: `# Preinstalled on Call Center Village laptops\n# pip install piper-tts\n\necho "Hello" | piper --model en_US-lessac-medium.onnx --output_file out.wav` },
+    { name: "RVC", desc: "Voice conversion. Real-time on consumer GPUs. Huge community.", pros: ["Best VC quality", "Real-time", "Large community"], cons: ["Complex setup", "GPU required"], install: `# Preinstalled on Call Center Village laptops\n# git clone https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI\n# pip install -r requirements.txt\n\n# Launch the RVC web interface\npython infer-web.py\n\n# Open LibreWolf and navigate to the URL shown in the terminal\n# (typically http://localhost:7865)` },
+    { name: "OpenVoice", desc: "Instant cloning with tone/emotion control. MIT license.", pros: ["Fast", "Emotion control", "Lightweight"], cons: ["Best quality in English", "Less natural"], install: `# Preinstalled on Call Center Village laptops\n# git clone https://github.com/myshell-ai/OpenVoice\n# cd OpenVoice && pip install -e .\n\n# Clone a voice from a reference clip (zero-shot)\npython -m openvoice_cli single \\\n    -i input.wav \\\n    -r reference_voice.wav \\\n    -o output.wav\n\n# Batch process a folder of audio files\npython -m openvoice_cli batch \\\n    -id ./input_folder \\\n    -rf ./reference_voice.wav \\\n    -od ./output_folder` },
   ]} />
-  <div style={{ marginTop: 20 }}>
-    <InteractiveCard title={<><Icon name="bolt" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Clone a Voice in 5 Minutes</>}>
-      <CodeBlock language="bash" code={`pip install coqui-tts\nrec -r 44100 -c 1 sample.wav trim 0 20\ntts --model_name tts_models/multilingual/multi-dataset/xtts_v2 \\\n    --speaker_wav sample.wav --language_idx en \\\n    --text "I can say anything in this voice." \\\n    --out_path cloned.wav\naplay cloned.wav`} />
-    </InteractiveCard>
-    <InteractiveCard title={<><Icon name="wrench" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />whisper.cpp &amp; llama.cpp</>}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-        <div style={{ background: "#06040c", padding: 12, borderRadius: 8 }}><div style={{ color: C.accent, fontWeight: 700, fontSize: 14, marginBottom: 4 }}>whisper.cpp</div><div style={{ fontSize: 14 }}>Local STT. Transcribe calls, extract text for re-synthesis.</div></div>
-        <div style={{ background: "#06040c", padding: 12, borderRadius: 8 }}><div style={{ color: C.accent, fontWeight: 700, fontSize: 14, marginBottom: 4 }}>llama.cpp</div><div style={{ fontSize: 14 }}>Local LLM. Generate dialogue for the cloned voice.</div></div>
+  <SectionDivider />
+  <div>
+    <h3 style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8 }}>Clone a Voice in 5 Minutes</h3>
+    <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.7, marginBottom: 14 }}>Record a voice sample, feed it to Coqui TTS, and hear the clone. Read the script below to capture a wide range of phonemes and vocal characteristics in a single recording.</p>
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12 }}>
+      <div style={{ fontSize: 14, fontWeight: 700, color: C.accent, marginBottom: 8 }}>Recording Script</div>
+      <p style={{ fontSize: 12, color: C.dim, marginBottom: 8 }}>Read this aloud at a natural pace. It covers all major English phonemes, varied intonation, and different mouth shapes.</p>
+      <div style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: 20, fontSize: 17, color: C.text, lineHeight: 2, letterSpacing: 0.2 }}>
+        "The quick brown fox jumps gracefully over a lazy dog sleeping beneath the old oak tree. She sells thick, fresh seashells down by the shimmering seashore every Thursday morning. Would you kindly confirm your date of birth and the last four digits of your account number? I wasn't sure if the package arrived yesterday or if it's expected tomorrow — could you please check on that for me? Absolutely, I'd be happy to transfer you to our billing department right away. Thank you so much for your patience, and have a wonderful evening!"
       </div>
-    </InteractiveCard>
+    </div>
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12, marginTop: 24 }}>
+      <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 8 }}>Commands</div>
+      <CodeBlock language="bash" code={`# Preinstalled on Call Center Village laptops\n# pip install coqui-tts\n\n# Step 1: Record yourself reading the script above (~20 seconds)\n# You can also use Audacity: Record → File → Export Audio → save as sample.wav\nrec -r 44100 -c 1 sample.wav trim 0 20\n\n# Step 2: Generate a clone from your recording\ntts --model_name tts_models/multilingual/multi-dataset/xtts_v2 \\\n    --speaker_wav sample.wav --language_idx en \\\n    --text "I can say anything in this voice." \\\n    --out_path cloned.wav\n\n# Step 3: Listen to the result\naplay cloned.wav`} />
+    </div>
+    <SectionDivider />
+    <h3 style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8 }}>Supporting Tools: whisper.cpp & llama.cpp</h3>
+    <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.7, marginBottom: 14 }}>These tools complete the local voice attack pipeline. whisper.cpp handles speech-to-text (transcribing what someone says), and llama.cpp runs a local LLM to generate realistic dialogue for a cloned voice. Combined with a TTS or VC tool, you have a fully local pipeline with zero cloud dependency.</p>
+
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12 }}>
+      <div style={{ fontSize: 15, fontWeight: 700, color: C.accent, marginBottom: 6 }}>whisper.cpp</div>
+      <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 12 }}>Local speech-to-text powered by OpenAI's Whisper model, compiled to run efficiently on CPU. Transcribe audio files, extract text from recordings for re-synthesis, or analyze call recordings — all offline.</p>
+      <CodeBlock language="bash" code={`# whisper.cpp is installed at /opt/whisper.cpp\ncd /opt/whisper.cpp\n\n# Transcribe an audio file (using the tiny model for speed on i3)\n./build/bin/whisper-cli -m models/ggml-tiny.en.bin -f ~/callcentervillage/voice-cloning/input.wav\n\n# Transcribe with timestamps\n./build/bin/whisper-cli -m models/ggml-tiny.en.bin -f ~/callcentervillage/voice-cloning/input.wav -otxt\n\n# Output as SRT subtitles\n./build/bin/whisper-cli -m models/ggml-tiny.en.bin -f ~/callcentervillage/voice-cloning/input.wav -osrt\n\n# Use the small model for better accuracy (slower)\n./build/bin/whisper-cli -m models/ggml-small.en.bin -f ~/callcentervillage/voice-cloning/input.wav`} />
+      <p style={{ fontSize: 12, color: C.dim, marginTop: 10, marginBottom: 12, lineHeight: 1.6 }}>The <strong style={{ color: C.muted }}>tiny</strong> model is fastest and works well on low-powered hardware. Use <strong style={{ color: C.muted }}>small</strong> for better accuracy if you can wait a bit longer. Models ending in <strong style={{ color: C.muted }}>.en</strong> are English-only and slightly more accurate for English.</p>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <thead><tr style={{ borderBottom: `1px solid ${C.border}` }}>{["Model", "Size", "Memory", "Speed", "Accuracy"].map(h => <th key={h} style={{ padding: 8, textAlign: "left", color: C.accent, fontWeight: 700 }}>{h}</th>)}</tr></thead>
+        <tbody>{[
+          ["tiny / tiny.en", "75 MB", "~390 MB", "★★★★★", "★★☆☆☆"],
+          ["base / base.en", "142 MB", "~500 MB", "★★★★☆", "★★★☆☆"],
+          ["small / small.en", "466 MB", "~1.0 GB", "★★★☆☆", "★★★★☆"],
+          ["medium / medium.en", "1.5 GB", "~2.6 GB", "★★☆☆☆", "★★★★☆"],
+          ["large-v3", "2.9 GB", "~4.7 GB", "★☆☆☆☆", "★★★★★"],
+        ].map((row, i) => <tr key={i} onMouseEnter={e => e.currentTarget.style.background = `${C.primary}10`} onMouseLeave={e => e.currentTarget.style.background = "transparent"} style={{ borderBottom: "1px solid #06040c", transition: "background 0.15s ease" }}>{row.map((cell, j) => <td key={j} style={{ padding: 8, color: j === 0 ? C.text : C.muted }}>{cell}</td>)}</tr>)}</tbody>
+      </table>
+      <p style={{ fontSize: 11, color: C.dim, marginTop: 8 }}>For these laptops, <strong style={{ color: C.muted }}>tiny</strong> or <strong style={{ color: C.muted }}>base</strong> are recommended. See all available models at <a href="https://huggingface.co/ggerganov/whisper.cpp" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "underline" }}>huggingface.co/ggerganov/whisper.cpp</a>.</p>
+    </div>
+
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12, marginTop: 24 }}>
+      <div style={{ fontSize: 15, fontWeight: 700, color: C.accent, marginBottom: 6 }}>llama.cpp</div>
+      <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 12 }}>Run large language models locally on CPU. Generate realistic call scripts, social engineering dialogue, or conversational responses — all without sending data to the cloud. Perfect for generating text that a cloned voice can speak.</p>
+      <CodeBlock language="bash" code={`# llama.cpp is installed at /opt/llama.cpp\ncd /opt/llama.cpp\n\n# Generate a simple response (using a small quantized model for i3)\n./llama-cli -m models/tinyllama-1.1b-chat.Q4_K_M.gguf \\\n    -p "Write a short phone script where a bank employee asks a customer to verify their identity." \\\n    -n 150\n\n# Interactive chat mode\n./llama-cli -m models/tinyllama-1.1b-chat.Q4_K_M.gguf \\\n    --interactive \\\n    -p "You are a call center agent. Respond naturally to the customer."\n\n# Generate text and save to file (for feeding into TTS)\n./llama-cli -m models/tinyllama-1.1b-chat.Q4_K_M.gguf \\\n    -p "Write a convincing voicemail message from a bank about suspicious activity." \\\n    -n 100 > ~/callcentervillage/voice-cloning/script.txt`} />
+      <p style={{ fontSize: 12, color: C.dim, marginTop: 10, lineHeight: 1.6 }}>Smaller quantized models (Q4_K_M) run best on limited hardware. The output won't match GPT-4, but it's enough to generate realistic scripts entirely offline.</p>
+    </div>
+
+    <SectionDivider />
+    <h3 style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8 }}>Putting It All Together</h3>
+    <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.7, marginBottom: 14 }}>These tools chain together to build fully local voice cloning pipelines — no internet connection required. Here are two realistic scenarios:</p>
+
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12 }}>
+      <div style={{ fontSize: 15, fontWeight: 700, color: C.accent, marginBottom: 6 }}>Scenario A: Clone a voice and put words in their mouth</div>
+      <p style={{ fontSize: 12, color: C.dim, marginBottom: 8 }}>You have a voice sample of someone. Generate a script and make it sound like they said it.</p>
+      <CodeBlock language="bash" code={`# 1. Record or obtain a voice sample of the target\n# (You can also use Audacity to record)\nrec -r 44100 -c 1 ~/callcentervillage/voice-cloning/target_voice.wav trim 0 20\n\n# 2. Generate a script with llama.cpp\ncd /opt/llama.cpp\n./llama-cli -m models/tinyllama-1.1b-chat.Q4_K_M.gguf \\\n    -p "Write a short voicemail about a package delivery." \\\n    -n 80 > ~/callcentervillage/voice-cloning/script.txt\n\n# 3. Clone the voice with the generated script\ntts --model_name tts_models/multilingual/multi-dataset/xtts_v2 \\\n    --speaker_wav ~/callcentervillage/voice-cloning/target_voice.wav \\\n    --language_idx en \\\n    --text "$(cat ~/callcentervillage/voice-cloning/script.txt)" \\\n    --out_path ~/callcentervillage/voice-cloning/cloned_output.wav`} />
+    </div>
+
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12, marginTop: 24 }}>
+      <div style={{ fontSize: 15, fontWeight: 700, color: C.accent, marginBottom: 6 }}>Scenario B: Intercept, understand, and respond as someone</div>
+      <p style={{ fontSize: 12, color: C.dim, marginBottom: 8 }}>You have a recording of a conversation. Transcribe it, generate a contextual follow-up, and deliver it in the original speaker's voice.</p>
+      <CodeBlock language="bash" code={`# 1. Transcribe the recording to understand what was said\ncd /opt/whisper.cpp\n./build/bin/whisper-cli -m models/ggml-tiny.en.bin \\\n    -f ~/callcentervillage/voice-cloning/recorded_call.wav \\\n    -otxt\n\n# 2. Feed the transcription to llama.cpp for a contextual response\ncd /opt/llama.cpp\n./llama-cli -m models/tinyllama-1.1b-chat.Q4_K_M.gguf \\\n    -p "The caller said: $(cat ~/callcentervillage/voice-cloning/recorded_call.wav.txt). Write a convincing follow-up response as if you are the same person calling back." \\\n    -n 100 > ~/callcentervillage/voice-cloning/response.txt\n\n# 3. Synthesize the response in the original speaker's voice\ntts --model_name tts_models/multilingual/multi-dataset/xtts_v2 \\\n    --speaker_wav ~/callcentervillage/voice-cloning/recorded_call.wav \\\n    --language_idx en \\\n    --text "$(cat ~/callcentervillage/voice-cloning/response.txt)" \\\n    --out_path ~/callcentervillage/voice-cloning/cloned_response.wav`} />
+    </div>
   </div>
+  <SectionDivider />
   <QuizBank questions={[
-    { question: "Fastest approach for a conference demo?", options: ["Train RVC for 2hr", "XTTS zero-shot with 10s sample", "Fine-tune Piper on 4hr", "Custom model"], correctIndex: 1, explanation: "XTTS zero-shot: seconds instead of hours." },
-    { question: "Which combo creates a fully local voice attack pipeline?", options: ["ElevenLabs + ChatGPT", "whisper.cpp + llama.cpp + XTTS", "Google STT + GPT-4 + Google TTS", "Deepgram + Claude + Cartesia"], correctIndex: 1, explanation: "whisper.cpp + llama.cpp + XTTS = complete pipeline, zero cloud dependency." },
+    { question: "You need to demo voice cloning at a conference in 5 minutes. What's your best bet?", options: ["Train an RVC model", "Use Coqui TTS zero-shot", "Fine-tune Piper TTS", "Build a custom model from scratch"], correctIndex: 1, explanation: "Coqui TTS zero-shot only needs a few seconds of reference audio and no training — you can go from sample to clone in under a minute." },
+    { question: "You need to transcribe an intercepted phone call, generate a convincing follow-up response, and create a recording in the caller's voice. Which three tools would you use?", options: ["whisper.cpp, llama.cpp, Coqui TTS", "whisper.cpp, Piper TTS, OpenVoice", "llama.cpp, RVC, Piper TTS", "Coqui TTS, OpenVoice, RVC"], correctIndex: 0, explanation: "whisper.cpp transcribes the call so you understand what was said and can feed it into llama.cpp to generate a convincing follow-up response. Coqui TTS then synthesizes it in the original caller's cloned voice." },
+    { question: "What makes Piper TTS different from Coqui TTS?", options: ["Piper TTS supports zero-shot cloning", "Piper TTS is designed for edge devices and runs on very low-powered hardware", "Piper TTS produces higher quality output", "Piper TTS supports more languages"], correctIndex: 1, explanation: "Piper TTS is built for edge devices — it runs on hardware as small as a Raspberry Pi. However, it requires training data and doesn't support zero-shot cloning like Coqui TTS does." },
+    { question: "What is the key difference between RVC and OpenVoice?", options: ["RVC is for TTS, OpenVoice is for voice conversion", "RVC requires fine-tuning with training audio, OpenVoice works zero-shot from a short clip", "OpenVoice produces higher quality clones", "RVC only works on Linux"], correctIndex: 1, explanation: "RVC requires 10-30 minutes of training audio and GPU time for fine-tuning, producing the highest quality clones. Once trained, RVC can run in real-time as a live voice filter. OpenVoice works zero-shot from a brief reference clip — faster to set up, but lower quality." },
+    { question: "In a voice cloning attack chain, what role does whisper.cpp play?", options: ["It generates the cloned voice", "It creates the speaker embedding", "It transcribes audio to text for use with an LLM", "It modifies the pitch of the audio"], correctIndex: 2, explanation: "whisper.cpp is a speech-to-text tool. In an attack chain, it transcribes a recorded conversation so the attacker can understand the context — and that transcription can be fed directly into llama.cpp to generate a convincing follow-up response in the same conversation." },
   ]} />
 </div>);
 
 const CommercialSection = () => (<div>
-  <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Commercial Options</h2>
-  <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>Understanding what's accessible with just a credit card.</p>
-  <div style={{ display: "grid", gap: 12 }}>
+  <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Commercial Voice Cloning</h2>
+  <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 12 }}>Understanding what's accessible with just a credit card.</p>
+  <InfoBox>These companies are not sponsors or affiliated with this training or Call Center Village. They're listed for educational awareness only.<br /><span style={{ color: C.dim, fontStyle: "italic" }}>That said, if any of you are reading this — Call Center Village is <a href="https://callcentervillage.com/sponsors" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "underline" }}>looking for sponsors</a>.</span></InfoBox>
+  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
     {[
-      { name: "ElevenLabs", color: C.accent, features: ["Instant cloning (~30s)", "70+ languages", "Real-time streaming", "Voice design from description"], threat: "Very low barrier. Free tier available." },
-      { name: "Play.ht", color: C.highlight, features: ["Instant cloning", "Emotion control", "API + playground"], threat: "Similar accessibility. Free tier available." },
-      { name: "Resemble.AI", color: C.tertiary, features: ["Custom cloning", "Real-time VC", "Deepfake detection", "On-premise option"], threat: "Offense AND defense capabilities." },
-      { name: "Cartesia Sonic", color: C.secondary, features: ["State-space model architecture", "Ultra-low latency", "Voice mixing"], threat: "Built for real-time agents." },
+      { name: "ElevenLabs", url: "https://elevenlabs.io", logo: "/images/elevenlabs-logo.ico", color: C.accent, features: ["Instant cloning (~30s)", "70+ languages", "Real-time streaming", "Voice design from description"], threat: "Very low barrier. Free tier available." },
+      { name: "Murf AI", url: "https://murf.ai", logo: "/images/murf-logo.ico", color: C.highlight, features: ["Voice cloning from 10s", "120+ languages", "AI dubbing", "Enterprise API"], threat: "Low barrier. Free tier available." },
+      { name: "Resemble.AI", url: "https://www.resemble.ai", logo: "/images/resembleai-logo.png", color: C.tertiary, features: ["Custom cloning", "Real-time VC", "Deepfake detection", "On-premise option"], threat: "Offense AND defense capabilities." },
+      { name: "Cartesia Sonic", url: "https://www.cartesia.ai", logo: "/images/cartesia-logo.png", logoBg: "#ffffff", color: C.secondary, features: ["State-space model architecture", "Ultra-low latency", "Voice mixing"], threat: "Built for real-time agents." },
     ].map((s, i) => (
-      <div key={i} style={{ background: C.card, border: `1px solid ${s.color}33`, borderRadius: 12, padding: 16 }}>
-        <div style={{ fontSize: 16, fontWeight: 800, color: s.color, marginBottom: 8 }}>{s.name}</div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 10 }}>{s.features.map((f, j) => <span key={j} style={{ background: "#06040c", padding: "6px 10px", borderRadius: 4, fontSize: 13, color: C.muted }}>{f}</span>)}</div>
-        <div style={{ fontSize: 14, color: C.tertiary, background: `${C.tertiary}10`, padding: "6px 10px", borderRadius: 6, display: "flex", alignItems: "center", gap: 6 }}><Icon name="magnifying-glass" size={14} />{s.threat}</div>
+      <div key={i} style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, display: "flex", flexDirection: "column" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+          <img src={s.logo} alt={s.name} style={{ width: 40, height: 40, borderRadius: 8, background: s.logoBg || "transparent", padding: s.logoBg ? 4 : 0 }} />
+          <a href={s.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 16, fontWeight: 800, color: s.color, textDecoration: "none" }}>{s.name} ↗</a>
+        </div>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>{s.features.map((f, j) => <span key={j} style={{ background: `${C.primary}10`, border: `1px solid ${C.border}`, padding: "6px 10px", borderRadius: 4, fontSize: 13, color: C.muted }}>{f}</span>)}</div>
+        <div style={{ fontSize: 13, color: C.tertiary, background: `${C.tertiary}10`, padding: "8px 10px", borderRadius: 6, display: "flex", alignItems: "center", gap: 6 }}><Icon name="magnifying-glass" size={14} />{s.threat}</div>
       </div>
     ))}
   </div>
-  <div style={{ marginTop: 20 }}><QuizBank questions={[
-    { question: "Minimum audio for commercial voice clone?", options: ["30 minutes", "10-30 seconds", "5 minutes", "No audio needed"], correctIndex: 1, explanation: "Most services clone from 10-30 seconds. A voicemail is enough." },
-    { question: "Which also offers deepfake DETECTION?", options: ["ElevenLabs", "Play.ht", "Resemble.AI", "Cartesia"], correctIndex: 2, explanation: "Resemble.AI uniquely offers both cloning AND detection." },
+  <p style={{ fontSize: 12, color: C.dim, textAlign: "center", marginTop: 16 }}>Have a suggestion for a voice cloning service to include here? Email us at <a href="mailto:support@callcentervillage.com" style={{ color: C.accent, textDecoration: "underline" }}>support@callcentervillage.com</a></p>
+  <SectionDivider />
+  <div><QuizBank questions={[
+    { question: "How much audio do most commercial voice cloning services need to clone a voice?", options: ["30 minutes of studio-quality recording", "10-30 seconds — a voicemail or short clip is enough", "At least 5 minutes of clean speech", "They don't need audio — they generate from a text description"], correctIndex: 1, explanation: "Most commercial services can clone a voice from just 10-30 seconds of audio. This low barrier is what makes commercial cloning so accessible and potentially dangerous." },
+    { question: "Why might an organization choose a commercial voice cloning provider over running tools locally?", options: ["Commercial tools always produce better quality", "Cloud providers handle hardware inference scaling seamlessly", "Local tools are illegal to use", "Commercial providers are free"], correctIndex: 1, explanation: "Just like early cloud computing, commercial voice AI providers let teams scale without managing GPUs, model updates, or infrastructure. The tradeoff is cost, data privacy, and vendor dependency — but for rapid development and production workloads, the convenience can outweigh those concerns." },
+    { question: "What is a major privacy risk of using commercial voice cloning services?", options: ["Your voice data is encrypted end-to-end and never stored", "You lose control of your voice data once it's uploaded", "Commercial providers are required by law to delete your data immediately", "Your data is only used for your account and never shared"], correctIndex: 1, explanation: "When you upload voice samples to a commercial service, that data may be used to train their models, shared with law enforcement, or sold to third parties (including the government, without the need for warrants) — depending on the provider's terms of service." },
   ]} /></div>
 </div>);
+
+const DefenseCard = ({ title, titleColor = C.text, desc, children }) => (
+  <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 24, marginBottom: 24 }}>
+    {title && <div style={{ fontSize: 16, fontWeight: 700, color: titleColor, marginBottom: 8 }}>{title}</div>}
+    {desc && <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.7, marginBottom: 14 }}>{desc}</p>}
+    {children}
+  </div>
+);
+
+const DefenseSubCard = ({ title, desc, link, linkLabel }) => (
+  <div style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16 }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+      <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>{title}</div>
+      {link && <a href={link} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: C.accent, textDecoration: "none" }}>{linkLabel || "Link"} ↗</a>}
+    </div>
+    <div style={{ fontSize: 13, color: C.dim, lineHeight: 1.7 }}>{desc}</div>
+  </div>
+);
 
 const DefenseSection = () => (<div>
   <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Detection & Defense</h2>
@@ -1113,38 +1580,174 @@ const DefenseSection = () => (<div>
       { layer: "Technical Detection", color: C.accent, items: ["Spectral analysis — AI has telltale patterns", "Vocoder artifact detection", "Pitch/formant consistency checks", "Watermark detection"] },
       { layer: "Procedural Defense", color: C.highlight, items: ["Callback verification", "Challenge questions", "Code words", "Multi-channel confirm"] },
       { layer: "AI-Powered Detection", color: C.tertiary, items: ["Resemblyzer embeddings", "ASVspoof models", "Real-time stream analysis", "Biometrics + liveness"] },
-      { layer: "Organizational", color: C.secondary, items: ["Staff training", "No voice-only auth for high-value", "Voice biometric + PIN", "Audit suspicious calls"] },
+      { layer: "Organizational", color: C.secondary, items: ["Staff training (security awareness)", "No voice-only auth for high-value", "Voice biometric + PIN", "Audit suspicious calls"] },
     ].map((d, i) => (
-      <div key={i} style={{ background: C.card, border: `1px solid ${d.color}33`, borderRadius: 12, padding: 16 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: d.color, marginBottom: 8 }}>{d.layer}</div>
-        <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.7 }}>{d.items.map((item, j) => <div key={j} style={{ marginBottom: 4, display: "flex", alignItems: "center", gap: 4 }}><Icon name="arrow-right" size={12} />{item}</div>)}</div>
+      <div key={i} style={{ background: C.card, border: `1px solid ${d.color}33`, borderRadius: 12, padding: 24 }}>
+        <div style={{ fontSize: 16, fontWeight: 700, color: d.color, marginBottom: 10 }}>{d.layer}</div>
+        <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.8 }}>{d.items.map((item, j) => <div key={j} style={{ marginBottom: 6, display: "flex", alignItems: "center", gap: 6 }}><Icon name="arrow-right" size={12} />{item}</div>)}</div>
       </div>
     ))}
   </div>
-  <InteractiveCard title={<><Icon name="beaker" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Spectral Artifacts to Look For</>}>
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
-      {[{ sign: "Metallic shimmer", desc: "Above 8kHz from vocoders" }, { sign: "Phase breaks", desc: "At segment boundaries" }, { sign: "Unnatural pauses", desc: "TTS breathing differs" }, { sign: "Flat F0", desc: "Less micro-variation" }, { sign: "No ambience", desc: "Missing room tone" }, { sign: "Smooth formants", desc: "Over-smoothed transitions" }].map((s, i) => (
-        <div key={i} style={{ background: "#06040c", padding: 10, borderRadius: 8 }}><div style={{ color: C.tertiary, fontWeight: 700, fontSize: 13 }}>{s.sign}</div><div style={{ fontSize: 13, marginTop: 4 }}>{s.desc}</div></div>
-      ))}
+
+  <SectionDivider />
+  <h3 style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8 }}>Detection & Defense Tools</h3>
+  <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.7, marginBottom: 14 }}>Specific tools and approaches for each layer of defense. Some of these are hands-on tools you can run locally, others are processes and training programs to implement at your organization.</p>
+
+  <DefenseCard title="Technical Detection" titleColor={C.accent} desc="Analyze audio files for signs of AI generation using spectral analysis and voice comparison tools.">
+    <div style={{ display: "grid", gap: 10 }}>
+      <div style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>Resemblyzer</div>
+          <a href="https://github.com/resemble-ai/Resemblyzer" target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: C.accent, textDecoration: "none" }}>GitHub ↗</a>
+        </div>
+        <p style={{ fontSize: 13, color: C.dim, marginBottom: 8 }}>Python library for speaker verification and voice comparison. Compares voice embeddings to detect if a voice sample matches a known speaker — useful for flagging potential clones. Runs on CPU.</p>
+        <CodeBlock language="bash" code={'# Preinstalled on Call Center Village laptops\n# pip install resemblyzer\n\n# Compare two voice samples for similarity\npython3 -c "\nfrom resemblyzer import VoiceEncoder, preprocess_wav\nfrom pathlib import Path; import numpy as np\nenc = VoiceEncoder()\noriginal = enc.embed_utterance(preprocess_wav(Path(\'original.wav\')))\nsuspect = enc.embed_utterance(preprocess_wav(Path(\'suspect.wav\')))\nsimilarity = np.dot(original, suspect)\nprint(f\'Similarity: {similarity:.4f}\')\nprint(\'Likely same speaker\' if similarity > 0.75 else \'Different speaker or potential clone\')\n"'} />
+      </div>
+      <div style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 6 }}>SoX Spectrogram Analysis</div>
+        <p style={{ fontSize: 13, color: C.dim, marginBottom: 8 }}>Generate spectrograms and inspect them visually for vocoder artifacts, missing room tone, or unnatural frequency patterns. Already installed on the laptops.</p>
+        <CodeBlock language="bash" code={'# Generate a spectrogram to visually inspect\nsox suspect.wav -n spectrogram -o suspect_spec.png\n\n# View the spectrogram in the terminal\nimg2txt suspect_spec.png\n\n# Compare frequency statistics between original and suspect\nsoxi original.wav && sox original.wav -n stat 2>&1\nsoxi suspect.wav && sox suspect.wav -n stat 2>&1'} />
+      </div>
     </div>
-  </InteractiveCard>
+  </DefenseCard>
+
+  <DefenseCard title="AI-Powered Detection" titleColor={C.tertiary} desc="Machine learning models trained specifically to distinguish real speech from AI-generated speech.">
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+      <DefenseSubCard title="ASVspoof Challenge Models" desc="International challenge producing open-source anti-spoofing models. Trained on large datasets of real and fake speech — state of the art in detection." link="https://www.asvspoof.org" linkLabel="asvspoof.org" />
+      <DefenseSubCard title="awesome-fake-audio-detection" desc="Curated list of papers, datasets, and code for audio deepfake detection. A good starting point for finding models you can test." link="https://github.com/john852517791/awesome-fake-audio-detection" linkLabel="GitHub" />
+    </div>
+  </DefenseCard>
+
+  <DefenseCard title="Procedural Defense" titleColor={C.highlight} desc="No technology needed — these are process-based defenses that any organization or family can implement immediately. Voice cloning attacks don't just target companies — they target your parents, grandparents, and kids too.">
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+      {[
+        { title: "Callback Verification", desc: "Never act on a sensitive request from an inbound call. Hang up and call the person back on a known, verified number. This applies at work and at home — if \"your son\" calls asking for money, hang up and call him back." },
+        { title: "Challenge Questions", desc: "Ask something only the real person would know — not information available on social media or company directories." },
+        { title: "Family Code Words", desc: "Establish a family safe word that only your family knows. If someone calls claiming to be a relative in an emergency, ask for the code word. Teach this to elderly family members especially." },
+        { title: "Multi-Channel Confirmation", desc: "Confirm sensitive requests through a second channel — email, Slack, in-person — before acting." },
+      ].map((d, i) => <DefenseSubCard key={i} title={d.title} desc={d.desc} />)}
+    </div>
+  </DefenseCard>
+
+  <DefenseCard title="Organizational" titleColor={C.secondary} desc="Build a culture of security awareness so staff can recognize and respond to voice-based social engineering.">
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+      {[
+        { title: "Security Awareness Training", desc: "Regular training sessions on voice cloning threats — what they sound like, how they work, and how to respond. Programs like KnowBe4, SANS Security Awareness, or Proofpoint offer modules specifically on vishing and voice deepfakes." },
+        { title: "No Voice-Only Auth for High Value", desc: "Never authorize wire transfers, password resets, or access changes based solely on a phone call — regardless of who it sounds like." },
+        { title: "Voice Biometric + PIN", desc: "If using voiceprint authentication, always pair it with a second factor like a PIN or OTP. Voice alone is no longer sufficient." },
+        { title: "Audit Suspicious Calls", desc: "Log and review calls that involve sensitive actions. Flag calls where the caller resisted verification or pushed urgency." },
+      ].map((d, i) => <DefenseSubCard key={i} title={d.title} desc={d.desc} />)}
+    </div>
+  </DefenseCard>
+
+  <SectionDivider />
+  <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, marginBottom: 12, overflow: "hidden" }}>
+    <div style={{ padding: "16px 20px", fontSize: 15, fontWeight: 600, color: C.text, display: "flex", alignItems: "center" }}><Icon name="beaker" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Spectral Artifacts to Look For</div>
+    <div style={{ padding: "0 20px 20px", color: C.muted, fontSize: 14, lineHeight: 1.8 }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+        {[
+          { sign: "Metallic shimmer", desc: "Vocoders leave unnatural energy above 8kHz — natural speech rolls off smoothly, AI shows a bump in the high range", natural: (s) => {
+            const pts = Array.from({length: 40}, (_, i) => { const v = Math.max(0.02, 0.85 - i * 0.022 + (Math.sin(i * 1.3) * 0.03)); return `${i * 2.5},${42 - v * 40}`; });
+            return <polyline points={pts.join(" ")} fill="none" stroke={s} strokeWidth="1.5" />;
+          }, ai: (s) => {
+            const pts = Array.from({length: 40}, (_, i) => {
+              const base = Math.max(0.02, 0.85 - i * 0.022 + (Math.sin(i * 1.3) * 0.03));
+              const shimmer = i > 28 ? 0.25 + Math.sin(i * 4) * 0.12 : 0;
+              return `${i * 2.5},${42 - (base + shimmer) * 40}`;
+            });
+            return <><polyline points={pts.join(" ")} fill="none" stroke={s} strokeWidth="1.5" /><rect x="70" y="2" width="28" height="40" fill={s} opacity="0.08" rx="2" /></>;
+          }},
+          { sign: "Phase breaks", desc: "Audible glitches or pops where audio segments are stitched together at boundaries", natural: (s) => {
+            const pts = Array.from({length: 40}, (_, i) => `${i * 2.5},${20 + Math.sin(i * 0.8) * 12}`);
+            return <polyline points={pts.join(" ")} fill="none" stroke={s} strokeWidth="1.5" />;
+          }, ai: (s) => {
+            const pts1 = Array.from({length: 18}, (_, i) => `${i * 2.5},${20 + Math.sin(i * 0.8) * 12}`);
+            const pts2 = Array.from({length: 18}, (_, i) => `${(i + 20) * 2.5},${20 + Math.sin((i + 20) * 0.8 + 1.5) * 12}`);
+            return <><polyline points={pts1.join(" ")} fill="none" stroke={s} strokeWidth="1.5" /><polyline points={pts2.join(" ")} fill="none" stroke={s} strokeWidth="1.5" /><line x1="45" y1="8" x2="50" y2="32" stroke="#ef4444" strokeWidth="1" strokeDasharray="2,2" /></>;
+          }},
+          { sign: "Flat F0 (pitch)", desc: "AI voices lack the natural rise and fall of human speech melody — questions should rise, statements should fall, emphasis creates peaks", natural: (s) => {
+            const pts = Array.from({length: 40}, (_, i) => {
+              const phrase1 = i < 15 ? 22 + Math.sin(i * 0.4) * 5 - i * 0.3 : 0;
+              const pause = i >= 15 && i < 18 ? 22 : 0;
+              const question = i >= 18 ? 26 - (i - 18) * 0.2 + Math.sin(i * 0.5) * 3 + (i > 33 ? (i - 33) * 1.5 : 0) : 0;
+              return `${i * 2.5},${(phrase1 || pause || question) + Math.sin(i * 3) * 1.2}`;
+            });
+            return <><polyline points={pts.join(" ")} fill="none" stroke={s} strokeWidth="1.5" /><text x="8" y="43" fill={s} fontSize="3.5" opacity="0.4">statement ↘</text><text x="65" y="43" fill={s} fontSize="3.5" opacity="0.4">question ↗</text></>;
+          }, ai: (s) => {
+            const pts = Array.from({length: 40}, (_, i) => `${i * 2.5},${22 + Math.sin(i * 0.15) * 3}`);
+            return <><polyline points={pts.join(" ")} fill="none" stroke={s} strokeWidth="1.5" /><line x1="0" y1="22" x2="100" y2="22" stroke={s} strokeWidth="0.5" strokeDasharray="2,2" opacity="0.3" /></>;
+          }},
+          { sign: "No ambience", desc: "AI audio has an unnaturally clean noise floor — real recordings always have some room tone or background hum", natural: (s) => {
+            const seed = (x) => { let v = Math.sin(x * 127.1 + 311.7) * 43758.5453; return v - Math.floor(v); };
+            const pts = Array.from({length: 40}, (_, i) => `${i * 2.5},${18 + Math.sin(i * 0.7) * 8 + (seed(i) - 0.5) * 6}`);
+            const noiseFloor = Array.from({length: 100}, (_, i) => {
+              const y = 35 + (seed(i * 3) - 0.5) * 10;
+              const h = 2 + seed(i * 7) * 6;
+              return <rect key={i} x={i} y={y} width="1" height={h} fill={s} opacity={0.15 + seed(i * 11) * 0.2} />;
+            });
+            return <>{noiseFloor}<polyline points={pts.join(" ")} fill="none" stroke={s} strokeWidth="1.5" /><text x="50" y="44" textAnchor="middle" fill={s} fontSize="4" opacity="0.5">room tone / background noise</text></>;
+          }, ai: (s) => {
+            const pts = Array.from({length: 40}, (_, i) => `${i * 2.5},${18 + Math.sin(i * 0.7) * 8}`);
+            return <><rect x="0" y="35" width="100" height="10" fill="#08060f" /><polyline points={pts.join(" ")} fill="none" stroke={s} strokeWidth="1.5" /><text x="50" y="44" textAnchor="middle" fill={s} fontSize="4" opacity="0.5">dead silence — no room tone</text></>;
+          }},
+          { sign: "Unnatural pauses", desc: "TTS breathing and pause patterns feel mechanical — pauses are too uniform and breaths are missing or perfectly timed", natural: (s) => {
+            const bars = [6,8,7,9,2,0,1,7,8,6,9,8,3,0,0,1,8,7,9,6];
+            return bars.map((v, i) => <rect key={i} x={i * 5} y={40 - v * 3.5} width="3.5" height={v * 3.5} fill={s} opacity={0.8} rx="0.5" />);
+          }, ai: (s) => {
+            const bars = [7,8,7,8,7,8,7,0,7,8,7,8,7,8,7,0,7,8,7,8];
+            return bars.map((v, i) => <rect key={i} x={i * 5} y={40 - v * 3.5} width="3.5" height={v * 3.5} fill={s} opacity={0.8} rx="0.5" />);
+          }},
+          { sign: "Smooth formants", desc: "AI over-smooths the transitions between vowel resonance bands (F1, F2, F3). Natural speech has sharp, quick shifts between sounds.", natural: (s) => {
+            const f1 = Array.from({length: 40}, (_, i) => `${i * 2.5},${34 + Math.sin(i * 0.6) * 4 + Math.sin(i * 2.5) * 2.5}`);
+            const f2 = Array.from({length: 40}, (_, i) => `${i * 2.5},${22 + Math.sin(i * 0.5 + 1) * 5 + Math.sin(i * 2.1) * 3}`);
+            const f3 = Array.from({length: 40}, (_, i) => `${i * 2.5},${10 + Math.sin(i * 0.4 + 2) * 3 + Math.sin(i * 1.8) * 2}`);
+            return <><polyline points={f1.join(" ")} fill="none" stroke={s} strokeWidth="1.5" /><polyline points={f2.join(" ")} fill="none" stroke={s} strokeWidth="1.2" opacity="0.7" /><polyline points={f3.join(" ")} fill="none" stroke={s} strokeWidth="1" opacity="0.5" /></>;
+          }, ai: (s) => {
+            const f1 = Array.from({length: 40}, (_, i) => `${i * 2.5},${34 + Math.sin(i * 0.6) * 4}`);
+            const f2 = Array.from({length: 40}, (_, i) => `${i * 2.5},${22 + Math.sin(i * 0.5 + 1) * 5}`);
+            const f3 = Array.from({length: 40}, (_, i) => `${i * 2.5},${10 + Math.sin(i * 0.4 + 2) * 3}`);
+            return <><polyline points={f1.join(" ")} fill="none" stroke={s} strokeWidth="1.5" /><polyline points={f2.join(" ")} fill="none" stroke={s} strokeWidth="1.2" opacity="0.7" /><polyline points={f3.join(" ")} fill="none" stroke={s} strokeWidth="1" opacity="0.5" /></>;
+          }},
+        ].map((s, i) => {
+          const renderViz = (height) => (
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+              <div>
+                <div style={{ fontSize: 10, color: C.accent, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Natural</div>
+                <svg viewBox="0 0 100 45" style={{ width: "100%", height, background: "#08060f", borderRadius: 4, border: `1px solid ${C.border}` }}>{s.natural(C.accent)}</svg>
+              </div>
+              <div>
+                <div style={{ fontSize: 10, color: C.tertiary, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>AI-Generated</div>
+                <svg viewBox="0 0 100 45" style={{ width: "100%", height, background: "#08060f", borderRadius: 4, border: `1px solid ${C.tertiary}44` }}>{s.ai(C.tertiary)}</svg>
+              </div>
+            </div>
+          );
+          return <ArtifactLightbox key={i} sign={s.sign} desc={s.desc} renderViz={renderViz} />;
+        })}
+      </div>
+    </div>
+  </div>
+  <SectionDivider />
   <QuizBank questions={[
-    { question: "CEO calls CFO for urgent wire transfer. Best first defense?", options: ["AI voice detector", "Personal questions", "Hang up and call CEO's known number", "Check voice against recordings"], correctIndex: 2, explanation: "Callback verification breaks the attacker's channel control." },
-    { question: "Most common spectral artifact in AI-generated voice?", options: ["Excessive bass", "Metallic shimmer above 8kHz", "Random white noise", "Perfect stereo"], correctIndex: 1, explanation: "Neural vocoders produce subtle metallic artifacts in high frequencies." },
+    { question: "Your company's CEO calls the CFO for an urgent wire transfer. What's the best first line of defense?", options: ["AI voice detector", "Personal questions", "Hang up and call CEO's known number", "Check voice against recordings"], correctIndex: 2, explanation: "Callback verification breaks the attacker's channel control." },
+    { question: "You're analyzing a suspicious audio file and notice unnatural energy spikes above 8kHz. What does this likely indicate?", options: ["The microphone was too close", "Vocoder artifacts from AI-generated speech", "The audio was recorded in a large room", "Normal background noise"], correctIndex: 1, explanation: "Metallic shimmer above 8kHz is a telltale sign of neural vocoders used in AI speech generation — natural speech rolls off smoothly at high frequencies." },
     { question: "Why is voice biometrics alone insufficient?", options: ["Too expensive", "High-quality clones can fool voiceprint matching", "Requires too much data", "Only works in-person"], correctIndex: 1, explanation: "Quality clones match voiceprints. Liveness detection and MFA are essential." },
+    { question: "Your elderly parent gets a frantic call from someone who sounds exactly like you, saying you're in trouble and need money wired immediately. What should they do?", options: ["Send the money — it sounds just like you", "Ask the caller for personal details", "Hang up and call you back on your known number", "Call the police immediately"], correctIndex: 2, explanation: "Callback verification is the single most effective defense against voice cloning attacks. Hanging up breaks the attacker's control of the conversation, and calling back on a known number confirms the real person's identity." },
+    { question: "What is the most important organizational policy to prevent voice-based social engineering?", options: ["Install AI detection software on every phone", "Never allow sensitive actions like wire transfers or access changes based solely on a phone call", "Record all phone calls", "Only hire people with deep voices"], correctIndex: 1, explanation: "No voice-only authorization for high-value actions is the most impactful policy. It doesn't matter how convincing the clone is if the process requires a second factor or second channel to confirm." },
   ]} />
 </div>);
 
 const LabSection = () => {
   const [step, setStep] = useState(0);
   const exercises = [
-    { title: "1: Record & Analyze", cmd: `rec -r 44100 -c 1 -b 16 my_voice.wav trim 0 15\nsox my_voice.wav -n spectrogram -o spectrum.png\nsoxi my_voice.wav && sox my_voice.wav -n stat 2>&1` },
-    { title: "2: Voice Modification", cmd: `sox my_voice.wav v1_higher.wav pitch 400\nsox my_voice.wav v2_deeper.wav pitch -300\nsox my_voice.wav v3_phone.wav highpass 300 lowpass 3400\nffmpeg -i my_voice.wav -af "vibrato=f=6:d=0.4" v4_robot.wav` },
-    { title: "3: AI Cloning", cmd: `pip install coqui-tts\ntts --model_name tts_models/multilingual/multi-dataset/xtts_v2 \\\n    --speaker_wav my_voice.wav --language_idx en \\\n    --text "AI clone of my voice." --out_path clone.wav` },
-    { title: "4: Detection", cmd: `pip install resemblyzer\npython3 -c "\nfrom resemblyzer import VoiceEncoder, preprocess_wav\nfrom pathlib import Path; import numpy as np\nenc = VoiceEncoder()\no = enc.embed_utterance(preprocess_wav(Path('my_voice.wav')))\nc = enc.embed_utterance(preprocess_wav(Path('clone.wav')))\nprint(f'Similarity: {np.dot(o,c):.4f} (threshold is tunable, ~0.75 is a conservative starting point)')\n"` },
+    { title: "1: Record & Analyze", cmd: `# Record your voice (15 seconds)\n# You can also use Audacity: Record → File → Export Audio → save as my_voice.wav\nrec -r 44100 -c 1 -b 16 my_voice.wav trim 0 15\n\n# Generate a spectrogram\nsox my_voice.wav -n spectrogram -o spectrum.png\n\n# View the spectrogram in the terminal\nimg2txt spectrum.png\n\n# View audio file info and statistics\nsoxi my_voice.wav && sox my_voice.wav -n stat 2>&1` },
+    { title: "2: Voice Modification", cmd: `# Pitch up\nsox my_voice.wav v1_higher.wav pitch 400\n\n# Pitch down\nsox my_voice.wav v2_deeper.wav pitch -300\n\n# Telephone effect\nsox my_voice.wav v3_phone.wav highpass 300 lowpass 3400\n\n# Robot effect\nffmpeg -i my_voice.wav -af "vibrato=f=6:d=0.4" v4_robot.wav` },
+    { title: "3: AI Cloning", cmd: `# Preinstalled on Call Center Village laptops\n# pip install coqui-tts\n\ntts --model_name tts_models/multilingual/multi-dataset/xtts_v2 \\\n    --speaker_wav my_voice.wav --language_idx en \\\n    --text "AI clone of my voice." --out_path clone.wav` },
+    { title: "4: Detection", cmd: `# Preinstalled on Call Center Village laptops\n# pip install resemblyzer\n\npython3 -c "\nfrom resemblyzer import VoiceEncoder, preprocess_wav\nfrom pathlib import Path; import numpy as np\nenc = VoiceEncoder()\no = enc.embed_utterance(preprocess_wav(Path('my_voice.wav')))\nc = enc.embed_utterance(preprocess_wav(Path('clone.wav')))\nprint(f'Similarity: {np.dot(o,c):.4f} (threshold is tunable, ~0.75 is a conservative starting point)')\n"` },
   ];
   return (<div>
     <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Interactive Lab</h2>
+    <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 16 }}>Put it all together — record your voice, modify it, clone it with AI, then try to detect which is real vs AI vs modified.</p>
+    <InfoBox>If you need any help, please find an on-site Call Center Village staff member.</InfoBox>
     <div role="tablist" style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
       {exercises.map((ex, i) => <button key={i} role="tab" aria-selected={i === step} onClick={() => setStep(i)} style={{ background: i === step ? `${C.primary}20` : C.card, border: `1px solid ${i === step ? C.secondary : C.border}`, borderRadius: 8, padding: "10px 16px", color: i === step ? C.accent : C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 600 }}>{ex.title}</button>)}
     </div>
@@ -1152,9 +1755,10 @@ const LabSection = () => {
       <div style={{ fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 12 }}>{exercises[step].title}</div>
       <CodeBlock code={exercises[step].cmd} language="bash" />
     </div>
-    <div style={{ marginTop: 24, background: C.card, borderRadius: 12, padding: 20, border: `1px solid ${C.secondary}44` }}>
-      <div style={{ fontSize: 14, fontWeight: 700, color: C.secondary, marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}><Icon name="trophy" size={16} />Challenge: Full Pipeline</div>
-      <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.7 }}>Record → Clone → Apply effects → Detect which is real vs AI vs modified.</div>
+    <SectionDivider />
+    <div style={{ textAlign: "center", padding: "20px 0" }}>
+      <p style={{ fontSize: 15, color: C.muted, marginBottom: 16 }}>Satisfied with your knowledge? Continue to the next module.</p>
+      <a href="/voice-agents/intro" onClick={(e) => { e.preventDefault(); history.pushState(null, "", "/voice-agents/intro"); window.dispatchEvent(new PopStateEvent("popstate")); window.scrollTo(0, 0); }} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: C.primary, border: "none", borderRadius: 8, padding: "12px 24px", color: "#fff", cursor: "pointer", fontFamily: "inherit", fontSize: 15, fontWeight: 700, textDecoration: "none", transition: "all 0.2s ease" }} onMouseEnter={e => { e.currentTarget.style.background = C.secondary; e.currentTarget.style.boxShadow = `0 0 12px ${C.primary}66`; }} onMouseLeave={e => { e.currentTarget.style.background = C.primary; e.currentTarget.style.boxShadow = "none"; }}>Continue to Voice Agents <ArrowRightIcon style={{ width: 16, height: 16 }} /></a>
     </div>
   </div>);
 };
