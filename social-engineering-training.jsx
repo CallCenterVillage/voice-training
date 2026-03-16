@@ -13,6 +13,8 @@ const SECTIONS = [
   { id: "lab", title: "Interactive Lab", icon: "beaker" },
 ];
 
+const SectionDivider = () => <hr style={{ border: "none", borderTop: "1px solid #040208", margin: "48px 0" }} />;
+
 const ScenarioSim = ({ title, setup, turns, lesson }) => {
   const [currentTurn, setCurrentTurn] = useState(0);
   const [showLesson, setShowLesson] = useState(false);
@@ -121,6 +123,7 @@ const IntroSection = () => (
         </div>
       ))}
     </div>
+    <SectionDivider />
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
       <div style={{ background: C.card, borderRadius: 12, padding: 20, border: `1px solid ${C.secondary}33` }}>
         <div style={{ fontSize: 28, marginBottom: 8 }}><Icon name="user" size={28} /></div>
@@ -137,6 +140,7 @@ const IntroSection = () => (
         </div>
       </div>
     </div>
+    <SectionDivider />
     <div style={{ borderRadius: 12, border: `1px solid ${C.tertiary}44`, overflow: "hidden" }}>
       <div style={{ background: `${C.tertiary}25`, padding: 20 }}>
         <div style={{ fontSize: 15, color: C.tertiary, fontWeight: 700, marginBottom: 8 }}><Icon name="warning" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />ETHICAL NOTICE</div>
@@ -200,7 +204,7 @@ const PsychologySection = () => (
         </div>
       ))}
     </div>
-
+    <SectionDivider />
     <InteractiveCard title={<><Icon name="cpu" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Cognitive Biases Exploited in SE</>}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
         {[
@@ -218,7 +222,7 @@ const PsychologySection = () => (
         ))}
       </div>
     </InteractiveCard>
-
+    <SectionDivider />
     <QuizBank questions={[{ question: `Which principle is being used: 'I spoke with your manager Dave who said you could help me with this account issue.'`, options: ["Authority + Social Proof", "Urgency + Scarcity", "Reciprocity + Liking", "Commitment + Consistency"], correctIndex: 0, explanation: `This combines Authority (invoking the manager's name as an authority figure) and Social Proof (implying the manager already approved this, so it must be normal). Name-dropping a real manager adds significant credibility.` }, { question: "An attacker says: \"Your account will be locked in 5 minutes if you don't verify now!\" Which principle is this?", options: ["Authority", "Scarcity", "Social Proof", "Reciprocity"], correctIndex: 1, explanation: "This is classic Scarcity — creating artificial time pressure and the threat of loss to prevent the target from thinking critically or following proper procedures." }]} />
   </div>
 );
@@ -239,7 +243,7 @@ const HumanTargetsSection = () => (
       <ThreatMeter label="Emotional Manipulation" level={3} description="Using anger, tears, panic, or sympathy to pressure agents into skipping verification steps." />
       <ThreatMeter label="Multi-Channel Coordination" level={4} description="Combining phone, email, and chat attacks simultaneously to create a convincing narrative." />
     </div>
-
+    <SectionDivider />
     <ScenarioSim
       title="Scenario: The Angry Executive"
       setup="An attacker calls a bank's call center pretending to be a high-value client's executive assistant."
@@ -265,7 +269,7 @@ const HumanTargetsSection = () => (
       ]}
       lesson="This is one of the most difficult attacks to defend against because it weaponizes empathy. The agent wants to help a person in distress. Defense: Have a dedicated, trained team for sensitive situations with special verification procedures. Never skip security because of emotional pressure — have an escalation path that's both secure AND compassionate."
     />
-
+    <SectionDivider />
     <InteractiveCard title={<><Icon name="clipboard" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Common Pretexting Personas</>}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         {[
@@ -284,7 +288,7 @@ const HumanTargetsSection = () => (
         ))}
       </div>
     </InteractiveCard>
-
+    <SectionDivider />
     <QuizBank questions={[{ question: `A caller claims to be from law enforcement and demands immediate access to a customer's records 'before they flee the country.' What should the agent do?`, options: [
         "Comply immediately — law enforcement requests are urgent",
         "Ask for their badge number and provide the information",
@@ -394,7 +398,7 @@ const AITargetsSection = () => (
         </div>
       ))}
     </div>
-
+    <SectionDivider />
     <ScenarioSim
       title="Scenario: Jailbreaking a Banking AI Agent"
       setup="An attacker calls a bank's AI voice agent and attempts to extract account information through prompt injection."
@@ -409,7 +413,7 @@ const AITargetsSection = () => (
       ]}
       lesson="This demonstrates a multi-technique attack: normal opening → capability probing → authority-based persona hijacking → hypothetical framing. A well-hardened AI agent should resist all of these. Key defenses: strong system prompt, no diagnostic/debug modes, refuse hypotheticals about security policy, limit capability disclosure."
     />
-
+    <SectionDivider />
     <QuizBank questions={[{ question: `What makes AI agents UNIQUELY vulnerable compared to human targets?`, options: [
         "AI agents are less intelligent",
         "AI agents follow instructions literally and can be systematically probed without suspicion",
@@ -451,7 +455,7 @@ const CallCenterSection = () => (
       ]}
       lesson="Multi-channel attacks are devastating because each channel seems to 'confirm' the others. The email validates the phone call, and the phone call validates the email — but BOTH are attacker-controlled. Defense: Never use one unverified communication to validate another. Always verify through an independent channel (callback to known number, in-person confirmation)."
     />
-
+    <SectionDivider />
     <InteractiveCard title={<><Icon name="chart-bar" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Attack Pattern: The Escalation Ladder</>}>
       <p style={{ marginBottom: 12 }}>Most successful SE attacks follow a predictable escalation pattern:</p>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -507,7 +511,7 @@ const CombinedSection = () => (
         ))}
       </div>
     </div>
-
+    <SectionDivider />
     <InteractiveCard title={<><Icon name="command-line" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 2 }} /><Icon name="user-group" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Human-in-the-Loop AI Attacks</>}>
       <p>The most sophisticated attacks use AI as a force multiplier while a human attacker makes strategic decisions:</p>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 10 }}>
@@ -524,7 +528,7 @@ const CombinedSection = () => (
         ))}
       </div>
     </InteractiveCard>
-
+    <SectionDivider />
     <InteractiveCard title={<><Icon name="globe" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Attack Scalability: Why This Matters Now</>}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <div style={{ background: C.codeBg, padding: 14, borderRadius: 8 }}>
@@ -541,7 +545,7 @@ const CombinedSection = () => (
         </div>
       </div>
     </InteractiveCard>
-
+    <SectionDivider />
     <QuizBank questions={[{ question: `In a combined AI + voice cloning + social engineering attack, which element is hardest to defend against?`, options: [
         "The voice cloning (detecting synthetic voice)",
         "The prompt injection against AI agents",
@@ -622,7 +626,7 @@ const DefenseSection = () => (
         </div>
       ))}
     </div>
-
+    <SectionDivider />
     <InteractiveCard title={<><Icon name="clipboard" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />The 60-Second Verification Protocol</>}>
       <p>A simple, memorable protocol for any agent receiving a suspicious call:</p>
       <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10 }}>
@@ -641,7 +645,7 @@ const DefenseSection = () => (
         ))}
       </div>
     </InteractiveCard>
-
+    <SectionDivider />
     <QuizBank questions={[{ question: `What's the single most effective defense against voice cloning + social engineering attacks?`, options: [
         "AI-powered deepfake voice detection",
         "Longer verification questionnaires",
@@ -695,8 +699,8 @@ const LabSection = () => {
         <div style={{ fontSize: 14, color: C.muted, marginBottom: 16, lineHeight: 1.6 }}>{exercises[exercise].desc}</div>
         <CodeBlock code={exercises[exercise].code} language="text" />
       </div>
-
-      <div style={{ marginTop: 24, background: C.card, borderRadius: 12, padding: 20, border: `1px solid ${C.accent}44` }}>
+      <SectionDivider />
+      <div style={{ background: C.card, borderRadius: 12, padding: 20, border: `1px solid ${C.accent}44` }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: C.accent, marginBottom: 8 }}><Icon name="trophy" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Final Challenge: Red Team vs. Blue Team</div>
         <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.7 }}>
           Split into two teams. Red team has 60 minutes to plan and execute a combined attack (voice cloning +

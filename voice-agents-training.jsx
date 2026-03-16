@@ -1,7 +1,15 @@
 import { useState, useEffect, useRef } from "react";
-import { C, CodeBlock, InteractiveCard, QuizBank, TrainingShell, Icon } from './src/components';
+import { C, CodeBlock, QuizBank, TrainingShell, Icon } from './src/components';
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 
+const StaticCard = ({ title, children, color = C.secondary }) => (
+  <div style={{ background: C.card, border: `1px solid ${color}`, borderRadius: 12, marginBottom: 12, overflow: "hidden" }}>
+    <div style={{ padding: "16px 20px", fontSize: 15, fontWeight: 600, color: C.text }}>{title}</div>
+    <div style={{ padding: "0 20px 20px", color: C.muted, fontSize: 14, lineHeight: 1.8 }}>{children}</div>
+  </div>
+);
+
+const SectionDivider = () => <hr style={{ border: "none", borderTop: "1px solid #040208", margin: "48px 0" }} />;
 
 const SECTIONS = [
   { id: "intro", title: "Welcome", icon: "command-line" },
@@ -40,7 +48,7 @@ const AnimatedFlow = ({ nodes, activeNode = -1, onNodeClick }) => (
         >
           <div style={{ fontSize: 24, marginBottom: 4 }}><Icon name={node.icon} size={24} /></div>
           <div style={{ fontSize: 14, color: i === activeNode ? C.secondary : C.muted, fontWeight: 600 }}>{node.label}</div>
-          {node.latency && <div style={{ fontSize: 14, color: C.dim, marginTop: 2 }}>{node.latency}</div>}
+          {node.latency && <div style={{ fontSize: 14, color: node.latencyColor || C.dim, fontWeight: 600, marginTop: 2 }}>{node.latency}</div>}
         </div>
         {i < nodes.length - 1 && (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "0 6px" }}>
@@ -129,14 +137,14 @@ const IntroSection = () => (
 );
 
 const ArchitectureSection = () => {
-  const [activeNode, setActiveNode] = useState(-1);
+  const [activeNode, setActiveNode] = useState(0);
   const details = [
     { title: "Caller Audio", desc: "Raw audio stream from a phone call or WebRTC connection. Typically 8kHz (PSTN) or 16-48kHz (WebRTC). This is the entry point for the entire pipeline." },
     { title: "VAD (Voice Activity Detection)", desc: "Detects when someone is speaking vs. silence. Critical for turn-taking — knowing when to start and stop listening. Tools: Silero VAD, WebRTC VAD, Cobra VAD." },
     { title: "STT (Speech-to-Text)", desc: "Converts spoken audio to text. This is the agent's 'ears'. Must be fast (streaming) and accurate. Latency here directly impacts response time." },
     { title: "LLM (Language Model)", desc: "The 'brain' of the agent. Processes transcribed text, maintains conversation context, decides what to say, and can call external tools (APIs, databases, etc.)." },
     { title: "TTS (Text-to-Speech)", desc: "Converts the LLM's text response back into audio. The agent's 'voice'. Must stream output as it's generated, not wait for the full response." },
-    { title: "Caller Hears Response", desc: "The synthesized audio is streamed back to the caller. Total round-trip latency (audio in → audio out) should be <1 second for natural conversation." },
+    { title: "Caller Hears Response", desc: "The synthesized audio is streamed back to the caller. Total round-trip latency (audio in → audio out) should be <1 second for natural conversation. Optimal round-trip time is under 500ms." },
   ];
   return (
     <div>
@@ -150,10 +158,10 @@ const ArchitectureSection = () => {
         onNodeClick={setActiveNode}
         nodes={[
           { icon: "phone", label: "Caller Audio", latency: "", wire: "PCM" },
-          { icon: "speaker-x", label: "VAD", latency: "~20ms", wire: "chunks" },
-          { icon: "signal", label: "STT", latency: "~200ms", wire: "text" },
-          { icon: "cpu", label: "LLM", latency: "~300ms", wire: "text" },
-          { icon: "speaker-wave", label: "TTS", latency: "~150ms", wire: "audio" },
+          { icon: "speaker-x", label: "VAD", latency: "~20ms", latencyColor: C.accent, wire: "chunks" },
+          { icon: "signal", label: "STT", latency: "~200ms", latencyColor: C.accent, wire: "text" },
+          { icon: "cpu", label: "LLM", latency: "~300ms", latencyColor: C.tertiary, wire: "text" },
+          { icon: "speaker-wave", label: "TTS", latency: "~150ms", latencyColor: C.accent, wire: "audio" },
           { icon: "headphones", label: "Response", latency: "" },
         ]}
       />
@@ -165,7 +173,7 @@ const ArchitectureSection = () => {
         </div>
       )}
 
-      <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 12, marginTop: 20 }}>Latency Budget — The Critical Path</div>
+      <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 12, marginTop: 20 }}>Latency Budget</div>
       <div style={{ background: C.card, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
         <LatencyMeter label="VAD Processing" ms={20} />
         <LatencyMeter label="STT (Streaming)" ms={200} />
@@ -179,10 +187,14 @@ const ArchitectureSection = () => {
         <div style={{ fontSize: 14, color: C.dim, marginTop: 8 }}>
           Target: &lt;1000ms for natural feel. &gt;1500ms feels like talking to someone overseas. &gt;2000ms breaks conversation flow entirely.
         </div>
+        <div style={{ fontSize: 14, color: C.dim, marginTop: 8 }}>
+          For humans to not notice any real difference in speech latency — where the conversation feels truly indistinguishable from talking to another person — you typically need a total round trip under <strong style={{ color: C.tertiary }}>500ms</strong>.
+        </div>
       </div>
 
+      <SectionDivider />
       <div style={{ marginTop: 20 }}>
-        <InteractiveCard title={<><Icon name="arrow-path" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Turn-Taking: The Hardest Problem</>}>
+        <StaticCard title={<><Icon name="arrow-path" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Turn-Taking: The Hardest Problem</>}>
           <p>The biggest challenge in voice agents isn't AI quality — it's knowing when to talk and when to listen.</p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 10 }}>
             {[
@@ -191,16 +203,17 @@ const ArchitectureSection = () => {
               { name: "Backchanneling", desc: "Injecting 'mm-hmm', 'I see', 'right' while the caller speaks. Makes the agent feel alive and attentive." },
               { name: "Silence Handling", desc: "What to do when the caller goes silent? Prompt them? Wait? How long? Each scenario needs different treatment." },
             ].map((t, i) => (
-              <div key={i} style={{ background: C.codeBg, padding: 12, borderRadius: 8 }}>
+              <div key={i} style={{ background: C.codeBg, padding: 20, borderRadius: 8 }}>
                 <div style={{ color: C.secondary, fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{t.name}</div>
                 <div style={{ fontSize: 14 }}>{t.desc}</div>
               </div>
             ))}
           </div>
-        </InteractiveCard>
+        </StaticCard>
       </div>
 
-      <QuizBank questions={[{ question: `What\'s the #1 factor that determines whether a voice agent feels \'natural\'?`, options: ["Voice quality of the TTS", "Accuracy of the STT", "Total round-trip latency", "Size of the LLM"], correctIndex: 2, explanation: `While all components matter, latency is the single biggest factor in perceived naturalness. A mediocre voice with 500ms latency feels more natural than a perfect voice with 2000ms latency. Humans are extremely sensitive to conversational timing.` }]} />
+      <SectionDivider />
+      <QuizBank questions={[{ question: `What\'s the #1 factor that determines whether a voice agent feels \'natural\'?`, options: ["Voice quality of the TTS", "Accuracy of the STT", "Total round-trip latency", "Size of the LLM"], correctIndex: 2, explanation: `While all components matter, latency is the single biggest factor in perceived naturalness. A mediocre voice with 500ms latency feels more natural than a perfect voice with 2000ms latency. Humans are extremely sensitive to conversational timing.` }, { question: `What is "barge-in" in the context of voice agent turn-taking?`, options: ["The agent speaking over the caller to correct them", "Allowing the caller to interrupt the agent mid-speech", "Injecting filler words like 'mm-hmm' while listening", "Detecting when the caller has finished speaking"], correctIndex: 1, explanation: `Barge-in is the ability for a caller to interrupt the agent while it's still speaking. It's essential for natural conversation — without it, callers are forced to wait for the agent to finish before they can respond, which feels robotic and frustrating.` }]} />
     </div>
   );
 };
@@ -267,6 +280,7 @@ const STTSection = () => (
       ))}
     </div>
 
+    <SectionDivider />
     <QuizBank questions={[{ question: `For a real-time voice agent with <1s total latency, which STT approach is most practical?`, options: ["whisper.cpp batch mode on CPU", "Faster Whisper with VAD streaming on GPU", "Deepgram Nova-3 streaming API", "Both B and C depending on constraints"], correctIndex: 3, explanation: `Both Faster Whisper (local, ~200ms with GPU) and Deepgram (cloud, ~150-300ms) can meet the latency budget. Choice depends on your constraints: local = more privacy but needs GPU; cloud = lower latency but data leaves your network.` }]} />
   </div>
 );
@@ -279,12 +293,13 @@ const BrainSection = () => (
       and can take actions via tool/function calling.
     </p>
 
-    <InteractiveCard title={<><Icon name="cpu" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Local LLMs with llama.cpp</>}>
+    <StaticCard title={<><Icon name="cpu" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Local LLMs with llama.cpp</>}>
       <p>Run language models entirely on your machine. No API keys, no data leaving your network.</p>
       <CodeBlock language="bash" code={`# Build llama.cpp\ngit clone https://github.com/ggerganov/llama.cpp\ncd llama.cpp && make -j\n\n# Download a model (e.g., Mistral 7B or Llama 3.1 8B)\n# Use HuggingFace or TheBloke's GGUF quantizations\n\n# Run as API server (OpenAI-compatible!)\n./llama-server \\\n  -m models/llama-3.1-8b-instruct-q4_k_m.gguf \\\n  --host 0.0.0.0 --port 8080 \\\n  -c 4096 \\\n  -ngl 35  # offload layers to GPU\n\n# Now you have a local OpenAI-compatible API at localhost:8080\n# Any framework that works with OpenAI API works with this!`} />
-    </InteractiveCard>
+    </StaticCard>
 
-    <InteractiveCard title={<><Icon name="cloud" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Cloud LLMs for Voice Agents</>}>
+    <SectionDivider />
+    <StaticCard title={<><Icon name="cloud" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Cloud LLMs for Voice Agents</>}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         {[
           { name: "OpenAI GPT-4.1-mini", latency: "~200ms TTFT", note: "Fast, affordable, great for agents. Native function calling." },
@@ -298,9 +313,10 @@ const BrainSection = () => (
           </div>
         ))}
       </div>
-    </InteractiveCard>
+    </StaticCard>
 
-    <InteractiveCard title={<><Icon name="wrench" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />System Prompts for Voice Agents</>}>
+    <SectionDivider />
+    <StaticCard title={<><Icon name="wrench" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />System Prompts for Voice Agents</>}>
       <p>Voice agent system prompts need special considerations compared to text chatbots:</p>
       <CodeBlock language="text" code={`You are a helpful customer service agent for Acme Corp.
 
@@ -322,9 +338,10 @@ TURN-TAKING:
 - End your turns with a clear question or pause point.
 - If the caller seems confused, ask a simpler question.
 - If you don't understand, ask them to repeat — don't guess.`} />
-    </InteractiveCard>
+    </StaticCard>
 
-    <InteractiveCard title={<><Icon name="bolt" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Streaming: The Key to Low Latency</>}>
+    <SectionDivider />
+    <StaticCard title={<><Icon name="bolt" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Streaming: The Key to Low Latency</>}>
       <p>
         The secret to fast voice agents is <strong style={{ color: C.text }}>streaming everywhere</strong>.
         Don't wait for the LLM to finish generating before sending to TTS. Stream token-by-token:
@@ -335,8 +352,9 @@ TURN-TAKING:
         ))}
       </div>
       <p>This overlapping pipeline is why total latency can be ~750ms even though individual components sum to more.</p>
-    </InteractiveCard>
+    </StaticCard>
 
+    <SectionDivider />
     <QuizBank questions={[{ question: `Why is streaming token-by-token from the LLM to TTS critical for voice agents?`, options: ["It improves accuracy", "It reduces memory usage", "It lets TTS start generating audio before the LLM finishes, dramatically cutting perceived latency", "It makes the voice sound better"], correctIndex: 2, explanation: `Streaming is the key to low latency. By sending tokens to TTS as they're generated (instead of waiting for the full response), the caller starts hearing audio while the LLM is still thinking. This overlapping pipeline is why total latency can be ~750ms even though individual components sum to more.` }]} />
   </div>
 );
@@ -375,7 +393,8 @@ const TTSSection = () => (
       ))}
     </div>
 
-    <InteractiveCard title={<><Icon name="magnifying-glass" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Choosing TTS for Your Agent</>}>
+    <SectionDivider />
+    <StaticCard title={<><Icon name="magnifying-glass" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Choosing TTS for Your Agent</>}>
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
           <thead>
@@ -402,7 +421,7 @@ const TTSSection = () => (
           </tbody>
         </table>
       </div>
-    </InteractiveCard>
+    </StaticCard>
   </div>
 );
 
@@ -431,6 +450,7 @@ const LiveKitSection = () => (
       <CodeBlock language="python" code={`# Install LiveKit Agents SDK\npip install livekit-agents livekit-plugins-openai livekit-plugins-silero\n\n# Minimal voice agent with LiveKit (Agents 1.0+ API)\nfrom livekit import agents\nfrom livekit.agents import AgentServer, AgentSession, Agent, room_io\nfrom livekit.plugins import silero\n\nclass Assistant(Agent):\n    def __init__(self):\n        super().__init__(\n            instructions="You are a helpful voice AI assistant. Keep responses concise."\n        )\n\nserver = AgentServer()\n\n@server.rtc_session(agent_name="my-agent")\nasync def my_agent(ctx: agents.JobContext):\n    session = AgentSession(\n        stt="deepgram/nova-3",           # Speech-to-text\n        llm="openai/gpt-4.1-mini",       # Brain\n        tts="cartesia/sonic-3",          # Text-to-speech\n        vad=silero.VAD.load(),           # Voice activity detection\n    )\n    await session.start(room=ctx.room, agent=Assistant())\n    await session.generate_reply(\n        instructions="Greet the user and offer your assistance."\n    )\n\nif __name__ == "__main__":\n    agents.cli.run_app(server)`} />
     </div>
 
+    <SectionDivider />
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
       {[
         { name: "Vocode", desc: "Open-source library for building voice agents. Supports multiple STT/LLM/TTS backends. Good Python SDK with telephony support (Twilio, Vonage).", color: C.accent },
@@ -445,7 +465,8 @@ const LiveKitSection = () => (
       ))}
     </div>
 
-    <InteractiveCard title={<><Icon name="phone" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Telephony: Connecting to Real Phone Lines</>}>
+    <SectionDivider />
+    <StaticCard title={<><Icon name="phone" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Telephony: Connecting to Real Phone Lines</>}>
       <p>To make/receive actual phone calls, voice agents need a SIP trunk or telephony provider:</p>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 10 }}>
         {[
@@ -460,8 +481,9 @@ const LiveKitSection = () => (
           </div>
         ))}
       </div>
-    </InteractiveCard>
+    </StaticCard>
 
+    <SectionDivider />
     <QuizBank questions={[{ question: `What\'s the main advantage of LiveKit over building a custom WebRTC solution?`, options: ["It's the only way to do voice agents", "It handles audio transport, room management, and agent orchestration out of the box", "It's faster than any other framework", "It only works with OpenAI"], correctIndex: 1, explanation: `LiveKit provides the full infrastructure layer — WebRTC media transport, room/session management, AgentSession lifecycle, and SIP/telephony bridging. Building this from scratch would take months. LiveKit works with any STT/LLM/TTS provider, not just OpenAI.` }]} />
   </div>
 );
@@ -474,18 +496,20 @@ const BuildingSection = () => (
       the fully-local approach and the cloud-hybrid approach.
     </p>
 
-    <InteractiveCard title={<><Icon name="home" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Option A: Fully Local Agent Stack</>}>
+    <StaticCard title={<><Icon name="home" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Option A: Fully Local Agent Stack</>}>
       <p style={{ marginBottom: 12 }}>Everything runs on your machine. No API calls, no data leaving your network.</p>
       <CodeBlock language="bash" code={`# === FULLY LOCAL VOICE AGENT ===\n\n# 1. Start local LLM server (llama.cpp)\n./llama-server -m models/llama-3.1-8b-instruct.gguf \\\n  --host 0.0.0.0 --port 8080 -c 4096 -ngl 35\n\n# 2. Python agent script:\npip install faster-whisper piper-tts pyaudio numpy\n\n# agent_local.py — see full code in lab exercises`} />
       <CodeBlock language="python" code={`# agent_local.py — Minimal local voice agent skeleton\nimport pyaudio, numpy as np, requests, subprocess, io, wave\nfrom faster_whisper import WhisperModel\n\n# Init STT\nstt_model = WhisperModel("base.en", device="cpu", compute_type="int8")\n\n# Audio settings\nRATE, CHUNK = 16000, 1024\naudio = pyaudio.PyAudio()\nstream = audio.open(format=pyaudio.paInt16, channels=1, rate=RATE,\n                    input=True, frames_per_buffer=CHUNK)\n\ndef transcribe(audio_data):\n    """Local STT with faster-whisper"""\n    segments, _ = stt_model.transcribe(audio_data, beam_size=5, vad_filter=True)\n    return " ".join([s.text for s in segments])\n\ndef think(text, history):\n    """Local LLM via llama.cpp server (OpenAI-compatible)"""\n    messages = history + [{"role": "user", "content": text}]\n    resp = requests.post("http://localhost:8080/v1/chat/completions", json={\n        "messages": messages, "max_tokens": 150, "stream": False\n    })\n    return resp.json()["choices"][0]["message"]["content"]\n\ndef speak(text):\n    """Local TTS with Piper"""\n    proc = subprocess.run(\n        ["piper", "--model", "en_US-lessac-medium.onnx", "--output_raw"],\n        input=text.encode(), capture_output=True\n    )\n    # Play proc.stdout as raw audio...\n\nprint("Agent ready. Speak into microphone...")\n# Main loop: listen → transcribe → think → speak`} />
-    </InteractiveCard>
+    </StaticCard>
 
-    <InteractiveCard title={<><Icon name="cloud" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Option B: Cloud-Hybrid with LiveKit</>}>
+    <SectionDivider />
+    <StaticCard title={<><Icon name="cloud" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Option B: Cloud-Hybrid with LiveKit</>}>
       <p style={{ marginBottom: 12 }}>Uses LiveKit for transport with cloud STT/LLM/TTS for best quality and lowest latency.</p>
       <CodeBlock language="python" code={`# Full LiveKit agent with function calling (Agents 1.0+ API)\nfrom livekit import agents\nfrom livekit.agents import AgentServer, AgentSession, Agent, room_io, function_tool\nfrom livekit.plugins import silero\n\nclass CustomerAgent(Agent):\n    def __init__(self):\n        super().__init__(\n            instructions=\"\"\"You are a customer service agent.\n            Keep responses short and conversational.\n            Use tools to look up accounts and transfer calls.\"\"\"\n        )\n\n    @function_tool(description="Look up a customer account by phone number")\n    async def lookup_account(self, phone_number: str) -> str:\n        # Your database lookup logic here\n        return "Account found: John Doe, Balance: $1,234.56"\n\n    @function_tool(description="Transfer the call to a human agent")\n    async def transfer_to_human(self, reason: str) -> str:\n        # Trigger call transfer logic\n        return f"Transferring to human agent. Reason: {reason}"\n\nserver = AgentServer()\n\n@server.rtc_session(agent_name="customer-service")\nasync def entrypoint(ctx: agents.JobContext):\n    session = AgentSession(\n        stt="deepgram/nova-3",\n        llm="openai/gpt-4.1-mini",\n        tts="cartesia/sonic-3",\n        vad=silero.VAD.load(),\n    )\n    await session.start(room=ctx.room, agent=CustomerAgent())\n    await session.generate_reply(\n        instructions="Thank the caller and ask how you can help."\n    )\n\nif __name__ == "__main__":\n    agents.cli.run_app(server)`} />
-    </InteractiveCard>
+    </StaticCard>
 
-    <InteractiveCard title={<><Icon name="chart-bar" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Architecture Decision Matrix</>}>
+    <SectionDivider />
+    <StaticCard title={<><Icon name="chart-bar" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Architecture Decision Matrix</>}>
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
           <thead>
@@ -514,7 +538,7 @@ const BuildingSection = () => (
           </tbody>
         </table>
       </div>
-    </InteractiveCard>
+    </StaticCard>
   </div>
 );
 
@@ -579,6 +603,7 @@ const AttackSurfaceSection = () => (
       ))}
     </div>
 
+    <SectionDivider />
     <QuizBank questions={[{ question: `Which attack is unique to voice agents and doesn\'t exist in text-based chatbots?`, options: ["Prompt injection", "Context manipulation", "Adversarial audio that humans and STT hear differently", "Tool abuse via function calling"], correctIndex: 2, explanation: `Adversarial audio is unique to the voice modality. While prompt injection, context manipulation, and tool abuse all exist in text chatbots too, adversarial audio exploits the gap between human and machine perception of sound — something impossible in text-only systems.` }]} />
   </div>
 );
