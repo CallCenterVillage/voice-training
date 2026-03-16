@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { C, CodeBlock, QuizBank, TrainingShell, Icon } from './src/components';
+import { C, CodeBlock, QuizBank, TrainingShell, Icon, NextModuleLink } from './src/components';
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 
 const StaticCard = ({ title, children, color = C.secondary }) => (
@@ -651,6 +651,8 @@ const LabSection = () => {
         <div style={{ fontSize: 14, color: C.muted, marginBottom: 16, lineHeight: 1.6 }}>{exercises[exercise].desc}</div>
         <CodeBlock code={exercises[exercise].code} language="bash" />
       </div>
+      <SectionDivider />
+      <NextModuleLink href="/social-engineering/intro" label="Continue to Social Engineering" />
     </div>
   );
 };

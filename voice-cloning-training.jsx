@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from "react";
-import { C, CodeBlock, InteractiveCard, QuizBank, TrainingShell, Icon, InfoBox } from './src/components';
+import { C, CodeBlock, InteractiveCard, QuizBank, TrainingShell, Icon, InfoBox, NextModuleLink } from './src/components';
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 
 const SECTIONS = [
@@ -1756,10 +1756,7 @@ const LabSection = () => {
       <CodeBlock code={exercises[step].cmd} language="bash" />
     </div>
     <SectionDivider />
-    <div style={{ textAlign: "center", padding: "20px 0" }}>
-      <p style={{ fontSize: 15, color: C.muted, marginBottom: 16 }}>Satisfied with your knowledge? Continue to the next module.</p>
-      <a href="/voice-agents/intro" onClick={(e) => { e.preventDefault(); history.pushState(null, "", "/voice-agents/intro"); window.dispatchEvent(new PopStateEvent("popstate")); window.scrollTo(0, 0); }} style={{ display: "inline-flex", alignItems: "center", gap: 8, background: C.primary, border: "none", borderRadius: 8, padding: "12px 24px", color: "#fff", cursor: "pointer", fontFamily: "inherit", fontSize: 15, fontWeight: 700, textDecoration: "none", transition: "all 0.2s ease" }} onMouseEnter={e => { e.currentTarget.style.background = C.secondary; e.currentTarget.style.boxShadow = `0 0 12px ${C.primary}66`; }} onMouseLeave={e => { e.currentTarget.style.background = C.primary; e.currentTarget.style.boxShadow = "none"; }}>Continue to Voice Agents <ArrowRightIcon style={{ width: 16, height: 16 }} /></a>
-    </div>
+    <NextModuleLink href="/voice-agents/intro" label="Continue to Voice Agents" />
   </div>);
 };
 

@@ -1,5 +1,12 @@
 import { useState, useEffect } from "react";
-import { C, CodeBlock, InteractiveCard, QuizBank, TrainingShell, Icon } from './src/components';
+import { C, CodeBlock, QuizBank, TrainingShell, Icon } from './src/components';
+
+const StaticCard = ({ title, children, color = C.secondary }) => (
+  <div style={{ background: C.card, border: `1px solid ${color}`, borderRadius: 12, marginBottom: 12, overflow: "hidden" }}>
+    <div style={{ padding: "16px 20px", fontSize: 15, fontWeight: 600, color: C.text }}>{title}</div>
+    <div style={{ padding: "0 20px 20px", color: C.muted, fontSize: 14, lineHeight: 1.8 }}>{children}</div>
+  </div>
+);
 import { ArrowRightIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 
 const SECTIONS = [
@@ -123,24 +130,6 @@ const IntroSection = () => (
         </div>
       ))}
     </div>
-    <SectionDivider />
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
-      <div style={{ background: C.card, borderRadius: 12, padding: 20, border: `1px solid ${C.secondary}33` }}>
-        <div style={{ fontSize: 28, marginBottom: 8 }}><Icon name="user" size={28} /></div>
-        <div style={{ fontSize: 14, fontWeight: 700, color: C.secondary, marginBottom: 4 }}>Against Humans</div>
-        <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.6 }}>
-          Classic social engineering adapted for call centers. Pretexting, authority exploitation, urgency creation, and emotional manipulation over the phone.
-        </div>
-      </div>
-      <div style={{ background: C.card, borderRadius: 12, padding: 20, border: `1px solid ${C.highlight}33` }}>
-        <div style={{ fontSize: 28, marginBottom: 8 }}><Icon name="command-line" size={28} /></div>
-        <div style={{ fontSize: 14, fontWeight: 700, color: C.highlight, marginBottom: 4 }}>Against AI Agents</div>
-        <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.6 }}>
-          Prompt injection via voice, jailbreaking through conversation, exploiting tool-calling, and manipulating AI decision boundaries.
-        </div>
-      </div>
-    </div>
-    <SectionDivider />
     <div style={{ borderRadius: 12, border: `1px solid ${C.tertiary}44`, overflow: "hidden" }}>
       <div style={{ background: `${C.tertiary}25`, padding: 20 }}>
         <div style={{ fontSize: 15, color: C.tertiary, fontWeight: 700, marginBottom: 8 }}><Icon name="warning" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />ETHICAL NOTICE</div>
@@ -178,6 +167,24 @@ const PsychologySection = () => (
       Understanding these patterns is the foundation of both attack and defense.
     </p>
 
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
+      <div style={{ background: C.card, borderRadius: 12, padding: 20, border: `1px solid ${C.secondary}33` }}>
+        <div style={{ fontSize: 28, marginBottom: 8 }}><Icon name="user" size={28} /></div>
+        <div style={{ fontSize: 14, fontWeight: 700, color: C.secondary, marginBottom: 4 }}>Against Humans</div>
+        <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.6 }}>
+          Classic social engineering adapted for call centers. Pretexting, authority exploitation, urgency creation, and emotional manipulation over the phone.
+        </div>
+      </div>
+      <div style={{ background: C.card, borderRadius: 12, padding: 20, border: `1px solid ${C.highlight}33` }}>
+        <div style={{ fontSize: 28, marginBottom: 8 }}><Icon name="command-line" size={28} /></div>
+        <div style={{ fontSize: 14, fontWeight: 700, color: C.highlight, marginBottom: 4 }}>Against AI Agents</div>
+        <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.6 }}>
+          Prompt injection via voice, jailbreaking through conversation, exploiting tool-calling, and manipulating AI decision boundaries.
+        </div>
+      </div>
+    </div>
+
+    <SectionDivider />
     <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 12 }}>Cialdini's Principles — Applied to Call Centers</div>
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
       {[
@@ -205,7 +212,7 @@ const PsychologySection = () => (
       ))}
     </div>
     <SectionDivider />
-    <InteractiveCard title={<><Icon name="cpu" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Cognitive Biases Exploited in SE</>}>
+    <StaticCard title={<><Icon name="cpu" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Cognitive Biases Exploited in SE</>}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
         {[
           { bias: "Anchoring", desc: "First piece of information dominates. Start with a believable premise." },
@@ -221,7 +228,7 @@ const PsychologySection = () => (
           </div>
         ))}
       </div>
-    </InteractiveCard>
+    </StaticCard>
     <SectionDivider />
     <QuizBank questions={[{ question: `Which principle is being used: 'I spoke with your manager Dave who said you could help me with this account issue.'`, options: ["Authority + Social Proof", "Urgency + Scarcity", "Reciprocity + Liking", "Commitment + Consistency"], correctIndex: 0, explanation: `This combines Authority (invoking the manager's name as an authority figure) and Social Proof (implying the manager already approved this, so it must be normal). Name-dropping a real manager adds significant credibility.` }, { question: "An attacker says: \"Your account will be locked in 5 minutes if you don't verify now!\" Which principle is this?", options: ["Authority", "Scarcity", "Social Proof", "Reciprocity"], correctIndex: 1, explanation: "This is classic Scarcity — creating artificial time pressure and the threat of loss to prevent the target from thinking critically or following proper procedures." }]} />
   </div>
@@ -270,7 +277,7 @@ const HumanTargetsSection = () => (
       lesson="This is one of the most difficult attacks to defend against because it weaponizes empathy. The agent wants to help a person in distress. Defense: Have a dedicated, trained team for sensitive situations with special verification procedures. Never skip security because of emotional pressure — have an escalation path that's both secure AND compassionate."
     />
     <SectionDivider />
-    <InteractiveCard title={<><Icon name="clipboard" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Common Pretexting Personas</>}>
+    <StaticCard title={<><Icon name="clipboard" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Common Pretexting Personas</>}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         {[
           { persona: "IT Support / Helpdesk", goal: "Get credentials, install remote access", tells: "Asks for passwords, wants to install software" },
@@ -287,7 +294,7 @@ const HumanTargetsSection = () => (
           </div>
         ))}
       </div>
-    </InteractiveCard>
+    </StaticCard>
     <SectionDivider />
     <QuizBank questions={[{ question: `A caller claims to be from law enforcement and demands immediate access to a customer's records 'before they flee the country.' What should the agent do?`, options: [
         "Comply immediately — law enforcement requests are urgent",
@@ -456,7 +463,7 @@ const CallCenterSection = () => (
       lesson="Multi-channel attacks are devastating because each channel seems to 'confirm' the others. The email validates the phone call, and the phone call validates the email — but BOTH are attacker-controlled. Defense: Never use one unverified communication to validate another. Always verify through an independent channel (callback to known number, in-person confirmation)."
     />
     <SectionDivider />
-    <InteractiveCard title={<><Icon name="chart-bar" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Attack Pattern: The Escalation Ladder</>}>
+    <StaticCard title={<><Icon name="chart-bar" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Attack Pattern: The Escalation Ladder</>}>
       <p style={{ marginBottom: 12 }}>Most successful SE attacks follow a predictable escalation pattern:</p>
       <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {[
@@ -478,7 +485,7 @@ const CallCenterSection = () => (
           </div>
         ))}
       </div>
-    </InteractiveCard>
+    </StaticCard>
   </div>
 );
 
@@ -512,7 +519,7 @@ const CombinedSection = () => (
       </div>
     </div>
     <SectionDivider />
-    <InteractiveCard title={<><Icon name="command-line" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 2 }} /><Icon name="user-group" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Human-in-the-Loop AI Attacks</>}>
+    <StaticCard title={<><Icon name="command-line" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 2 }} /><Icon name="user-group" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Human-in-the-Loop AI Attacks</>}>
       <p>The most sophisticated attacks use AI as a force multiplier while a human attacker makes strategic decisions:</p>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginTop: 10 }}>
         {[
@@ -527,9 +534,9 @@ const CombinedSection = () => (
           </div>
         ))}
       </div>
-    </InteractiveCard>
+    </StaticCard>
     <SectionDivider />
-    <InteractiveCard title={<><Icon name="globe" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Attack Scalability: Why This Matters Now</>}>
+    <StaticCard title={<><Icon name="globe" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Attack Scalability: Why This Matters Now</>}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         <div style={{ background: C.codeBg, padding: 14, borderRadius: 8 }}>
           <div style={{ color: C.accent, fontWeight: 700, fontSize: 14, marginBottom: 8 }}>2020: Manual SE</div>
@@ -544,7 +551,7 @@ const CombinedSection = () => (
           </div>
         </div>
       </div>
-    </InteractiveCard>
+    </StaticCard>
     <SectionDivider />
     <QuizBank questions={[{ question: `In a combined AI + voice cloning + social engineering attack, which element is hardest to defend against?`, options: [
         "The voice cloning (detecting synthetic voice)",
@@ -627,7 +634,7 @@ const DefenseSection = () => (
       ))}
     </div>
     <SectionDivider />
-    <InteractiveCard title={<><Icon name="clipboard" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />The 60-Second Verification Protocol</>}>
+    <StaticCard title={<><Icon name="clipboard" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />The 60-Second Verification Protocol</>}>
       <p>A simple, memorable protocol for any agent receiving a suspicious call:</p>
       <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 10 }}>
         {[
@@ -644,7 +651,7 @@ const DefenseSection = () => (
           </div>
         ))}
       </div>
-    </InteractiveCard>
+    </StaticCard>
     <SectionDivider />
     <QuizBank questions={[{ question: `What's the single most effective defense against voice cloning + social engineering attacks?`, options: [
         "AI-powered deepfake voice detection",
