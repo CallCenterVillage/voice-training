@@ -79,11 +79,10 @@ const QuizBank = ({ questions }) => {
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
           <TrophyIcon style={{ width: 22, height: 22, color: pct === 100 ? "#FFD700" : C.accent }} aria-hidden="true" />
           <div style={{ fontSize: 18, fontWeight: 800, color: C.text }}>
-            {pct === 100 ? "Perfect Score!" : pct >= 66 ? "Nice Work!" : "Keep Learning!"}
+            {pct === 100 ? "Great job!" : pct >= 66 ? "Nice work!" : "Keep learning!"}
           </div>
         </div>
-        <div style={{ fontSize: 32, fontWeight: 800, color: C.accent, marginBottom: 4 }}>{score}/{total}</div>
-        <div style={{ fontSize: 14, color: C.muted, marginBottom: 20 }}>{pct}% correct</div>
+        <div style={{ fontSize: 14, color: C.muted, marginBottom: 20 }}>You got {score} out of {total} — review the explanations below.</div>
         <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
           {shuffled.map((question, qi) => {
             const answer = answers[qi];
