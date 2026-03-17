@@ -1432,6 +1432,7 @@ const AISection = () => {
           </div>
           <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 8 }}>These dimensions can be stored and searched in vector databases, which find similar voices by comparing the mathematical distance between embeddings. This is how systems can take an unknown voice and quickly match it against thousands of known voiceprints.</p>
           <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.7 }}>To learn more about how this works, see <a href="https://en.wikipedia.org/wiki/Nearest_neighbor_search" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "underline" }}>nearest neighbor search</a> and <a href="https://en.wikipedia.org/wiki/Vector_database" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "underline" }}>vector databases</a>.</p>
+          <InfoBox>Want to try vector search yourself? <a href="https://github.com/pgvector/pgvector" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "underline" }}>pgvector</a> is a PostgreSQL extension that adds vector similarity search — a great way to get started storing and querying speaker embeddings with a database you may already know.</InfoBox>
         </div>
       </div>
     </div>
@@ -1530,18 +1531,17 @@ const CommercialSection = () => (<div>
   <InfoBox>These companies are not sponsors or affiliated with this training or Call Center Village. They're listed for educational awareness only.<br /><span style={{ color: C.dim, fontStyle: "italic" }}>That being said, if any of you are reading this — Call Center Village is <a href="https://callcentervillage.com/sponsors" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "underline" }}>always looking for sponsors</a>!</span></InfoBox>
   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
     {[
-      { name: "ElevenLabs", url: "https://elevenlabs.io", logo: "/images/elevenlabs-logo.ico", color: C.accent, features: ["Instant cloning (~30s)", "70+ languages", "Real-time streaming", "Voice design from description"], threat: "Very low barrier. Free tier available." },
-      { name: "Murf AI", url: "https://murf.ai", logo: "/images/murf-logo.ico", color: C.highlight, features: ["Voice cloning from 10s", "120+ languages", "AI dubbing", "Enterprise API"], threat: "Low barrier. Free tier available." },
-      { name: "Resemble.AI", url: "https://www.resemble.ai", logo: "/images/resembleai-logo.png", color: C.tertiary, features: ["Custom cloning", "Real-time VC", "Deepfake detection", "On-premise option"], threat: "Offense AND defense capabilities." },
-      { name: "Cartesia Sonic", url: "https://www.cartesia.ai", logo: "/images/cartesia-logo.png", logoBg: "#ffffff", color: C.secondary, features: ["State-space model architecture", "Ultra-low latency", "Voice mixing"], threat: "Built for real-time agents." },
+      { name: "ElevenLabs", url: "https://elevenlabs.io", logo: "/images/elevenlabs-logo.ico", color: C.accent, desc: "Industry-leading voice cloning and text-to-speech platform with real-time streaming capabilities." },
+      { name: "Murf AI", url: "https://murf.ai", logo: "/images/murf-logo.ico", color: C.highlight, desc: "AI voice platform offering voice cloning, text-to-speech, and AI dubbing tools." },
+      { name: "Resemble.AI", url: "https://www.resemble.ai", logo: "/images/resembleai-logo.png", color: C.tertiary, desc: "Voice cloning platform with both offensive and defensive capabilities, including deepfake detection." },
+      { name: "Cartesia Sonic", url: "https://www.cartesia.ai", logo: "/images/cartesia-logo.png", logoBg: "#ffffff", color: C.secondary, desc: "Ultra-low latency voice synthesis built specifically for real-time voice agents." },
     ].map((s, i) => (
       <div key={i} style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, display: "flex", flexDirection: "column" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
           <img src={s.logo} alt={s.name} style={{ width: 40, height: 40, borderRadius: 8, background: s.logoBg || "transparent", padding: s.logoBg ? 4 : 0 }} />
           <a href={s.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 16, fontWeight: 800, color: s.color, textDecoration: "none" }}>{s.name} ↗</a>
         </div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>{s.features.map((f, j) => <span key={j} style={{ background: `${C.primary}10`, border: `1px solid ${C.border}`, padding: "6px 10px", borderRadius: 4, fontSize: 13, color: C.muted }}>{f}</span>)}</div>
-        <div style={{ fontSize: 13, color: C.tertiary, background: `${C.tertiary}10`, padding: "8px 10px", borderRadius: 6, display: "flex", alignItems: "center", gap: 6 }}><Icon name="magnifying-glass" size={14} />{s.threat}</div>
+        <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.6 }}>{s.desc}</div>
       </div>
     ))}
   </div>

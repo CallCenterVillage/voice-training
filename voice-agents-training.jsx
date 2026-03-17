@@ -11,6 +11,113 @@ const StaticCard = ({ title, children, color = C.secondary }) => (
 
 const SectionDivider = () => <hr style={{ border: "none", borderTop: "1px solid #040208", margin: "48px 0" }} />;
 
+const SystemPromptExplainer = () => {
+  const [hoveredSection, setHoveredSection] = useState(null);
+  const sections = [
+    {
+      color: C.accent,
+      title: "ROLE DEFINITION",
+      tooltip: "The opening line sets the agent's identity and scope. Keep it narrow and specific — specialized agents with a clearly defined role have fewer edge cases, clearer success criteria, and faster response times than broad 'do everything' agents.",
+      lines: ["You are a helpful customer service agent for Acme Corp."],
+    },
+    {
+      color: C.secondary,
+      title: "VOICE-SPECIFIC RULES",
+      tooltip: "These rules are unique to voice agents. TTS models work best with alphabetical text — digits and symbols like '@' or '$' can cause mispronunciations. Keep responses under 3 sentences unless asked for detail. Every unnecessary word is a potential source of misinterpretation.",
+      lines: [
+        "- Keep responses SHORT (1-3 sentences). Long responses feel like lectures.",
+        "- Use conversational language, not formal writing.",
+        '- Never use markdown, bullet points, or formatting — the caller can\'t see it.',
+        '- Spell out numbers and abbreviations: say "twenty three dollars" not "$23".',
+        '- Include filler words naturally: "Sure thing!", "Let me check on that."',
+        '- If you need to do a long task, say "One moment please" to fill silence.',
+        '- Handle mishearing gracefully: "I want to make sure I got that right..."',
+      ],
+    },
+    {
+      color: C.highlight,
+      title: "TOOLS AVAILABLE",
+      tooltip: "Tool definitions tell the LLM what actions it can take. Include descriptions for all parameters, specify expected formats with examples (e.g., 'phone number as 10 digits: 5551234567'), and add 'when to use' guidance for each tool. Speech-to-text can produce spoken-form values, so account for conversions like 'at' → '@'.",
+      lines: [
+        "- lookup_account(phone_number) → returns account details",
+        "  Format: 10-digit number, e.g. 5551234567",
+        "- check_balance(account_id) → returns current balance",
+        "- transfer_to_human(reason) → connects to live agent",
+        "  Use when: customer requests a human, or issue is beyond your scope",
+      ],
+    },
+    {
+      color: C.tertiary,
+      title: "GUARDRAILS",
+      tooltip: "List all non-negotiable rules in a dedicated guardrails section. Models are tuned to pay extra attention to this heading. Centralize compliance rules here for easier auditing. Include handling instructions for edge cases like abusive callers or unknown answers.",
+      lines: [
+        "- Never guess or make up information. If unsure, say so.",
+        "- Verify caller identity before sharing any account details. This step is important.",
+        "- Never process refunds over $500 without transferring to a human.",
+        "- If the caller becomes abusive, calmly offer to transfer to a supervisor.",
+      ],
+    },
+    {
+      color: C.accent,
+      title: "ERROR HANDLING",
+      tooltip: "Tools can fail due to network issues, missing data, or permission errors. Include explicit recovery instructions for every tool — never let the agent hallucinate a response when a tool fails. Specify retry logic and fallback options like escalation or callbacks.",
+      lines: [
+        "- If a tool call fails, apologize and offer to try again or transfer.",
+        "- Never invent account details or balances.",
+        "- If you cannot verify the caller, explain what they need and offer a callback.",
+      ],
+    },
+    {
+      color: C.secondary,
+      title: "TURN-TAKING",
+      tooltip: "Turn-taking rules control the flow of conversation. Voice is real-time — unlike text, the caller can't scroll back or re-read. End each turn with a clear question or pause point. Use brief affirmations and check for understanding after complex steps.",
+      lines: [
+        "- End your turns with a clear question or pause point.",
+        "- If the caller seems confused, ask a simpler question.",
+        "- If you don't understand, ask them to repeat — don't guess.",
+        '- After complex steps, confirm: "Does that make sense so far?"',
+      ],
+    },
+  ];
+
+  return (
+    <div style={{ background: C.codeBg, borderRadius: 8, padding: 16, fontSize: 13, fontFamily: "monospace", lineHeight: 1.8, position: "relative" }}>
+      {sections.map((section, i) => (
+        <div
+          key={i}
+          onMouseEnter={() => setHoveredSection(i)}
+          onMouseLeave={() => setHoveredSection(null)}
+          style={{
+            padding: "8px 12px",
+            marginBottom: 4,
+            borderRadius: 6,
+            cursor: "help",
+            transition: "background 0.2s ease",
+            background: hoveredSection === i ? `${section.color}15` : "transparent",
+            borderLeft: `3px solid ${hoveredSection === i ? section.color : "transparent"}`,
+            position: "relative",
+          }}
+        >
+          <div style={{ color: section.color, fontWeight: 700, marginBottom: 2 }}>{section.title}:</div>
+          {section.lines.map((line, j) => (
+            <div key={j} style={{ color: C.muted }}>{line}</div>
+          ))}
+          {hoveredSection === i && (
+            <div style={{
+              marginTop: 8,
+              background: `${section.color}18`, border: `1px solid ${section.color}44`,
+              borderRadius: 8, padding: 12, fontSize: 13, fontFamily: "inherit",
+              color: C.text, lineHeight: 1.6,
+            }}>
+              {section.tooltip}
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+  );
+};
+
 const SECTIONS = [
   { id: "intro", title: "Welcome", icon: "command-line" },
   { id: "architecture", title: "Agent Architecture", icon: "cube" },
@@ -150,7 +257,7 @@ const ArchitectureSection = () => {
     <div>
       <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Agent Architecture</h2>
       <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>
-        Every voice agent follows the same fundamental pipeline. Click each component to learn more.
+        Most voice agents follow a similar fundamental pipeline. Click each component to learn more.
       </p>
 
       <AnimatedFlow
@@ -234,21 +341,19 @@ const STTSection = () => (
           color: C.accent,
           desc: "C/C++ port of OpenAI Whisper. Runs on CPU/GPU locally. Best for batch processing but can do near-real-time with streaming mode.",
           lang: "bash",
-          code: `# whisper.cpp is pre-built at /opt/whisper.cpp\ncd /opt/whisper.cpp\n\n# Transcribe a file\n./build/bin/whisper-cli -m models/ggml-base.en.bin -f audio.wav\n\n# Stream from microphone (real-time, requires SDL2)\n./build/bin/whisper-stream -m models/ggml-base.en.bin -t 8 --step 500 --length 5000`,
+          code: `# whisper.cpp is pre-built at /opt/whisper.cpp\n\n# Transcribe a file\nwhisper-cli -m /opt/whisper.cpp/models/ggml-base.en.bin -f /opt/whisper.cpp/samples/jfk.wav\n\n# Stream from microphone (real-time, requires SDL2)\nwhisper-stream -m /opt/whisper.cpp/models/ggml-base.en.bin -t 8 --step 500 --length 5000\n\n# Compare speed between models using time\ntime whisper-cli -m /opt/whisper.cpp/models/ggml-tiny.en.bin -f /opt/whisper.cpp/samples/jfk.wav\ntime whisper-cli -m /opt/whisper.cpp/models/ggml-base.en.bin -f /opt/whisper.cpp/samples/jfk.wav\n\n# Color-coded confidence output (green = high, red = low)\nwhisper-cli -m /opt/whisper.cpp/models/ggml-base.en.bin -f /opt/whisper.cpp/samples/jfk.wav --print-colors\n\n# Compare multilingual vs English-only on a larger model\ntime whisper-cli -m /opt/whisper.cpp/models/ggml-small.bin -f /opt/whisper.cpp/samples/jfk.wav\ntime whisper-cli -m /opt/whisper.cpp/models/ggml-small.en.bin -f /opt/whisper.cpp/samples/jfk.wav`,
         },
         {
           name: "Faster Whisper",
           color: C.accent,
           desc: <>CTranslate2-based Whisper reimplementation. 4x faster than original with same accuracy. Great for real-time with VAD.<div style={{ marginTop: 12 }}><InfoBox>
             <strong style={{ color: C.text }}>Privacy Notice</strong>
-            <br /><br />The first run normally downloads models from Hugging Face.
-            <br /><br />Pre-downloaded models are available at <code style={{ background: C.codeBg, padding: "2px 6px", borderRadius: 4, fontSize: 12 }}>/opt/faster-whisper/models/</code>
+            <br /><br />The first run normally downloads models from Hugging Face. Pre-downloaded models are available at <code style={{ background: C.codeBg, padding: "2px 6px", borderRadius: 4, fontSize: 12 }}>/opt/faster-whisper/models/</code>
             <br /><br />Use <code style={{ background: C.codeBg, padding: "2px 6px", borderRadius: 4, fontSize: 12 }}>--model</code> with a local path to skip Hugging Face entirely:
             <br /><code style={{ background: C.codeBg, padding: "4px 8px", borderRadius: 4, fontSize: 12, display: "inline-block", marginTop: 4 }}>faster-whisper audio.wav --model /opt/faster-whisper/models/base.en</code>
-            <br /><br />On your own machine, set <code style={{ background: C.codeBg, padding: "2px 6px", borderRadius: 4, fontSize: 12 }}>HF_TOKEN</code> env var if you prefer to use your own Hugging Face Hub account.
           </InfoBox></div></>,
           lang: "bash",
-          code: `# Faster Whisper is pre-installed and available system-wide\n# Wrapper at /usr/bin/faster-whisper → /opt/faster-whisper/transcribe.py\n# Managed via uv venv at /opt/faster-whisper\n\n# Basic transcription (using local model)\nfaster-whisper audio.wav --model /opt/faster-whisper/models/base.en\n\n# Specify device and compute type\nfaster-whisper audio.wav --model /opt/faster-whisper/models/base.en --device cpu --compute_type int8\n\n# Set language and enable VAD filter\nfaster-whisper audio.wav --model /opt/faster-whisper/models/base.en --language en --vad_filter true\n\n# Full example with beam search and word timestamps\nfaster-whisper audio.wav --model /opt/faster-whisper/models/small.en --device cpu --compute_type int8 \\\n  --language en --beam_size 5 --vad_filter true --word_timestamps true`,
+          code: `# Faster Whisper is pre-installed and available system-wide\n# Wrapper at /usr/bin/faster-whisper → /opt/faster-whisper/transcribe.py\n# Managed via uv venv at /opt/faster-whisper\n\n# Basic transcription (using local model)\nfaster-whisper audio.wav --model /opt/faster-whisper/models/base.en\n\n# Specify device and language\nfaster-whisper audio.wav --model /opt/faster-whisper/models/base.en --device cpu --language en\n\n# Use a different model\nfaster-whisper audio.wav --model /opt/faster-whisper/models/small.en --device cpu --language en\n\n# Compare speed between models using time\ntime faster-whisper audio.wav --model /opt/faster-whisper/models/tiny.en\ntime faster-whisper audio.wav --model /opt/faster-whisper/models/base.en\ntime faster-whisper audio.wav --model /opt/faster-whisper/models/small.en`,
         },
       ].map((tool, i) => (
         <div key={i} style={{ background: C.card, border: `1px solid ${tool.color}33`, borderRadius: 12, padding: 16 }}>
@@ -269,8 +374,8 @@ const STTSection = () => (
       {[
         { name: "Deepgram", url: "https://deepgram.com", logo: "/images/deepgram-logo.ico", color: C.accent, desc: "Commercial streaming STT. Purpose-built for real-time voice agents. Low latency with word-level timestamps." },
         { name: "AssemblyAI", url: "https://www.assemblyai.com", logo: "/images/assemblyai-logo.ico", color: C.highlight, desc: "Streaming STT with speaker diarization, sentiment analysis, and entity detection." },
-        { name: "ElevenLabs", url: "https://elevenlabs.io", logo: "/images/elevenlabs-logo.ico", color: C.accent, desc: "Known for TTS, also offers speech-to-text with low latency and multilingual support." },
-        { name: "Murf AI", url: "https://murf.ai", logo: "/images/murf-logo.ico", color: C.highlight, desc: "AI voice platform with speech-to-text capabilities alongside their voice generation tools." },
+        { name: "ElevenLabs", url: "https://elevenlabs.io", logo: "/images/elevenlabs-logo.ico", color: C.tertiary, desc: "Known for TTS, also offers speech-to-text with low latency and multilingual support." },
+        { name: "Murf AI", url: "https://murf.ai", logo: "/images/murf-logo.ico", color: C.secondary, desc: "AI voice platform with speech-to-text capabilities alongside their voice generation tools." },
       ].map((svc, i) => (
         <div key={i} style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, display: "flex", flexDirection: "column" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
@@ -284,7 +389,7 @@ const STTSection = () => (
     <p style={{ fontSize: 12, color: C.dim, textAlign: "center", marginTop: 16 }}>Have a suggestion for a speech-to-text service to include here? Email us at <a href="mailto:support@callcentervillage.com" style={{ color: C.accent, textDecoration: "underline" }}>support@callcentervillage.com</a></p>
 
     <SectionDivider />
-    <QuizBank questions={[{ question: `What is the main advantage of using whisper.cpp or Faster Whisper over a cloud STT service?`, options: ["They are always faster than cloud services", "Your audio data stays local and never leaves your machine", "They support more languages", "They require no setup or configuration"], correctIndex: 1, explanation: `The primary advantage of local STT tools like whisper.cpp and Faster Whisper is privacy — your audio is processed entirely on your machine and never sent to a third-party server. Cloud services may offer lower latency, but your audio data leaves your network and is subject to the provider's data handling policies.` }, { question: `By default, what does Faster Whisper do the first time you use a model?`, options: ["Downloads the model from Hugging Face over the internet", "Uses a built-in model bundled with the package", "Prompts you to manually provide a model file", "Refuses to run without a local model path"], correctIndex: 0, explanation: `Faster Whisper automatically connects to Hugging Face to download models on first use. If you're privacy-focused or working in an air-gapped environment, you should point it to a pre-downloaded local model path using the --model flag to avoid any outbound network connections.` }, { question: `Which Faster Whisper flag specifies whether to run inference on CPU or GPU? (Hint: try faster-whisper -h)`, options: ["--compute_type", "--model", "--device", "--backend"], correctIndex: 2, explanation: `The --device flag controls whether Faster Whisper runs on CPU or GPU (e.g., --device cpu or --device cuda). The --compute_type flag is related but separate — it controls the numerical precision (e.g., int8, float16) which affects speed and memory usage. Try running faster-whisper --help to see all available flags.` }]} />
+    <QuizBank questions={[{ question: `What is the main advantage of using whisper.cpp or Faster Whisper over a cloud STT service?`, options: ["They are always faster than cloud services", "Your audio data stays local and never leaves your machine", "They support more languages", "They require no setup or configuration"], correctIndex: 1, explanation: `The primary advantage of local STT tools like whisper.cpp and Faster Whisper is privacy — your audio is processed entirely on your machine and never sent to a third-party server. Cloud services may offer lower latency, but your audio data leaves your network and is subject to the provider's data handling policies.` }, { question: `By default, what does Faster Whisper do the first time you use a model?`, options: ["Downloads the model from Hugging Face over the internet", "Uses a built-in model bundled with the package", "Prompts you to manually provide a model file", "Refuses to run without a local model path"], correctIndex: 0, explanation: `Faster Whisper automatically connects to Hugging Face to download models on first use. If you're privacy-focused or working in an air-gapped environment, you should point it to a pre-downloaded local model path using the --model flag to avoid any outbound network connections.` }, { question: `Which Faster Whisper flag specifies whether to run inference on CPU or GPU? (Hint: try faster-whisper -h)`, options: ["--compute_type", "--model", "--device", "--backend"], correctIndex: 2, explanation: `The --device flag controls whether Faster Whisper runs on CPU or GPU (e.g., --device cpu or --device cuda). Try running faster-whisper -h to see all available flags.` }]} />
   </div>
 );
 
@@ -292,73 +397,160 @@ const BrainSection = () => (
   <div>
     <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>The LLM Brain</h2>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>
-      The language model is the decision-making center. It processes what was said, decides what to say back,
-      and can take actions via tool/function calling.
+      The large language model (LLM) — also referred to as generative AI — is the decision-making center. It takes the
+      text from the speech-to-text engine, generates a response, and sends it to the text-to-speech engine
+      to be spoken back. It can also take actions via tool/function calling.
     </p>
 
     <StaticCard title={<><Icon name="cpu" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Local LLMs with llama.cpp</>}>
-      <p>Run language models entirely on your machine. No API keys, no data leaving your network.</p>
-      <CodeBlock language="bash" code={`# Build llama.cpp\ngit clone https://github.com/ggerganov/llama.cpp\ncd llama.cpp && make -j\n\n# Download a model (e.g., Mistral 7B or Llama 3.1 8B)\n# Use HuggingFace or TheBloke's GGUF quantizations\n\n# Run as API server (OpenAI-compatible!)\n./llama-server \\\n  -m models/llama-3.1-8b-instruct-q4_k_m.gguf \\\n  --host 0.0.0.0 --port 8080 \\\n  -c 4096 \\\n  -ngl 35  # offload layers to GPU\n\n# Now you have a local OpenAI-compatible API at localhost:8080\n# Any framework that works with OpenAI API works with this!`} />
+      <p>Run language models entirely on your machine. No API keys, no data leaving your network. The quality and speed of local models will depend on how powerful your machine is — more RAM and a dedicated GPU allow you to run larger, more capable models.</p>
+      <CodeBlock language="bash" code={`# llama.cpp is pre-built at /opt/llama.cpp\n\n# Chat with a local LLM in the terminal\n/opt/llama.cpp/build/bin/llama-cli \\\n  -m /opt/llama.cpp/models/Llama-3.2-1B-Instruct-Q4_K_M.gguf \\\n  -cnv -p "You are a helpful assistant."\n\n# Try a smaller model\n/opt/llama.cpp/build/bin/llama-cli \\\n  -m /opt/llama.cpp/models/qwen2.5-0.5b-instruct-q4_k_m.gguf \\\n  -cnv -p "You are a helpful assistant."\n\n# Run with built-in web chat UI (like Ollama)\n/opt/llama.cpp/build/bin/llama-server \\\n  -m /opt/llama.cpp/models/Llama-3.2-1B-Instruct-Q4_K_M.gguf \\\n  --jinja --host 0.0.0.0 --port 8080 -c 0\n# Open http://localhost:8080 in your browser for a full chat interface\n\n# Run as OpenAI-compatible API server (no chat UI)\n/opt/llama.cpp/build/bin/llama-server \\\n  -m /opt/llama.cpp/models/Llama-3.2-1B-Instruct-Q4_K_M.gguf \\\n  --host 0.0.0.0 --port 8080 -c 4096\n# Any framework that works with OpenAI API works with this!\n# Use with Open WebUI, LibreChat, or your own applications`} />
     </StaticCard>
 
     <SectionDivider />
-    <StaticCard title={<><Icon name="cloud" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Cloud LLMs for Voice Agents</>}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-        {[
-          { name: "OpenAI GPT-4.1-mini", latency: "~200ms TTFT", note: "Fast, affordable, great for agents. Native function calling." },
-          { name: "Anthropic Claude", latency: "~300ms TTFT", note: "Strong reasoning. Good for complex decision trees." },
-          { name: "Cerebras", latency: "~100ms TTFT", note: "Fast cloud inference for open models." },
-        ].map((m, i) => (
-          <div key={i} style={{ background: C.codeBg, padding: 12, borderRadius: 8 }}>
-            <div style={{ color: C.secondary, fontWeight: 700, fontSize: 14 }}>{m.name}</div>
-            <div style={{ fontSize: 14, color: C.highlight, fontFamily: "monospace", margin: "4px 0" }}>{m.latency}</div>
-            <div style={{ fontSize: 14 }}>{m.note}</div>
+    <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 12 }}>Cloud LLM Providers</div>
+    <InfoBox>These companies are not sponsors or affiliated with this training or Call Center Village. They're listed for educational awareness only.<br /><span style={{ color: C.dim, fontStyle: "italic" }}>That being said, if any of you are reading this — Call Center Village is <a href="https://callcentervillage.com/sponsors" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "underline" }}>always looking for sponsors</a>!</span></InfoBox>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 12 }}>
+      {[
+        { name: "Anthropic", url: "https://anthropic.com", logo: "/images/anthropic-logo.ico", color: C.accent, desc: "Claude model family with strong reasoning. Good for complex decision trees and tool use." },
+        { name: "Cerebras", url: "https://cerebras.ai", logo: "/images/cerebras-ai.svg", color: C.highlight, desc: "Ultra-fast cloud inference for open models. Extremely low time-to-first-token." },
+        { name: "OpenRouter", url: "https://openrouter.ai", logo: "/images/openrouter-logo.ico", color: C.tertiary, desc: "Unified API gateway for multiple LLM providers. Access hundreds of models through a single endpoint." },
+        { name: "OpenAI", url: "https://help.openai.com/en/articles/7232927-how-do-i-cancel-my-chatgpt-subscription", logo: "/images/OpenAI-white-monoblossom.png", color: C.secondary, desc: "GPT model family with native function calling. Fast and affordable options for voice agents.", strikethrough: true },
+      ].map((svc, i) => (
+        <div key={i} style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, display: "flex", flexDirection: "column" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+            <img src={svc.logo} alt={svc.name} style={{ width: 40, height: 40, borderRadius: 8 }} />
+            <a href={svc.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 16, fontWeight: 800, color: svc.color, textDecoration: svc.strikethrough ? "line-through" : "none" }}>{svc.name} ↗</a>
           </div>
-        ))}
-      </div>
-    </StaticCard>
+          <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.6 }}>{svc.desc}</div>
+        </div>
+      ))}
+    </div>
+    <p style={{ fontSize: 12, color: C.dim, textAlign: "center", marginTop: 16 }}>Have a suggestion for a cloud LLM provider to include here? Email us at <a href="mailto:support@callcentervillage.com" style={{ color: C.accent, textDecoration: "underline" }}>support@callcentervillage.com</a></p>
 
     <SectionDivider />
-    <StaticCard title={<><Icon name="wrench" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />System Prompts for Voice Agents</>}>
-      <p>Voice agent system prompts need special considerations compared to text chatbots:</p>
-      <CodeBlock language="text" code={`You are a helpful customer service agent for Acme Corp.
-
-VOICE-SPECIFIC RULES:
-- Keep responses SHORT (1-3 sentences). Long responses feel like lectures.
-- Use conversational language, not formal writing.
-- Never use markdown, bullet points, or formatting — the caller can't see it.
-- Spell out numbers and abbreviations: say "twenty three dollars" not "$23".
-- Include filler words naturally: "Sure thing!", "Let me check on that."
-- If you need to do a long task, say "One moment please" to fill silence.
-- Handle mishearing gracefully: "I want to make sure I got that right..."
-
-TOOLS AVAILABLE:
-- lookup_account(phone_number) → returns account details
-- check_balance(account_id) → returns current balance
-- transfer_to_human(reason) → connects to live agent
-
-TURN-TAKING:
-- End your turns with a clear question or pause point.
-- If the caller seems confused, ask a simpler question.
-- If you don't understand, ask them to repeat — don't guess.`} />
+    <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>System Prompts</h2>
+    <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 16 }}>
+      A system prompt is the set of instructions you give to an LLM before it interacts with a user. It defines the model's personality, rules, capabilities, and boundaries — essentially telling it who it is and how to behave. Every LLM-powered application uses one, whether it's a chatbot, a coding assistant, or a voice agent. For voice agents specifically, system prompts need extra considerations because the output is spoken aloud, not read on a screen.
+    </p>
+    <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 16 }}>
+      Earlier, we used <code style={{ background: C.codeBg, padding: "2px 6px", borderRadius: 4, fontSize: 13 }}>-p "You are a helpful assistant."</code> when chatting with llama.cpp — that's a system prompt too, just an extremely simple one. For a general-purpose chat, that's fine. But for a voice agent handling real calls, you need much more detail: rules about how to speak, what tools are available, guardrails for safety, and instructions for when things go wrong.
+    </p>
+    <StaticCard title={<><Icon name="wrench" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Example: Voice Agent System Prompt</>}>
+      <p>Voice agent system prompts need special considerations compared to text chatbots. Hover over each section to learn why it matters:</p>
+      <SystemPromptExplainer />
     </StaticCard>
+    <InfoBox>A well-crafted system prompt is one of the most valuable parts of your voice agent — it's what sets your agent apart from everyone else's. Treat system prompts like code: save them, put them in version control, iterate on them, and test changes carefully. A great prompt is the difference between a demo and a product.</InfoBox>
+    <p style={{ fontSize: 13, color: C.dim, marginTop: 12 }}>For a deeper dive into voice agent prompting, see the <a href="https://elevenlabs.io/docs/eleven-agents/best-practices/prompting-guide" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "underline" }}>ElevenLabs Prompting Guide</a>.</p>
 
     <SectionDivider />
     <StaticCard title={<><Icon name="bolt" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Streaming: The Key to Low Latency</>}>
       <p>
         The secret to fast voice agents is <strong style={{ color: C.text }}>streaming everywhere</strong>.
-        Don't wait for the LLM to finish generating before sending to TTS. Stream token-by-token:
+        <br /><br />Don't wait for the LLM to finish generating before sending to TTS. Stream token-by-token:
       </p>
-      <div style={{ display: "flex", gap: 0, alignItems: "center", margin: "16px 0", flexWrap: "wrap" }}>
-        {["LLM generates: 'Sure'", "→ TTS starts on 'Sure'", "→ LLM: ', I can'", "→ TTS queues ', I can'", "→ Caller hears 'Sure' while rest generates"].map((s, i) => (
-          <div key={i} style={{ background: C.codeBg, padding: "6px 10px", borderRadius: 6, fontSize: 14, color: C.secondary, margin: 2, border: `1px solid ${C.border}` }}>{s}</div>
+      <div style={{ fontSize: 14, fontWeight: 700, color: C.accent, marginBottom: 8 }}>With Streaming</div>
+      <div style={{ margin: "0 0 16px 0" }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: 8, fontSize: 12, color: C.dim }}>
+          <span style={{ width: 80 }} />
+          {["0ms", "300ms", "600ms", "900ms", "1200ms", "1500ms"].map((t, i) => (
+            <span key={i} style={{ flex: 1, textAlign: "center" }}>{t}</span>
+          ))}
+        </div>
+        {[
+          { label: "LLM", color: C.accent, segments: [
+            { start: 0, width: 8, text: "Sure," },
+            { start: 10, width: 8, text: "I can" },
+            { start: 20, width: 10, text: "help you" },
+            { start: 32, width: 10, text: "with that." },
+          ]},
+          { label: "TTS", color: C.secondary, segments: [
+            { start: 6, width: 8, text: "Sure," },
+            { start: 16, width: 8, text: "I can" },
+            { start: 26, width: 10, text: "help you" },
+            { start: 38, width: 10, text: "with that." },
+          ]},
+          { label: "Caller hears", color: C.tertiary, segments: [
+            { start: 20, width: 18, text: "Sure," },
+            { start: 40, width: 18, text: "I can" },
+            { start: 60, width: 18, text: "help you" },
+            { start: 80, width: 18, text: "with that." },
+          ]},
+        ].map((row, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <span style={{ width: 80, fontSize: 13, fontWeight: 700, color: row.color, textAlign: "right", flexShrink: 0 }}>{row.label}</span>
+            <div style={{ flex: 1, position: "relative", height: 28, background: C.codeBg, borderRadius: 4 }}>
+              {row.segments.map((seg, j) => (
+                <div key={j} style={{
+                  position: "absolute", left: `${seg.start}%`, width: `${seg.width}%`, top: 2, bottom: 2,
+                  background: `${row.color}30`, border: `1px solid ${row.color}66`, borderRadius: 4,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 11, fontWeight: 600, color: row.color, fontFamily: "monospace",
+                  overflow: "hidden", whiteSpace: "nowrap", padding: "0 4px",
+                }}>{seg.text}</div>
+              ))}
+            </div>
+          </div>
         ))}
       </div>
-      <p>This overlapping pipeline is why total latency can be ~750ms even though individual components sum to more.</p>
+      <p>By streaming token-by-token, the TTS can start generating audio before the LLM has finished its response. This dramatically reduces the time-to-first-token — the caller starts hearing a response in under 500ms, even though the full phrase takes 1-2 seconds to finish saying. Without streaming, the caller would have to wait for the entire LLM response before hearing anything.</p>
+
+      <hr style={{ border: "none", borderTop: `1px solid ${C.border}`, margin: "32px 0" }} />
+
+      <div style={{ fontSize: 14, fontWeight: 700, color: C.tertiary, marginTop: 16, marginBottom: 8 }}>Without Streaming</div>
+      <div style={{ margin: "0 0 24px 0" }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: 8, fontSize: 12, color: C.dim }}>
+          <span style={{ width: 80 }} />
+          {["0s", "2s", "4s", "6s", "8s", "10s", "12s", "13s"].map((t, i) => (
+            <span key={i} style={{ flex: 1, textAlign: "center" }}>{t}</span>
+          ))}
+        </div>
+        {[
+          { label: "LLM", color: C.accent, segments: [
+            { start: 0, width: 62, text: "Generating full response... (~8s)" },
+          ]},
+          { label: "TTS", color: C.secondary, segments: [
+            { start: 62, width: 15, text: "Synthesize (~2s)" },
+          ]},
+          { label: "Caller hears", color: C.tertiary, segments: [
+            { start: 0, width: 77, text: "Silence... waiting..." },
+            { start: 77, width: 23, text: "Full response (~3s)" },
+          ]},
+        ].map((row, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+            <span style={{ width: 80, fontSize: 13, fontWeight: 700, color: row.color, textAlign: "right", flexShrink: 0 }}>{row.label}</span>
+            <div style={{ flex: 1, position: "relative", height: 28, background: C.codeBg, borderRadius: 4 }}>
+              {row.segments.map((seg, j) => (
+                <div key={j} style={{
+                  position: "absolute", left: `${seg.start}%`, width: `${seg.width}%`, top: 2, bottom: 2,
+                  background: seg.text.includes("Silence") ? "transparent" : `${row.color}30`,
+                  border: seg.text.includes("Silence") ? "none" : `1px solid ${row.color}66`,
+                  borderRadius: 4,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: 11, fontWeight: 600, color: seg.text.includes("Silence") ? C.dim : row.color, fontFamily: "monospace",
+                  overflow: "hidden", whiteSpace: "nowrap", padding: "0 4px",
+                  fontStyle: seg.text.includes("Silence") ? "italic" : "normal",
+                }}>{seg.text}</div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <p>Try it yourself — these examples chain an LLM response directly into TTS. Notice how you have to wait for the full LLM generation to complete before you hear anything:</p>
+      <CodeBlock language="bash" code={`# LLM → Piper TTS (non-streaming, fast but lower quality)\ntime /opt/llama.cpp/build/bin/llama-simple \\\n  -m /opt/llama.cpp/models/llama-3.2-3b-instruct-q4_k_m.gguf \\\n  -p "Tell me a funny joke not about a chicken" \\\n  2>/dev/null \\\n  | tail -n +2 \\\n  | piper --model /opt/piper/models/en_US-lessac-medium.onnx --output_raw \\\n  | aplay -r 22050 -f S16_LE\n\n# LLM → Kokoro TTS (non-streaming, slower but much higher quality)\ntime /opt/llama.cpp/build/bin/llama-simple \\\n  -m /opt/llama.cpp/models/llama-3.2-3b-instruct-q4_k_m.gguf \\\n  -p "Tell me a funny joke not about a chicken" \\\n  2>/dev/null \\\n  | tail -n +2 \\\n  | kokoro \\\n  | aplay -r 24000 -f S16_LE`} />
+      <p>On these laptops, you'll experience a <strong style={{ color: C.tertiary }}>10-13 second delay</strong> of silence before hearing anything — imagine being on a phone call and waiting that long for a response.</p>
+      <div style={{ background: `${C.secondary}10`, border: `1px solid ${C.secondary}44`, borderRadius: 10, padding: 16, marginTop: 16, display: "flex", alignItems: "flex-start", gap: 14 }}>
+        <div style={{ fontSize: 32, flexShrink: 0 }}><Icon name="bolt" size={32} /></div>
+        <div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: C.secondary, marginBottom: 4 }}>This is exactly the problem LiveKit solves</div>
+          <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.6 }}>Frameworks like LiveKit handle token-level chunking, sentence boundary detection, and streaming orchestration — turning this painful 13-second delay into sub-second response times. We'll build with it in the next section.</div>
+        </div>
+      </div>
     </StaticCard>
 
     <SectionDivider />
-    <QuizBank questions={[{ question: `Why is streaming token-by-token from the LLM to TTS critical for voice agents?`, options: ["It improves accuracy", "It reduces memory usage", "It lets TTS start generating audio before the LLM finishes, dramatically cutting perceived latency", "It makes the voice sound better"], correctIndex: 2, explanation: `Streaming is the key to low latency. By sending tokens to TTS as they're generated (instead of waiting for the full response), the caller starts hearing audio while the LLM is still thinking. This overlapping pipeline is why total latency can be ~750ms even though individual components sum to more.` }]} />
+    <QuizBank questions={[{ question: `Why is streaming token-by-token from the LLM to TTS critical for voice agents?`, options: ["It improves accuracy", "It reduces memory usage", "The time to first audio generation is lower", "It makes the voice sound better"], correctIndex: 2, explanation: `Streaming is the key to low latency. By sending tokens to TTS as they're generated (instead of waiting for the full response), the caller starts hearing audio while the LLM is still thinking. This overlapping pipeline is why total latency can be lower than the individual components sum.` }, { question: `Why should a voice agent system prompt include a "Guardrails" section?`, options: ["It makes the prompt longer which improves quality", "Models are tuned to pay extra attention to guardrail instructions, and it centralizes non-negotiable rules for easier auditing", "It's required by the Anthropic API", "Guardrails only matter for text chatbots, not voice agents"], correctIndex: 1, explanation: `A dedicated Guardrails section centralizes all non-negotiable rules — like never guessing information or always verifying identity before sharing account details. Models are tuned to pay extra attention to this heading, and having all compliance rules in one place makes them easier to audit and update.` }, { question: `What is the main tradeoff between running a local LLM versus using a cloud LLM provider?`, options: ["Local LLMs are always faster", "Cloud LLMs are free to use", "Local LLMs keep data private but are limited by your hardware; cloud LLMs are faster but your data leaves your network", "There is no meaningful difference"], correctIndex: 2, explanation: `Running locally with llama.cpp means no data leaves your machine — full privacy. But you're limited by your CPU/GPU, so larger models run slowly. Cloud providers like Anthropic or OpenRouter offer faster inference and bigger models, but your conversation data is sent to their servers.` }]} />
   </div>
 );
 
@@ -370,31 +562,62 @@ const TTSSection = () => (
       and even clone specific voices. Here&apos;s your toolkit.
     </p>
 
-    <div style={{ display: "grid", gap: 12, marginBottom: 20 }}>
+    <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 12 }}>Local / Open-Source Tools</div>
+    <div style={{ display: "grid", gap: 24, marginBottom: 24 }}>
       {[
-        { name: "Piper TTS", type: "Local", color: C.accent, speed: "Ultra-fast", quality: "Good", desc: "ONNX-based, runs on Raspberry Pi. Best for low-resource or edge deployment. Many pre-built voices.", streaming: "Yes (sentence-level)" },
-        { name: "Coqui XTTS", type: "Local", color: C.accent, speed: "Medium", quality: "Very Good", desc: "Zero-shot voice cloning + TTS. Can clone a voice from 6s of audio. Good for demos.", streaming: "Yes" },
-        { name: "Kokoro TTS", type: "Local", color: C.accent, speed: "Fast", quality: "Excellent", desc: "High-quality local TTS with natural prosody. Growing community and model ecosystem.", streaming: "Yes" },
-        { name: "ElevenLabs", type: "Cloud", color: C.highlight, speed: "Fast", quality: "Excellent", desc: "Industry-leading quality. Streaming API with ~150ms latency. Voice cloning. Used by many production agents.", streaming: "WebSocket streaming" },
-        { name: "Cartesia (Sonic)", type: "Cloud", color: C.highlight, speed: "Ultra-fast", quality: "Excellent", desc: "Built specifically for real-time agents. State-space architecture gives very low latency. Voice mixing.", streaming: "Native streaming" },
-        { name: "Deepgram Aura", type: "Cloud", color: C.highlight, speed: "Ultra-fast", quality: "Good", desc: "Same company as their STT. Optimized for voice agents with extremely low latency.", streaming: "WebSocket streaming" },
-      ].map((t, i) => (
-        <div key={i} style={{ background: C.card, border: `1px solid ${t.color}33`, borderRadius: 12, padding: 14, display: "grid", gridTemplateColumns: "1fr auto", gap: 10 }}>
-          <div>
-            <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 6 }}>
-              <span style={{ fontSize: 15, fontWeight: 800, color: t.color }}>{t.name}</span>
-              <span style={{ background: `${t.color}20`, color: t.color, padding: "1px 6px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>{t.type}</span>
-            </div>
-            <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.6 }}>{t.desc}</div>
+        {
+          name: "Piper TTS",
+          color: C.accent,
+          desc: "ONNX-based neural TTS that runs on minimal hardware — even a Raspberry Pi. Pre-installed and available system-wide. Fast synthesis but limited to sentence-level streaming.",
+          lang: "bash",
+          code: `# Piper is pre-installed and available system-wide\n# Wrapper at /usr/bin/piper → /opt/piper/speak.py\n\n# Basic text-to-speech\necho "Hello, this is Piper text to speech." \\\n  | piper --model /opt/piper/models/en_US-lessac-medium.onnx --output_raw \\\n  | aplay -r 22050 -f S16_LE\n\n# Save to a file instead of playing\necho "Save this to a file." \\\n  | piper --model /opt/piper/models/en_US-lessac-medium.onnx --output_file output.wav`,
+        },
+        {
+          name: "Kokoro TTS",
+          color: C.accent,
+          desc: "82M parameter TTS model with excellent quality and natural prosody. ONNX-based, runs on CPU. Higher quality than Piper but slightly slower. Streaming server available via Kokoro-FastAPI.",
+          lang: "bash",
+          code: `# Kokoro is pre-installed and available system-wide\n# Wrapper at /usr/bin/kokoro → /opt/kokoro/speak.py\n\n# Basic text-to-speech\necho "Hello, this is Kokoro text to speech." \\\n  | kokoro \\\n  | aplay -r 24000 -f S16_LE\n\n# Kokoro-FastAPI streaming server (if running)\n# Web UI at http://localhost:8880/web\ntime curl -s http://localhost:8880/v1/audio/speech \\\n  -H "Content-Type: application/json" \\\n  -d \'{"input": "Hello from Kokoro streaming server.", "voice": "af_heart", "response_format": "wav"}\' \\\n  -o output.wav && aplay output.wav`,
+        },
+        {
+          name: "Coqui XTTS",
+          color: C.accent,
+          desc: <>Zero-shot voice cloning and TTS — clone a voice from just 6 seconds of audio. Requires more compute than Piper or Kokoro. We use the original <code style={{ background: C.codeBg, padding: "2px 6px", borderRadius: 4, fontSize: 12 }}>TTS</code> package, not the community <code style={{ background: C.codeBg, padding: "2px 6px", borderRadius: 4, fontSize: 12 }}>coqui-tts</code> fork.<div style={{ background: `${C.tertiary}15`, border: `1px solid ${C.tertiary}44`, borderRadius: 6, padding: "8px 12px", marginTop: 10, fontSize: 13, color: C.tertiary, display: "flex", alignItems: "flex-start", gap: 8 }}><Icon name="warning" size={14} style={{ flexShrink: 0, marginTop: 2 }} /><span>Coqui AI shut down in early 2024. This package has known dependency issues and is not actively maintained. Use for demos and experimentation only — not recommended for production.</span></div></>,
+          lang: "bash",
+          code: `# Coqui TTS is pre-installed and available system-wide\n# Wrapper at /usr/bin/coqui-tts → /opt/coqui-tts/.venv/bin/tts\n\n# Basic text-to-speech\ncoqui-tts --text "Hello, this is Coqui TTS." --out_path output.wav\naplay output.wav\n\n# List available models\ncoqui-tts --list_models\n\n# Voice cloning with XTTS v2 (provide a reference audio clip)\ncoqui-tts --model_name tts_models/multilingual/multi-dataset/xtts_v2 \\\n  --text "Hello, this is a cloned voice." \\\n  --speaker_wav reference_voice.wav \\\n  --language_idx en \\\n  --out_path cloned_output.wav`,
+        },
+      ].map((tool, i) => (
+        <div key={i} style={{ background: C.card, border: `1px solid ${tool.color}33`, borderRadius: 12, padding: 16 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+            <div style={{ fontSize: 16, fontWeight: 800, color: tool.color }}>{tool.name}</div>
+            <span style={{ background: `${tool.color}20`, color: tool.color, padding: "2px 8px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Local</span>
           </div>
-          <div style={{ textAlign: "right", fontSize: 14, color: C.dim, minWidth: 90 }}>
-            <div><Icon name="bolt" size={14} style={{ display: "inline-block", verticalAlign: "middle" }} /> {t.speed}</div>
-            <div><Icon name="musical-note" size={14} style={{ display: "inline-block", verticalAlign: "middle" }} /> {t.quality}</div>
-            <div><Icon name="globe" size={14} style={{ display: "inline-block", verticalAlign: "middle" }} /> {t.streaming}</div>
-          </div>
+          <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.6, marginBottom: 10 }}>{tool.desc}</div>
+          <CodeBlock code={tool.code} language={tool.lang} />
         </div>
       ))}
     </div>
+
+    <SectionDivider />
+    <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 12 }}>Commercial Cloud Alternatives</div>
+    <InfoBox>These companies are not sponsors or affiliated with this training or Call Center Village. They're listed for educational awareness only.<br /><span style={{ color: C.dim, fontStyle: "italic" }}>That being said, if any of you are reading this — Call Center Village is <a href="https://callcentervillage.com/sponsors" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "underline" }}>always looking for sponsors</a>!</span></InfoBox>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 12 }}>
+      {[
+        { name: "ElevenLabs", url: "https://elevenlabs.io", logo: "/images/elevenlabs-logo.ico", color: C.accent, desc: "Industry-leading voice quality with streaming API and voice cloning. Used by many production voice agents." },
+        { name: "Cartesia (Sonic)", url: "https://www.cartesia.ai", logo: "/images/cartesia-logo.png", logoBg: "#ffffff", color: C.highlight, desc: "Built specifically for real-time voice agents. State-space architecture with ultra-low latency." },
+        { name: "Murf AI", url: "https://murf.ai", logo: "/images/murf-logo.ico", color: C.tertiary, desc: "AI voice platform with text-to-speech, voice cloning, and AI dubbing tools." },
+        { name: "Deepgram Aura", url: "https://deepgram.com", logo: "/images/deepgram-logo.ico", color: C.secondary, desc: "TTS optimized for voice agents with extremely low latency. From the same company as their STT product." },
+      ].map((svc, i) => (
+        <div key={i} style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, display: "flex", flexDirection: "column" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+            <img src={svc.logo} alt={svc.name} style={{ width: 40, height: 40, borderRadius: 8, background: svc.logoBg || "transparent", padding: svc.logoBg ? 4 : 0 }} />
+            <a href={svc.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 16, fontWeight: 800, color: svc.color, textDecoration: "none" }}>{svc.name} ↗</a>
+          </div>
+          <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.6 }}>{svc.desc}</div>
+        </div>
+      ))}
+    </div>
+    <p style={{ fontSize: 12, color: C.dim, textAlign: "center", marginTop: 16 }}>Have a suggestion for a TTS service to include here? Email us at <a href="mailto:support@callcentervillage.com" style={{ color: C.accent, textDecoration: "underline" }}>support@callcentervillage.com</a></p>
 
     <SectionDivider />
     <StaticCard title={<><Icon name="magnifying-glass" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Choosing TTS for Your Agent</>}>
@@ -409,11 +632,11 @@ const TTSSection = () => (
           </thead>
           <tbody>
             {[
-              ["Red team demo (offline)", "Piper / XTTS (local)", "No cloud dependency, full control"],
-              ["Production voice agent", "ElevenLabs / Cartesia", "Best quality + low latency"],
-              ["Voice cloning attack sim", "XTTS + cloned voice", "Local cloning + generation in one"],
+              ["Quick local demo", "Piper", "Fastest on CPU, minimal setup"],
+              ["High-quality local demo", "Kokoro", "Best quality for local, runs on CPU"],
+              ["Voice cloning attack sim", "Coqui XTTS", "Local cloning + generation in one"],
               ["Edge / IoT deployment", "Piper", "Runs on minimal hardware"],
-              ["Ultra-low latency needed", "Cartesia Sonic / Deepgram Aura", "Purpose-built for real-time"],
+              ["Production voice agent", "ElevenLabs / Cartesia", "Best quality + streaming + low latency"],
             ].map((row, i) => (
               <tr key={i} style={{ borderBottom: `1px solid ${C.codeBg}` }}>
                 {row.map((cell, j) => (
@@ -425,6 +648,9 @@ const TTSSection = () => (
         </table>
       </div>
     </StaticCard>
+
+    <SectionDivider />
+    <QuizBank questions={[{ question: `Which local TTS tool offers the best audio quality on CPU?`, options: ["Piper", "Kokoro", "Deepgram Aura", "ElevenLabs"], correctIndex: 1, explanation: `Kokoro is an 82M parameter ONNX-based model that produces excellent quality audio on CPU. Piper is faster but lower quality. Deepgram Aura and ElevenLabs are cloud services, not local tools.` }, { question: `What is the main advantage of Piper TTS over Kokoro TTS?`, options: ["Better voice quality", "Faster synthesis on CPU with lower resource requirements", "Supports voice cloning", "It's a cloud service"], correctIndex: 1, explanation: `Piper is ONNX-based and designed to run on minimal hardware — even a Raspberry Pi. It synthesizes faster than Kokoro on CPU, though Kokoro produces higher quality audio. The tradeoff is speed vs quality.` }, { question: `Why is Coqui TTS not recommended for production use?`, options: ["It only works on GPU", "It sounds worse than all other options", "The company shut down in 2024 and the package has known dependency issues", "It requires a paid license"], correctIndex: 2, explanation: `Coqui AI shut down in early 2024. While the original TTS package still works, it has known dependency conflicts and is not actively maintained. It's fine for demos and experimentation but not reliable enough for production use.` }]} />
   </div>
 );
 
