@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { C, CodeBlock, QuizBank, TrainingShell, Icon, NextModuleLink } from './src/components';
+import { C, CodeBlock, QuizBank, TrainingShell, Icon, NextModuleLink, InfoBox } from './src/components';
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 
 const StaticCard = ({ title, children, color = C.secondary }) => (
@@ -226,62 +226,65 @@ const STTSection = () => (
       accents, cross-talk, and telephone-quality audio.
     </p>
 
-    <div style={{ display: "grid", gap: 12, marginBottom: 24 }}>
+    <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 12 }}>Local / Open-Source Tools</div>
+    <div style={{ display: "grid", gap: 24, marginBottom: 24 }}>
       {[
         {
           name: "whisper.cpp",
-          type: "Local",
           color: C.accent,
           desc: "C/C++ port of OpenAI Whisper. Runs on CPU/GPU locally. Best for batch processing but can do near-real-time with streaming mode.",
-          latency: "~500ms (stream), ~2s (batch)",
-          accuracy: "Excellent (multilingual)",
-          code: `# Build whisper.cpp\ngit clone https://github.com/ggerganov/whisper.cpp\ncd whisper.cpp && make\n\n# Download model\nbash models/download-ggml-model.sh base.en\n\n# Transcribe a file\n./main -m models/ggml-base.en.bin -f audio.wav\n\n# Stream from microphone (real-time)\n./stream -m models/ggml-base.en.bin -t 4 --step 500 --length 5000`,
+          lang: "bash",
+          code: `# whisper.cpp is pre-built at /opt/whisper.cpp\ncd /opt/whisper.cpp\n\n# Transcribe a file\n./build/bin/whisper-cli -m models/ggml-base.en.bin -f audio.wav\n\n# Stream from microphone (real-time, requires SDL2)\n./build/bin/whisper-stream -m models/ggml-base.en.bin -t 8 --step 500 --length 5000`,
         },
         {
           name: "Faster Whisper",
-          type: "Local",
           color: C.accent,
-          desc: "CTranslate2-based Whisper reimplementation. 4x faster than original with same accuracy. Great for real-time with VAD.",
-          latency: "~200ms (streaming w/ VAD)",
-          accuracy: "Excellent",
-          code: `pip install faster-whisper\n\npython3 -c "\nfrom faster_whisper import WhisperModel\n\nmodel = WhisperModel('base.en', device='cpu', compute_type='int8')\nsegments, info = model.transcribe('audio.wav', beam_size=5, vad_filter=True)\n\nfor segment in segments:\n    print(f'[{segment.start:.2f}s -> {segment.end:.2f}s] {segment.text}')\n"`,
-        },
-        {
-          name: "Deepgram",
-          type: "Cloud API",
-          color: C.highlight,
-          desc: "Commercial streaming STT. Purpose-built for real-time voice agents. Low latency with word-level timestamps.",
-          latency: "~150-300ms (streaming)",
-          accuracy: "Excellent + custom vocab",
-          code: `# Deepgram streaming example\npip install deepgram-sdk\n\n# WebSocket streaming for real-time\nimport asyncio\nfrom deepgram import Deepgram\n\nasync def transcribe_stream(audio_stream):\n    dg = Deepgram("YOUR_API_KEY")\n    socket = await dg.transcription.live({\n        "model": "nova-3",\n        "language": "en",\n        "smart_format": True,\n        "interim_results": True,  # partial results for lower latency\n    })\n    socket.register_handler(socket.event.TRANSCRIPT_RECEIVED, handler)\n    # Send audio chunks as they arrive...`,
-        },
-        {
-          name: "AssemblyAI",
-          type: "Cloud API",
-          color: C.highlight,
-          desc: "Streaming STT with built-in features like speaker diarization, sentiment analysis, and entity detection. Good for analytics.",
-          latency: "~150-300ms",
-          accuracy: "Excellent",
-          code: `pip install assemblyai\n\nimport assemblyai as aai\naai.settings.api_key = "YOUR_KEY"\n\n# Real-time transcription\ntranscriber = aai.RealtimeTranscriber(\n    sample_rate=16000,\n    on_data=lambda t: print(t.text),\n    on_error=lambda e: print(f"Error: {e}"),\n)\ntranscriber.connect()\n# Stream audio chunks via transcriber.stream(audio_bytes)`,
+          desc: <>CTranslate2-based Whisper reimplementation. 4x faster than original with same accuracy. Great for real-time with VAD.<div style={{ marginTop: 12 }}><InfoBox>
+            <strong style={{ color: C.text }}>Privacy Notice</strong>
+            <br /><br />The first run normally downloads models from Hugging Face.
+            <br /><br />Pre-downloaded models are available at <code style={{ background: C.codeBg, padding: "2px 6px", borderRadius: 4, fontSize: 12 }}>/opt/faster-whisper/models/</code>
+            <br /><br />Use <code style={{ background: C.codeBg, padding: "2px 6px", borderRadius: 4, fontSize: 12 }}>--model</code> with a local path to skip Hugging Face entirely:
+            <br /><code style={{ background: C.codeBg, padding: "4px 8px", borderRadius: 4, fontSize: 12, display: "inline-block", marginTop: 4 }}>faster-whisper audio.wav --model /opt/faster-whisper/models/base.en</code>
+            <br /><br />On your own machine, set <code style={{ background: C.codeBg, padding: "2px 6px", borderRadius: 4, fontSize: 12 }}>HF_TOKEN</code> env var if you prefer to use your own Hugging Face Hub account.
+          </InfoBox></div></>,
+          lang: "bash",
+          code: `# Faster Whisper is pre-installed and available system-wide\n# Wrapper at /usr/bin/faster-whisper → /opt/faster-whisper/transcribe.py\n# Managed via uv venv at /opt/faster-whisper\n\n# Basic transcription (using local model)\nfaster-whisper audio.wav --model /opt/faster-whisper/models/base.en\n\n# Specify device and compute type\nfaster-whisper audio.wav --model /opt/faster-whisper/models/base.en --device cpu --compute_type int8\n\n# Set language and enable VAD filter\nfaster-whisper audio.wav --model /opt/faster-whisper/models/base.en --language en --vad_filter true\n\n# Full example with beam search and word timestamps\nfaster-whisper audio.wav --model /opt/faster-whisper/models/small.en --device cpu --compute_type int8 \\\n  --language en --beam_size 5 --vad_filter true --word_timestamps true`,
         },
       ].map((tool, i) => (
         <div key={i} style={{ background: C.card, border: `1px solid ${tool.color}33`, borderRadius: 12, padding: 16 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
             <div style={{ fontSize: 16, fontWeight: 800, color: tool.color }}>{tool.name}</div>
-            <span style={{ background: `${tool.color}20`, color: tool.color, padding: "2px 8px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>{tool.type}</span>
+            <span style={{ background: `${tool.color}20`, color: tool.color, padding: "2px 8px", borderRadius: 4, fontSize: 14, fontWeight: 700 }}>Local</span>
           </div>
           <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.6, marginBottom: 10 }}>{tool.desc}</div>
-          <div style={{ display: "flex", gap: 12, marginBottom: 10, fontSize: 14 }}>
-            <span style={{ color: C.dim }}><Icon name="bolt" size={14} style={{ display: "inline-block", verticalAlign: "middle" }} /> {tool.latency}</span>
-            <span style={{ color: C.dim }}><Icon name="magnifying-glass" size={14} style={{ display: "inline-block", verticalAlign: "middle" }} /> {tool.accuracy}</span>
-          </div>
-          <CodeBlock code={tool.code} language="python" />
+          <CodeBlock code={tool.code} language={tool.lang || "python"} />
         </div>
       ))}
     </div>
 
     <SectionDivider />
-    <QuizBank questions={[{ question: `For a real-time voice agent with <1s total latency, which STT approach is most practical?`, options: ["whisper.cpp batch mode on CPU", "Faster Whisper with VAD streaming on GPU", "Deepgram Nova-3 streaming API", "Both B and C depending on constraints"], correctIndex: 3, explanation: `Both Faster Whisper (local, ~200ms with GPU) and Deepgram (cloud, ~150-300ms) can meet the latency budget. Choice depends on your constraints: local = more privacy but needs GPU; cloud = lower latency but data leaves your network.` }]} />
+    <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 12 }}>Commercial Cloud Alternatives</div>
+    <InfoBox>These companies are not sponsors or affiliated with this training or Call Center Village. They're listed for educational awareness only.<br /><span style={{ color: C.dim, fontStyle: "italic" }}>That being said, if any of you are reading this — Call Center Village is <a href="https://callcentervillage.com/sponsors" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "underline" }}>always looking for sponsors</a>!</span></InfoBox>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 24 }}>
+      {[
+        { name: "Deepgram", url: "https://deepgram.com", logo: "/images/deepgram-logo.ico", color: C.accent, desc: "Commercial streaming STT. Purpose-built for real-time voice agents. Low latency with word-level timestamps." },
+        { name: "AssemblyAI", url: "https://www.assemblyai.com", logo: "/images/assemblyai-logo.ico", color: C.highlight, desc: "Streaming STT with speaker diarization, sentiment analysis, and entity detection." },
+        { name: "ElevenLabs", url: "https://elevenlabs.io", logo: "/images/elevenlabs-logo.ico", color: C.accent, desc: "Known for TTS, also offers speech-to-text with low latency and multilingual support." },
+        { name: "Murf AI", url: "https://murf.ai", logo: "/images/murf-logo.ico", color: C.highlight, desc: "AI voice platform with speech-to-text capabilities alongside their voice generation tools." },
+      ].map((svc, i) => (
+        <div key={i} style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, display: "flex", flexDirection: "column" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+            <img src={svc.logo} alt={svc.name} style={{ width: 40, height: 40, borderRadius: 8 }} />
+            <a href={svc.url} target="_blank" rel="noopener noreferrer" style={{ fontSize: 16, fontWeight: 800, color: svc.color, textDecoration: "none" }}>{svc.name} ↗</a>
+          </div>
+          <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.6 }}>{svc.desc}</div>
+        </div>
+      ))}
+    </div>
+    <p style={{ fontSize: 12, color: C.dim, textAlign: "center", marginTop: 16 }}>Have a suggestion for a speech-to-text service to include here? Email us at <a href="mailto:support@callcentervillage.com" style={{ color: C.accent, textDecoration: "underline" }}>support@callcentervillage.com</a></p>
+
+    <SectionDivider />
+    <QuizBank questions={[{ question: `What is the main advantage of using whisper.cpp or Faster Whisper over a cloud STT service?`, options: ["They are always faster than cloud services", "Your audio data stays local and never leaves your machine", "They support more languages", "They require no setup or configuration"], correctIndex: 1, explanation: `The primary advantage of local STT tools like whisper.cpp and Faster Whisper is privacy — your audio is processed entirely on your machine and never sent to a third-party server. Cloud services may offer lower latency, but your audio data leaves your network and is subject to the provider's data handling policies.` }, { question: `By default, what does Faster Whisper do the first time you use a model?`, options: ["Downloads the model from Hugging Face over the internet", "Uses a built-in model bundled with the package", "Prompts you to manually provide a model file", "Refuses to run without a local model path"], correctIndex: 0, explanation: `Faster Whisper automatically connects to Hugging Face to download models on first use. If you're privacy-focused or working in an air-gapped environment, you should point it to a pre-downloaded local model path using the --model flag to avoid any outbound network connections.` }, { question: `Which Faster Whisper flag specifies whether to run inference on CPU or GPU? (Hint: try faster-whisper -h)`, options: ["--compute_type", "--model", "--device", "--backend"], correctIndex: 2, explanation: `The --device flag controls whether Faster Whisper runs on CPU or GPU (e.g., --device cpu or --device cuda). The --compute_type flag is related but separate — it controls the numerical precision (e.g., int8, float16) which affects speed and memory usage. Try running faster-whisper --help to see all available flags.` }]} />
   </div>
 );
 
@@ -499,7 +502,7 @@ const BuildingSection = () => (
     <StaticCard title={<><Icon name="home" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Option A: Fully Local Agent Stack</>}>
       <p style={{ marginBottom: 12 }}>Everything runs on your machine. No API calls, no data leaving your network.</p>
       <CodeBlock language="bash" code={`# === FULLY LOCAL VOICE AGENT ===\n\n# 1. Start local LLM server (llama.cpp)\n./llama-server -m models/llama-3.1-8b-instruct.gguf \\\n  --host 0.0.0.0 --port 8080 -c 4096 -ngl 35\n\n# 2. Python agent script:\npip install faster-whisper piper-tts pyaudio numpy\n\n# agent_local.py — see full code in lab exercises`} />
-      <CodeBlock language="python" code={`# agent_local.py — Minimal local voice agent skeleton\nimport pyaudio, numpy as np, requests, subprocess, io, wave\nfrom faster_whisper import WhisperModel\n\n# Init STT\nstt_model = WhisperModel("base.en", device="cpu", compute_type="int8")\n\n# Audio settings\nRATE, CHUNK = 16000, 1024\naudio = pyaudio.PyAudio()\nstream = audio.open(format=pyaudio.paInt16, channels=1, rate=RATE,\n                    input=True, frames_per_buffer=CHUNK)\n\ndef transcribe(audio_data):\n    """Local STT with faster-whisper"""\n    segments, _ = stt_model.transcribe(audio_data, beam_size=5, vad_filter=True)\n    return " ".join([s.text for s in segments])\n\ndef think(text, history):\n    """Local LLM via llama.cpp server (OpenAI-compatible)"""\n    messages = history + [{"role": "user", "content": text}]\n    resp = requests.post("http://localhost:8080/v1/chat/completions", json={\n        "messages": messages, "max_tokens": 150, "stream": False\n    })\n    return resp.json()["choices"][0]["message"]["content"]\n\ndef speak(text):\n    """Local TTS with Piper"""\n    proc = subprocess.run(\n        ["piper", "--model", "en_US-lessac-medium.onnx", "--output_raw"],\n        input=text.encode(), capture_output=True\n    )\n    # Play proc.stdout as raw audio...\n\nprint("Agent ready. Speak into microphone...")\n# Main loop: listen → transcribe → think → speak`} />
+      <CodeBlock language="python" code={`# agent_local.py — Minimal local voice agent skeleton\nimport pyaudio, numpy as np, requests, subprocess, io, wave\nfrom faster_whisper import WhisperModel\n\n# Init STT\nstt_model = WhisperModel("/opt/faster-whisper/models/base.en", device="cpu", compute_type="int8")\n\n# Audio settings\nRATE, CHUNK = 16000, 1024\naudio = pyaudio.PyAudio()\nstream = audio.open(format=pyaudio.paInt16, channels=1, rate=RATE,\n                    input=True, frames_per_buffer=CHUNK)\n\ndef transcribe(audio_data):\n    """Local STT with faster-whisper"""\n    segments, _ = stt_model.transcribe(audio_data, beam_size=5, vad_filter=True)\n    return " ".join([s.text for s in segments])\n\ndef think(text, history):\n    """Local LLM via llama.cpp server (OpenAI-compatible)"""\n    messages = history + [{"role": "user", "content": text}]\n    resp = requests.post("http://localhost:8080/v1/chat/completions", json={\n        "messages": messages, "max_tokens": 150, "stream": False\n    })\n    return resp.json()["choices"][0]["message"]["content"]\n\ndef speak(text):\n    """Local TTS with Piper"""\n    proc = subprocess.run(\n        ["piper", "--model", "en_US-lessac-medium.onnx", "--output_raw"],\n        input=text.encode(), capture_output=True\n    )\n    # Play proc.stdout as raw audio...\n\nprint("Agent ready. Speak into microphone...")\n# Main loop: listen → transcribe → think → speak`} />
     </StaticCard>
 
     <SectionDivider />

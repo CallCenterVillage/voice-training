@@ -1362,7 +1362,7 @@ const AISection = () => {
           <div style={{ background: `${C.primary}10`, border: `1px solid ${C.primary}33`, borderRadius: 6, padding: 10 }}>
             <div style={{ fontSize: 11, color: C.dim, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Example</div>
             {activeDetail.exampleComponent === "vocoder" ? <VocoderViz /> : activeDetail.exampleComponent === "melspec" ? <div>
-              <CodeBlock code={'# Generate a spectrogram from your audio file\n# SoX produces a linear spectrogram\n# similar to a mel spectrogram, but with an evenly spaced frequency axis\nsox input.wav -n spectrogram -o spectrogram.png\n\n# View the spectrogram in the terminal\nimg2txt spectrogram.png'} language="bash" />
+              <CodeBlock code={'# Generate a spectrogram from your audio file\n# SoX produces a linear spectrogram\n# similar to a mel spectrogram, but with an evenly spaced frequency axis\nsox input.wav -n spectrogram -o spectrogram.png\n\n# View the spectrogram in the terminal\nimgcat spectrogram.png'} language="bash" />
               <img src="/images/melspec.png" alt="Mel spectrogram of speech" style={{ width: "100%", borderRadius: 4, border: `1px solid ${C.border}`, marginTop: 10 }} />
               {activeDetail.exampleCaption && <div style={{ fontSize: 11, color: C.dim, marginTop: 6, lineHeight: 1.5, textAlign: "center" }}>{activeDetail.exampleCaption}</div>}
             </div> : <div style={{ fontSize: 13, color: C.text, fontFamily: "'JetBrains Mono', 'Fira Code', monospace", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{activeDetail.example}</div>}
@@ -1527,7 +1527,7 @@ const LocalToolsSection = () => (<div>
 const CommercialSection = () => (<div>
   <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Commercial Voice Cloning</h2>
   <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 12 }}>Understanding what's accessible with just a credit card.</p>
-  <InfoBox>These companies are not sponsors or affiliated with this training or Call Center Village. They're listed for educational awareness only.<br /><span style={{ color: C.dim, fontStyle: "italic" }}>That said, if any of you are reading this — Call Center Village is <a href="https://callcentervillage.com/sponsors" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "underline" }}>looking for sponsors</a>.</span></InfoBox>
+  <InfoBox>These companies are not sponsors or affiliated with this training or Call Center Village. They're listed for educational awareness only.<br /><span style={{ color: C.dim, fontStyle: "italic" }}>That being said, if any of you are reading this — Call Center Village is <a href="https://callcentervillage.com/sponsors" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "underline" }}>always looking for sponsors</a>!</span></InfoBox>
   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
     {[
       { name: "ElevenLabs", url: "https://elevenlabs.io", logo: "/images/elevenlabs-logo.ico", color: C.accent, features: ["Instant cloning (~30s)", "70+ languages", "Real-time streaming", "Voice design from description"], threat: "Very low barrier. Free tier available." },
@@ -1606,7 +1606,7 @@ const DefenseSection = () => (<div>
       <div style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 6 }}>SoX Spectrogram Analysis</div>
         <p style={{ fontSize: 13, color: C.dim, marginBottom: 8 }}>Generate spectrograms and inspect them visually for vocoder artifacts, missing room tone, or unnatural frequency patterns. Already installed on the laptops.</p>
-        <CodeBlock language="bash" code={'# Generate a spectrogram to visually inspect\nsox suspect.wav -n spectrogram -o suspect_spec.png\n\n# View the spectrogram in the terminal\nimg2txt suspect_spec.png\n\n# Compare frequency statistics between original and suspect\nsoxi original.wav && sox original.wav -n stat 2>&1\nsoxi suspect.wav && sox suspect.wav -n stat 2>&1'} />
+        <CodeBlock language="bash" code={'# Generate a spectrogram to visually inspect\nsox suspect.wav -n spectrogram -o suspect_spec.png\n\n# View the spectrogram in the terminal\nimgcat suspect_spec.png\n\n# Compare frequency statistics between original and suspect\nsoxi original.wav && sox original.wav -n stat 2>&1\nsoxi suspect.wav && sox suspect.wav -n stat 2>&1'} />
       </div>
     </div>
   </DefenseCard>
@@ -1739,7 +1739,7 @@ const DefenseSection = () => (<div>
 const LabSection = () => {
   const [step, setStep] = useState(0);
   const exercises = [
-    { title: "1: Record & Analyze", cmd: `# Record your voice (15 seconds)\n# You can also use Audacity: Record → File → Export Audio → save as my_voice.wav\nrec -r 44100 -c 1 -b 16 my_voice.wav trim 0 15\n\n# Generate a spectrogram\nsox my_voice.wav -n spectrogram -o spectrum.png\n\n# View the spectrogram in the terminal\nimg2txt spectrum.png\n\n# View audio file info and statistics\nsoxi my_voice.wav && sox my_voice.wav -n stat 2>&1` },
+    { title: "1: Record & Analyze", cmd: `# Record your voice (15 seconds)\n# You can also use Audacity: Record → File → Export Audio → save as my_voice.wav\nrec -r 44100 -c 1 -b 16 my_voice.wav trim 0 15\n\n# Generate a spectrogram\nsox my_voice.wav -n spectrogram -o spectrum.png\n\n# View the spectrogram in the terminal\nimgcat spectrum.png\n\n# View audio file info and statistics\nsoxi my_voice.wav && sox my_voice.wav -n stat 2>&1` },
     { title: "2: Voice Modification", cmd: `# Pitch up\nsox my_voice.wav v1_higher.wav pitch 400\n\n# Pitch down\nsox my_voice.wav v2_deeper.wav pitch -300\n\n# Telephone effect\nsox my_voice.wav v3_phone.wav highpass 300 lowpass 3400\n\n# Robot effect\nffmpeg -i my_voice.wav -af "vibrato=f=6:d=0.4" v4_robot.wav` },
     { title: "3: AI Cloning", cmd: `# Preinstalled on Call Center Village laptops\n# pip install coqui-tts\n\ntts --model_name tts_models/multilingual/multi-dataset/xtts_v2 \\\n    --speaker_wav my_voice.wav --language_idx en \\\n    --text "AI clone of my voice." --out_path clone.wav` },
     { title: "4: Detection", cmd: `# Preinstalled on Call Center Village laptops\n# pip install resemblyzer\n\npython3 -c "\nfrom resemblyzer import VoiceEncoder, preprocess_wav\nfrom pathlib import Path; import numpy as np\nenc = VoiceEncoder()\no = enc.embed_utterance(preprocess_wav(Path('my_voice.wav')))\nc = enc.embed_utterance(preprocess_wav(Path('clone.wav')))\nprint(f'Similarity: {np.dot(o,c):.4f} (threshold is tunable, ~0.75 is a conservative starting point)')\n"` },
