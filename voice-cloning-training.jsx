@@ -1235,7 +1235,7 @@ const AI_FLOW_DETAILS = {
   "Voice Conversion": [
     { title: "Source Audio", detail: "You start with a recording of someone speaking — this could be your own voice, or any audio clip. The key thing is that the words, timing, rhythm, and emotion in this recording will all be preserved in the final output. Only the voice identity changes.", example: "Think of it like lip-syncing in reverse: you provide the\nperformance (what to say and how to say it), and the\nmodel swaps in a different voice.\n\nSource: You recording yourself saying\n\"I need to verify your account details.\"\n\nThe words, pacing, and emotion stay — only the voice changes." },
     { title: "Feature Extraction", detail: "The system analyzes the source audio and pulls out everything about how the words are spoken — but strips away who is speaking. It separates the content (what was said) from the identity (who said it). This is the critical step that makes voice conversion possible.", example: "What gets extracted:\n\n• Pitch contour — the melody of the speech (rising for questions, etc.)\n• Phoneme timing — how long each sound lasts\n• Energy envelope — which words are louder/softer\n• Speaking rate — pauses, rhythm, speed\n\nWhat gets discarded:\n\n• Speaker identity (timbre, vocal tract shape)\n• Voice-specific resonance characteristics" },
-    { title: "Speaker Embedding", detail: "The target voice's identity is loaded in as a speaker embedding — the same kind of numerical vector we covered in the Speaker Embeddings section. This is where fine-tuned vs. zero-shot matters most for voice conversion.", example: "The embedding acts like a voice \"skin\" that gets\napplied to the extracted features:\n\nSource features (what to say + how to say it)\n  + Target embedding (whose voice to use)\n  = Instructions for the conversion model\n\nFine-tuned (RVC, so-vits-svc):\n  Built from 10-30 min of clean training audio\n  Hours of GPU training\n  Highest quality, near-perfect clones\n\nZero-shot (OpenVoice, FreeVC):\n  Extracted from just 3-10 seconds of audio\n  No training needed — a voicemail is enough\n  Lower quality but instant and dangerous" },
+    { title: "Speaker Embedding", detail: "The target voice's identity is loaded in as a speaker embedding — a numerical vector that captures what makes a voice unique. Learn more about how these work in the Speaker Embeddings section further down this page.", example: "The embedding acts like a voice \"skin\" that gets\napplied to the extracted features:\n\nSource features (what to say + how to say it)\n  + Target embedding (whose voice to use)\n  = Instructions for the conversion model\n\nFine-tuned (RVC, so-vits-svc):\n  Built from 10-30 min of clean training audio\n  Hours of GPU training\n  Highest quality, near-perfect clones\n\nZero-shot (OpenVoice, FreeVC):\n  Extracted from just 3-10 seconds of audio\n  No training needed — a voicemail is enough\n  Lower quality but instant and dangerous" },
     { title: "Conversion Model", detail: "The neural network takes the extracted features (content + style) and the target speaker embedding (identity) and generates a new spectrogram that sounds like the target speaker performing the source speech. This is where the actual voice swap happens.", example: "Different tools approach this differently:\n\nRVC — uses a retrieval-based approach, finding the\nclosest matching voice segments from training data\nand blending them. Very high quality, real-time capable.\n\nso-vits-svc — combines a variational autoencoder\nwith a vocoder for singing voice conversion.\n\nFreeVC — text-free approach that works without\ntranscription, making it language-agnostic." },
     { title: "Vocoder", detail: "Just like in TTS, the vocoder converts the generated spectrogram into an actual audio waveform you can hear. Most voice conversion tools use HiFi-GAN for this step. The vocoder doesn't change the voice — it just turns the blueprint into playable sound.", exampleComponent: "vocoder" },
     { title: "Target Audio", detail: "The final output sounds like the target speaker saying the exact same words, with the same emotion, timing, and rhythm as the original source recording. Only the voice identity has changed — everything else is preserved from the source.", example: "What stayed the same:\n• Words and pronunciation\n• Emotional tone and emphasis\n• Speaking speed and pauses\n• Rhythm and cadence\n\nWhat changed:\n• Voice identity (timbre, resonance, vocal texture)\n\nWith zero-shot, the full attack chain takes under\na minute — find a 5s clip, extract embedding,\nrecord yourself speaking, convert. With fine-tuned\nmodels like RVC, quality is near-perfect but\nrequires hours of preparation.\n\nThe result is convincing because all the natural\nvariations in human speech are preserved — only\nthe \"who\" has been swapped." },
@@ -1246,21 +1246,8 @@ const AISection = () => {
   const [archIdx, setArchIdx] = useState(0);
   const [flowStep, setFlowStep] = useState(0);
   const archs = [
-    { name: "TTS", desc: "Text-to-speech with cloned voice. Learns characteristics from samples, generates from any text.", flow: [{ icon: "document", label: "Text" }, { icon: "variable", label: "Phonemes" }, { icon: "cpu", label: "Voice Model" }, { icon: "chart-bar", label: "Mel Spec" }, { icon: "speaker-wave", label: "Vocoder" }, { icon: "headphones", label: "Audio" }], tools: [
-      { name: "Coqui TTS", url: "https://github.com/coqui-ai/TTS", tag: "both" },
-      { name: "Bark", url: "https://github.com/suno-ai/bark", tag: "zero-shot" },
-      { name: "Tortoise", url: "https://github.com/neonbjb/tortoise-tts", tag: "fine-tuned" },
-      { name: "Piper", url: "https://github.com/OHF-Voice/piper1-gpl", tag: "fine-tuned" },
-      { name: "StyleTTS2", url: "https://github.com/yl4579/StyleTTS2", tag: "fine-tuned" },
-      { name: "MetaVoice", url: "https://github.com/metavoiceio/metavoice-src", tag: "zero-shot" },
-      { name: "Qwen3-TTS", url: "https://github.com/QwenLM/Qwen3-TTS", tag: "both" },
-    ] },
-    { name: "Voice Conversion", desc: "Converts one speaker's speech to sound like another, preserving words and emotion.", flow: [{ icon: "microphone", label: "Source" }, { icon: "chart-bar", label: "Features" }, { icon: "arrows-right-left", label: "Embed" }, { icon: "cpu", label: "Convert" }, { icon: "speaker-wave", label: "Vocoder" }, { icon: "headphones", label: "Target" }], tools: [
-      { name: "RVC", url: "https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI", tag: "fine-tuned" },
-      { name: "so-vits-svc", url: "https://github.com/svc-develop-team/so-vits-svc", tag: "fine-tuned" },
-      { name: "FreeVC", url: "https://github.com/OlaWod/FreeVC", tag: "zero-shot" },
-      { name: "OpenVoice", url: "https://github.com/myshell-ai/OpenVoice", tag: "zero-shot" },
-    ] },
+    { name: "TTS", desc: "Text-to-speech with cloned voice. Learns characteristics from samples, generates from any text.", flow: [{ icon: "document", label: "Text" }, { icon: "variable", label: "Phonemes" }, { icon: "cpu", label: "Voice Model" }, { icon: "chart-bar", label: "Mel Spec" }, { icon: "speaker-wave", label: "Vocoder" }, { icon: "headphones", label: "Audio" }] },
+    { name: "Voice Conversion", desc: "Converts one speaker's speech to sound like another, preserving words and emotion.", flow: [{ icon: "microphone", label: "Source" }, { icon: "chart-bar", label: "Features" }, { icon: "arrows-right-left", label: "Embed" }, { icon: "cpu", label: "Convert" }, { icon: "speaker-wave", label: "Vocoder" }, { icon: "headphones", label: "Target" }] },
   ];
   const currentArch = archs[archIdx];
   const flowDetails = AI_FLOW_DETAILS[currentArch.name];
@@ -1269,7 +1256,7 @@ const AISection = () => {
     <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>AI Voice Cloning</h2>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>Modern neural networks clone a voice from minutes — or seconds — of audio.</p>
 
-    <h3 style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8 }}>Non-AI Powered TTS</h3>
+    <h3 style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8 }}>Before There Was AI</h3>
     <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.7, marginBottom: 14 }}>Before AI-based TTS, rule-based synthesizers used formant models and pre-recorded phoneme snippets to generate speech. They sound robotic and can't clone voices, but they're lightweight, fast, and require no GPU or training data. These tools are useful as a baseline to compare against AI-generated speech.</p>
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12 }}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
@@ -1299,60 +1286,14 @@ const AISection = () => {
     <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
       {archs.map((a, i) => <button key={i} onClick={() => { setArchIdx(i); setFlowStep(0); }} style={{ flex: 1, background: i === archIdx ? `${C.primary}15` : C.card, border: `1px solid ${i === archIdx ? C.secondary : C.border}`, borderRadius: 10, padding: "12px 8px", color: i === archIdx ? C.accent : C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 700, textAlign: "center" }}>{a.name}</button>)}
     </div>
-    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: 16, marginBottom: 12 }}>
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 20 }}>
       <div style={{ fontSize: 14, color: C.text, fontWeight: 600, marginBottom: 6 }}>{currentArch.name === "TTS" ? "How TTS Cloning Works" : "How Voice Conversion Differs from TTS"}</div>
       <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, margin: "0 0 12px" }}>{
         currentArch.name === "TTS"
           ? "Text-to-speech cloning takes typed text and generates audio that sounds like a specific person. You provide the words, and the AI handles everything else — pronunciation, rhythm, and vocal style. The output is entirely AI-generated; there is no original human recording being modified."
           : "Unlike TTS, voice conversion starts with an actual human recording. Instead of generating speech from text, it takes an existing recording and swaps the speaker's identity while keeping everything else intact — the words, emotion, pacing, and rhythm all stay exactly as they were. Think of it as a real-time voice filter: you speak naturally, and the output sounds like someone else said it. This makes it especially powerful because the natural human speech patterns (hesitations, emphasis, breathing) are preserved, which is much harder to detect as fake."
       }</p>
-      <div style={{ fontSize: 13, color: C.text, fontWeight: 600, marginBottom: 6 }}>Fine-tuned vs. Zero-shot</div>
-      <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, margin: "0 0 10px" }}>{currentArch.name === "TTS"
-        ? "Both approaches use the same pipeline below, but differ in how the voice model learns the target voice:"
-        : "Both approaches use the same pipeline below, but differ in how the speaker embedding is created:"
-      }</p>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-        <div style={{ background: C.codeBg, borderRadius: 8, padding: 12, border: `1px solid ${C.border}` }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: C.accent, marginBottom: 4 }}>Fine-tuned</div>
-          <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.6 }}>Requires 10-30 min of clean audio and hours of GPU training. Produces the highest quality clones.</div>
-        </div>
-        <div style={{ background: C.codeBg, borderRadius: 8, padding: 12, border: `1px solid ${C.border}` }}>
-          <div style={{ fontSize: 13, fontWeight: 700, color: C.tertiary, marginBottom: 4 }}>Zero-shot</div>
-          <div style={{ fontSize: 12, color: C.muted, lineHeight: 1.6 }}>Needs just 3-10 seconds of audio, no training at all. Lower quality, but fast and dangerous — a voicemail or YouTube clip is enough.</div>
-        </div>
-      </div>
-    </div>
-    <div style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: 14, marginBottom: 16 }}>
-      <div style={{ fontSize: 12, color: C.dim, textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>Example {currentArch.name} Tools</div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr auto 1fr", gap: 0, alignItems: "start" }}>
-        <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: 11, color: C.accent, fontWeight: 700, marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>Fine-tuned</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "center" }}>
-            {currentArch.tools.filter(t => t.tag === "fine-tuned").map((t, i) => (
-              <a key={i} href={t.url} target="_blank" rel="noopener noreferrer" style={{ background: `${C.primary}15`, border: `1px solid ${C.primary}33`, borderRadius: 6, padding: "4px 12px", fontSize: 13, color: C.accent, fontWeight: 600, textDecoration: "none", transition: "all 0.2s ease" }} onMouseEnter={e => { e.currentTarget.style.background = `${C.primary}30`; e.currentTarget.style.borderColor = C.accent; }} onMouseLeave={e => { e.currentTarget.style.background = `${C.primary}15`; e.currentTarget.style.borderColor = `${C.primary}33`; }}>{t.name} ↗</a>
-            ))}
-          </div>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "0 12px" }}>
-          <div style={{ fontSize: 11, color: C.dim, fontWeight: 700, marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>Both</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "center" }}>
-            {currentArch.tools.filter(t => t.tag === "both").map((t, i) => (
-              <a key={i} href={t.url} target="_blank" rel="noopener noreferrer" style={{ background: `${C.secondary}20`, border: `1px solid ${C.secondary}44`, borderRadius: 6, padding: "4px 12px", fontSize: 13, color: C.accent, fontWeight: 600, textDecoration: "none", transition: "all 0.2s ease" }} onMouseEnter={e => { e.currentTarget.style.background = `${C.secondary}40`; e.currentTarget.style.borderColor = C.accent; }} onMouseLeave={e => { e.currentTarget.style.background = `${C.secondary}20`; e.currentTarget.style.borderColor = `${C.secondary}44`; }}>{t.name} ↗</a>
-            ))}
-          </div>
-        </div>
-        <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: 11, color: C.tertiary, fontWeight: 700, marginBottom: 8, textTransform: "uppercase", letterSpacing: 1 }}>Zero-shot</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 6, alignItems: "center" }}>
-            {currentArch.tools.filter(t => t.tag === "zero-shot").map((t, i) => (
-              <a key={i} href={t.url} target="_blank" rel="noopener noreferrer" style={{ background: `${C.tertiary}15`, border: `1px solid ${C.tertiary}33`, borderRadius: 6, padding: "4px 12px", fontSize: 13, color: C.tertiary, fontWeight: 600, textDecoration: "none", transition: "all 0.2s ease" }} onMouseEnter={e => { e.currentTarget.style.background = `${C.tertiary}30`; e.currentTarget.style.borderColor = C.tertiary; }} onMouseLeave={e => { e.currentTarget.style.background = `${C.tertiary}15`; e.currentTarget.style.borderColor = `${C.tertiary}33`; }}>{t.name} ↗</a>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-    <div style={{ background: C.card, borderRadius: 12, padding: 20, border: `1px solid ${C.border}`, marginBottom: 20 }}>
-      <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 12 }}>{currentArch.desc}</div>
+      <hr style={{ border: "none", borderTop: `1px solid ${C.border}`, margin: "16px 0" }} />
       <p style={{ fontSize: 12, color: C.dim, marginBottom: 4 }}>Click a step to learn more:</p>
       <PipelineDiagram steps={currentArch.flow} activeStep={flowStep} onStepClick={i => setFlowStep(flowStep === i ? -1 : i)} />
       {activeDetail && activeDetail.exampleComponent !== "tts-audio" && (
@@ -1384,21 +1325,41 @@ const AISection = () => {
         </div>
       </>}
     </div>
-    <SectionDivider />
-    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, marginBottom: 12, overflow: "hidden" }}>
-      <div style={{ padding: "16px 20px", fontSize: 15, fontWeight: 600, color: C.text, display: "flex", alignItems: "center" }}><Icon name="chart-bar" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Quality vs. Effort</div>
-      <div style={{ padding: "0 20px 20px", color: C.muted, fontSize: 14, lineHeight: 1.8 }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
-          <thead><tr style={{ borderBottom: `1px solid ${C.border}` }}>{["Method", "Audio", "Compute", "Quality", "Real-Time"].map(h => <th key={h} style={{ padding: 8, textAlign: "left", color: C.accent, fontWeight: 700 }}>{h}</th>)}</tr></thead>
-          <tbody>{[["eSpeak NG / Festival", "None", "None", 1, "Yes"], ["TTS (zero-shot)", "3-10s", "Medium", 3, "Sometimes"], ["TTS (fine-tuned)", "5-30min", "High", 4, "No"], ["VC (zero-shot)", "3-10s", "Medium", 3, "Yes"], ["VC (fine-tuned / RVC)", "10-30min", "High", 5, "Yes*"], ["Commercial API", "10-30s", "None", 4, "Yes"]].map((row, i) => <tr key={i} onMouseEnter={e => e.currentTarget.style.background = `${C.primary}10`} onMouseLeave={e => e.currentTarget.style.background = "transparent"} style={{ borderBottom: "1px solid #06040c", transition: "background 0.15s ease", cursor: "default" }}>{row.map((cell, j) => <td key={j} style={{ padding: 8, color: j === 0 ? C.text : C.muted }}>{j === 3 ? Array.from({ length: cell }, (_, k) => <Icon key={k} name="star" size={14} style={{ display: "inline-block", color: C.accent }} />) : cell}</td>)}</tr>)}</tbody>
-        </table>
+    <div style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: 14, marginBottom: 16 }}>
+      <div style={{ fontSize: 12, color: C.dim, textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>TTS and Voice Conversion Tool Reference</div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+        {[
+          { name: "Coqui TTS", url: "https://github.com/coqui-ai/TTS" },
+          { name: "Bark", url: "https://github.com/suno-ai/bark" },
+          { name: "Tortoise", url: "https://github.com/neonbjb/tortoise-tts" },
+          { name: "Piper", url: "https://github.com/OHF-Voice/piper1-gpl" },
+          { name: "StyleTTS2", url: "https://github.com/yl4579/StyleTTS2" },
+          { name: "MetaVoice", url: "https://github.com/metavoiceio/metavoice-src" },
+          { name: "Qwen3-TTS", url: "https://github.com/QwenLM/Qwen3-TTS" },
+          { name: "Spark TTS", url: "https://github.com/SparkAudio/Spark-TTS" },
+          { name: "F5-TTS", url: "https://github.com/SWivid/F5-TTS" },
+          { name: "Chatterbox", url: "https://github.com/resemble-ai/chatterbox" },
+          { name: "RVC", url: "https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI" },
+          { name: "FreeVC", url: "https://github.com/OlaWod/FreeVC" },
+          { name: "DDSP-SVC", url: "https://github.com/yxlllc/DDSP-SVC" },
+          { name: "OpenVoice", url: "https://github.com/myshell-ai/OpenVoice" },
+        ].map((t, i) => (
+          <a key={i} href={t.url} target="_blank" rel="noopener noreferrer" style={{ background: `${C.primary}15`, border: `1px solid ${C.primary}33`, borderRadius: 6, padding: "3px 10px", fontSize: 12, color: C.accent, fontWeight: 600, textDecoration: "none", transition: "all 0.2s ease" }} onMouseEnter={e => { e.currentTarget.style.background = `${C.primary}30`; }} onMouseLeave={e => { e.currentTarget.style.background = `${C.primary}15`; }}>{t.name} ↗</a>
+        ))}
       </div>
+      <hr style={{ border: "none", borderTop: `1px solid ${C.border}`, margin: "24px 0" }} />
+      <div style={{ fontSize: 12, color: C.dim, textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>Quality vs. Effort</div>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+        <thead><tr style={{ borderBottom: `1px solid ${C.border}` }}>{["Method", "Audio", "Compute", "Quality", "Real-Time"].map(h => <th key={h} style={{ padding: 8, textAlign: "left", color: C.accent, fontWeight: 700 }}>{h}</th>)}</tr></thead>
+        <tbody>{[["eSpeak NG / Festival", "None", "None", 1, "Yes"], ["TTS (zero-shot)", "3-10s", "Medium", 3, "Sometimes"], ["TTS (fine-tuned)", "5-30min", "High", 4, "No"], ["VC (zero-shot)", "3-10s", "Medium", 3, "Yes"], ["VC (fine-tuned / RVC)", "10-30min", "High", 5, "Yes*"], ["Commercial API", "10-30s", "None", 4, "Yes"]].map((row, i) => <tr key={i} onMouseEnter={e => e.currentTarget.style.background = `${C.primary}10`} onMouseLeave={e => e.currentTarget.style.background = "transparent"} style={{ borderBottom: "1px solid #06040c", transition: "background 0.15s ease", cursor: "default" }}>{row.map((cell, j) => <td key={j} style={{ padding: 8, color: j === 0 ? C.text : C.muted }}>{j === 3 ? Array.from({ length: cell }, (_, k) => <Icon key={k} name="star" size={14} style={{ display: "inline-block", color: C.accent }} />) : cell}</td>)}</tr>)}</tbody>
+      </table>
     </div>
     <SectionDivider />
+    <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4 }}>Speaker Embeddings</div>
+    <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.7, marginBottom: 12 }}>Remember the speaker embedding step from voice conversion above? A speaker embedding is typically a 256 to 512 dimension vector that captures what makes a voice unique — a mathematical fingerprint. Here's an example of how they might actually work under the hood.</p>
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, marginBottom: 12, overflow: "hidden" }}>
-      <div style={{ padding: "16px 20px", fontSize: 15, fontWeight: 600, color: C.text, display: "flex", alignItems: "center" }}><Icon name="fingerprint" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Speaker Embeddings</div>
+      <div style={{ padding: "16px 20px", fontSize: 15, fontWeight: 600, color: C.text, display: "flex", alignItems: "center" }}><Icon name="fingerprint" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />How Speaker Embeddings Work</div>
       <div style={{ padding: "0 20px 20px", color: C.muted, fontSize: 14, lineHeight: 1.8 }}>
-        <p>A 256-512 dimension vector capturing what makes a voice unique — a mathematical fingerprint.</p>
         <div style={{ margin: "12px 0", display: "flex", gap: 8, flexWrap: "wrap" }}>
           {["Pitch Range", "Formants", "Breathiness", "Vibrato", "Pace", "Nasality", "...256+ dims"].map((d, i) => <span key={i} style={{ background: "#06040c", border: `1px solid ${C.border}`, borderRadius: 6, padding: "8px 12px", fontSize: 13, color: i === 6 ? C.dim : C.accent }}>{d}</span>)}
         </div>
@@ -1448,7 +1409,7 @@ const AISection = () => {
 
 const LocalToolsSection = () => (<div>
   <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Local AI Tools</h2>
-  <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>Run everything locally — no cloud, no API keys, no data leaving your machine.</p>
+  <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>Run everything locally — no cloud, no API keys, no data leaving your machine. But before diving into the tools, it helps to understand the different approaches to voice cloning and how they've evolved — each requires different amounts of data, compute, and effort.</p>
 
   <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 8 }}>Voice Cloning Approaches</div>
   <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 16 }}>
@@ -1461,15 +1422,15 @@ const LocalToolsSection = () => (<div>
       <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.7, marginBottom: 12 }}>
         The original approach. You train (or fine-tune) a model on hours of labeled audio from the target speaker. This produces the highest quality clones but requires significant time, compute, and data. Tools like RVC use this approach — you provide 10-20+ minutes of clean audio and the model learns the speaker's voice characteristics over many training iterations.
       </div>
+      <InfoBox>Fine-tuning audio models is a broad topic beyond the scope of this training. To learn more, see the <a href="https://huggingface.co/learn/audio-course" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "underline" }}>Hugging Face Audio Course</a> for a comprehensive introduction to training and fine-tuning audio models.</InfoBox>
     </div>
 
     <div style={{ background: C.card, border: `1px solid ${C.highlight}33`, borderRadius: 12, padding: 20 }}>
       <div style={{ fontSize: 16, fontWeight: 800, color: C.highlight, marginBottom: 8 }}>One-Shot Cloning</div>
       <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.7, marginBottom: 12 }}>
-        A middle ground. You provide a single audio sample along with its exact text transcription. The model uses both the audio and the aligned text to understand the speaker's voice. Earlier versions of Coqui TTS (v1) used this approach — you had to provide both the wav file and a matching transcript.
+        A middle ground. You provide a single audio sample along with its exact text transcription. The model uses both the audio and the aligned text to understand the speaker's voice. Earlier versions of Coqui TTS (v1) and Spark TTS use this approach — you provide both the wav file and a matching transcript.
       </div>
-      <InfoBox>This version of Coqui TTS is not available on the Call Center Village laptops. This example is for educational reference only.</InfoBox>
-      <CodeBlock code={`# Example: One-shot cloning (older Coqui TTS v1 style)\n# Required both the audio AND its exact transcription\ntts --model_name tts_models/en/ljspeech/tacotron2-DDC \\\n    --speaker_wav reference.wav \\\n    --reference_text "The exact words spoken in the reference audio." \\\n    --text "New words to say in that voice." \\\n    --out_path output.wav\n\n# If the text didn't match the audio exactly, quality suffered`} language="bash" />
+      <CodeBlock code={`# One-shot cloning with Spark TTS\n# Requires both the audio AND its exact transcription\nspark-tts --text "My fellow Americans." --device 0 \\\n    --save_dir ~/callcentervillage/voice-cloning \\\n    --prompt_speech_path /opt/spark-tts/pretrained_models/potus/reference.wav \\\n    --prompt_text "$(cat /opt/spark-tts/pretrained_models/potus/reference.txt)"\n\n# Spark TTS will output the save path, e.g.:\n# Audio saved at: ~/callcentervillage/voice-cloning/<YYYYMMDDHHMMSS>.wav\n# Play it back with:\n# play ~/callcentervillage/voice-cloning/<YYYYMMDDHHMMSS>.wav\n\n# If the text doesn't match the audio exactly, quality suffers`} language="bash" />
     </div>
 
     <div style={{ background: C.card, border: `1px solid ${C.tertiary}33`, borderRadius: 12, padding: 20 }}>
@@ -1478,41 +1439,30 @@ const LocalToolsSection = () => (<div>
         The current state of the art — and the most dangerous from a security perspective. Just provide a few seconds of audio. No transcript needed, no training required. The model extracts the speaker's voice characteristics directly from the audio and can immediately speak any new text in that voice. This is what Coqui XTTS v2 and most modern commercial services use.
       </div>
       <InfoBox>This command can take several minutes to run on CPU. Be patient — the model is doing a lot of work to clone the voice.</InfoBox>
-      <CodeBlock code={`# Zero-shot cloning with Coqui XTTS v2\n# Just provide audio — no transcript, no training\ncd ~/callcentervillage/voice-cloning\n\ncoqui-tts --model_name tts_models/multilingual/multi-dataset/xtts_v2 \\\n    --speaker_wav /opt/coqui-tts/celebrity-voice.wav \\\n    --language_idx en \\\n    --text "Hi, It's Taylor. My voice was cloned, from a public recording -- poorly -- for educational purposes. Expect a cease-and-desist soon. ...Later!" \\\n    --out_path output.wav && play output.wav`} language="bash" />
+      <CodeBlock code={`# Zero-shot cloning with Coqui XTTS v2\n# Just provide audio — no transcript, no training\ncd ~/callcentervillage/voice-cloning\n\ncoqui-tts --model_name tts_models/multilingual/multi-dataset/xtts_v2 \\\n    --speaker_wav /opt/coqui-tts/celebrity-voice.wav \\\n    --language_idx en \\\n    --text "I'm entering my cloned era." \\\n    --out_path output.wav && play output.wav`} language="bash" />
       <p style={{ fontSize: 12, color: C.dim, marginTop: 8 }}>Source audio: <a href="https://www.youtube.com/watch?v=9qDW_ZKpvxI&t=55s" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "underline" }}>YouTube</a></p>
 
     </div>
   </div>
 
   <SectionDivider />
+  <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Reference Tools</h2>
+  <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>Hands-on tools for voice cloning, conversion, and synthesis — all running locally on your machine.</p>
   <ToolComparison tools={[
-    { name: "Coqui TTS", desc: "Open-source TTS with zero-shot cloning via XTTS v2 model. 16+ languages.", pros: ["Zero-shot", "Multi-language", "Fine-tunable"], cons: ["Coqui shut down", "GPU recommended"], install: `# Preinstalled on Call Center Village laptops\n# Wrapper at /usr/bin/coqui-tts → /opt/coqui-tts/.venv/bin/tts\ncd ~/callcentervillage/voice-cloning\n\ncoqui-tts --model_name tts_models/multilingual/multi-dataset/xtts_v2 \\\n    --speaker_wav ~/callcentervillage/voice-cloning/input.wav --language_idx en \\\n    --text "Somebody once told me, the world is gonna roll me." \\\n    --out_path output.wav && play output.wav` },
-    { name: "Piper TTS", desc: "Neural TTS for edge devices. Runs on Raspberry Pi.", pros: ["Runs anywhere", "Super fast", "Many voices"], cons: ["Not zero-shot", "Training needed"], install: `# Preinstalled on Call Center Village laptops\n# pip install piper-tts\n\necho "Hello" | piper --model en_US-lessac-medium.onnx --output_file out.wav` },
+    { name: "Coqui TTS", desc: <><span>Open-source TTS with zero-shot cloning via XTTS v2 model. 16+ languages.</span><div style={{ background: `${C.highlight}10`, border: `1px solid ${C.highlight}33`, borderRadius: 8, padding: "10px 14px", marginTop: 8, display: "flex", alignItems: "flex-start", gap: 10, fontSize: 13 }}><Icon name="warning" size={16} style={{ color: C.highlight, flexShrink: 0, marginTop: 2 }} /><span style={{ color: C.muted }}>Coqui AI shut down in 2024. This tool has significant dependency issues and may require manual troubleshooting to install. It's pre-configured on these laptops, but setting it up elsewhere can be painful.</span></div></>, pros: ["Zero-shot", "Multi-language", "Fine-tunable"], cons: ["Coqui shut down", "GPU recommended"], install: `# Preinstalled on Call Center Village laptops\n# Wrapper at /usr/bin/coqui-tts → /opt/coqui-tts/.venv/bin/tts\ncd ~/callcentervillage/voice-cloning\n\ncoqui-tts --model_name tts_models/multilingual/multi-dataset/xtts_v2 \\\n    --speaker_wav input.wav --language_idx en \\\n    --text "Somebody once told me, the world is gonna roll me." \\\n    --out_path output.wav && play output.wav` },
+    { name: "Piper TTS", desc: "Neural TTS for edge devices. Runs on Raspberry Pi.", pros: ["Runs anywhere", "Super fast", "Many voices"], cons: ["Not zero-shot", "Training needed"], install: `# Preinstalled on Call Center Village laptops\n# pip install piper-tts\ncd ~/callcentervillage/voice-cloning\n\necho "Hello" | piper --model /opt/piper/models/en_US-lessac-medium.onnx --output_file output.wav && play output.wav` },
+    { name: "Spark TTS", desc: "Built on Qwen2.5 LLM — zero-shot voice cloning with controllable gender, pitch, and speaking rate. Bilingual (English/Chinese).", pros: ["Zero-shot", "Controllable", "LLM-based"], cons: ["GPU recommended", "Newer project"], install: `# Preinstalled on Call Center Village laptops\n# Wrapper at /usr/bin/spark-tts → /opt/spark-tts\ncd ~/callcentervillage/voice-cloning\n\nspark-tts --text "My fellow Americans." --device 0 \\\n    --save_dir ~/callcentervillage/voice-cloning \\\n    --prompt_speech_path /opt/spark-tts/pretrained_models/potus/reference.wav \\\n    --prompt_text "$(cat /opt/spark-tts/pretrained_models/potus/reference.txt)"` },
     { name: "RVC", desc: "Voice conversion. Real-time on consumer GPUs. Huge community.", pros: ["Best VC quality", "Real-time", "Large community"], cons: ["Complex setup", "GPU required"], install: `# Preinstalled on Call Center Village laptops\n# git clone https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI\n# pip install -r requirements.txt\n\n# Launch the RVC web interface\npython infer-web.py\n\n# Open LibreWolf and navigate to the URL shown in the terminal\n# (typically http://localhost:7865)` },
     { name: "OpenVoice", desc: "Instant cloning with tone/emotion control. MIT license.", pros: ["Fast", "Emotion control", "Lightweight"], cons: ["Best quality in English", "Less natural"], install: `# Preinstalled on Call Center Village laptops\n# git clone https://github.com/myshell-ai/OpenVoice\n# cd OpenVoice && pip install -e .\n\n# Clone a voice from a reference clip (zero-shot)\npython -m openvoice_cli single \\\n    -i input.wav \\\n    -r reference_voice.wav \\\n    -o output.wav\n\n# Batch process a folder of audio files\npython -m openvoice_cli batch \\\n    -id ./input_folder \\\n    -rf ./reference_voice.wav \\\n    -od ./output_folder` },
   ]} />
-  <SectionDivider />
-  <div>
-    <h3 style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8 }}>Clone a Voice in 5 Minutes</h3>
-    <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.7, marginBottom: 14 }}>Record a voice sample, feed it to Coqui TTS, and hear the clone. Read the script below to capture a wide range of phonemes and vocal characteristics in a single recording.</p>
-    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12 }}>
-      <div style={{ fontSize: 14, fontWeight: 700, color: C.accent, marginBottom: 8 }}>Recording Script</div>
-      <p style={{ fontSize: 12, color: C.dim, marginBottom: 8 }}>Read this aloud at a natural pace. It covers all major English phonemes, varied intonation, and different mouth shapes.</p>
-      <div style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: 20, fontSize: 17, color: C.text, lineHeight: 2, letterSpacing: 0.2 }}>
-        "The quick brown fox jumps gracefully over a lazy dog sleeping beneath the old oak tree. She sells thick, fresh seashells down by the shimmering seashore every Thursday morning. Would you kindly confirm your date of birth and the last four digits of your account number? I wasn't sure if the package arrived yesterday or if it's expected tomorrow — could you please check on that for me? Absolutely, I'd be happy to transfer you to our billing department right away. Thank you so much for your patience, and have a wonderful evening!"
-      </div>
-    </div>
-    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12, marginTop: 24 }}>
-      <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 8 }}>Commands</div>
-      <CodeBlock language="bash" code={`# Preinstalled on Call Center Village laptops\n# pip install coqui-tts\n\n# Step 1: Record yourself reading the script above (~20 seconds)\n# You can also use Audacity: Record → File → Export Audio → save as sample.wav\nrec -r 44100 -c 1 sample.wav trim 0 20\n\n# Step 2: Generate a clone from your recording\ntts --model_name tts_models/multilingual/multi-dataset/xtts_v2 \\\n    --speaker_wav sample.wav --language_idx en \\\n    --text "I can say anything in this voice." \\\n    --out_path cloned.wav\n\n# Step 3: Listen to the result\naplay cloned.wav`} />
-    </div>
     <SectionDivider />
-    <h3 style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8 }}>Supporting Tools: whisper.cpp & llama.cpp</h3>
-    <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.7, marginBottom: 14 }}>These tools complete the local voice attack pipeline. whisper.cpp handles speech-to-text (transcribing what someone says), and llama.cpp runs a local LLM to generate realistic dialogue for a cloned voice. Combined with a TTS or VC tool, you have a fully local pipeline with zero cloud dependency.</p>
+    <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Supporting Tools</h2>
+    <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.7, marginBottom: 24 }}>These tools complete the local voice attack pipeline. Combined with a TTS or voice conversion tool, you have a fully local pipeline with zero cloud dependency.</p>
 
+    <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4 }}>whisper.cpp</div>
+    <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.7, marginBottom: 12 }}>Local speech-to-text — transcribe audio to text entirely on your machine.</p>
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12 }}>
-      <div style={{ fontSize: 15, fontWeight: 700, color: C.accent, marginBottom: 6 }}>whisper.cpp</div>
-      <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 12 }}>Local speech-to-text powered by OpenAI's Whisper model, compiled to run efficiently on CPU. Transcribe audio files, extract text from recordings for re-synthesis, or analyze call recordings — all offline.</p>
+      <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 12 }}>Powered by OpenAI's Whisper model, compiled to run efficiently on CPU. Transcribe audio files, extract text from recordings for re-synthesis, or analyze call recordings — all offline.</p>
       <CodeBlock language="bash" code={`# whisper.cpp is installed at /opt/whisper.cpp\ncd /opt/whisper.cpp\n\n# Transcribe an audio file (using the tiny model for speed on i3)\n./build/bin/whisper-cli -m models/ggml-tiny.en.bin -f ~/callcentervillage/voice-cloning/input.wav\n\n# Transcribe with timestamps\n./build/bin/whisper-cli -m models/ggml-tiny.en.bin -f ~/callcentervillage/voice-cloning/input.wav -otxt\n\n# Output as SRT subtitles\n./build/bin/whisper-cli -m models/ggml-tiny.en.bin -f ~/callcentervillage/voice-cloning/input.wav -osrt\n\n# Use the small model for better accuracy (slower)\n./build/bin/whisper-cli -m models/ggml-small.en.bin -f ~/callcentervillage/voice-cloning/input.wav`} />
       <p style={{ fontSize: 12, color: C.dim, marginTop: 10, marginBottom: 12, lineHeight: 1.6 }}>The <strong style={{ color: C.muted }}>tiny</strong> model is fastest and works well on low-powered hardware. Use <strong style={{ color: C.muted }}>small</strong> for better accuracy if you can wait a bit longer. Models ending in <strong style={{ color: C.muted }}>.en</strong> are English-only and slightly more accurate for English.</p>
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
@@ -1528,15 +1478,16 @@ const LocalToolsSection = () => (<div>
       <p style={{ fontSize: 11, color: C.dim, marginTop: 8 }}>For these laptops, <strong style={{ color: C.muted }}>tiny</strong> or <strong style={{ color: C.muted }}>base</strong> are recommended. See all available models at <a href="https://huggingface.co/ggerganov/whisper.cpp" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "underline" }}>huggingface.co/ggerganov/whisper.cpp</a>.</p>
     </div>
 
-    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12, marginTop: 24 }}>
-      <div style={{ fontSize: 15, fontWeight: 700, color: C.accent, marginBottom: 6 }}>llama.cpp</div>
-      <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 12 }}>Run large language models locally on CPU. Generate realistic call scripts, social engineering dialogue, or conversational responses — all without sending data to the cloud. Perfect for generating text that a cloned voice can speak.</p>
+    <div style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4, marginTop: 24 }}>llama.cpp</div>
+    <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.7, marginBottom: 12 }}>Run large language models locally — generate scripts and dialogue without the cloud.</p>
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12 }}>
+      <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 12 }}>Generate realistic call scripts, social engineering dialogue, or conversational responses — all without sending data to the cloud. Generate realistic call scripts, social engineering dialogue, or conversational responses — all without sending data to the cloud. Perfect for generating text that a cloned voice can speak.</p>
       <CodeBlock language="bash" code={`# llama.cpp is installed at /opt/llama.cpp\ncd /opt/llama.cpp\n\n# Generate a simple response (using a small quantized model for i3)\n./llama-cli -m models/tinyllama-1.1b-chat.Q4_K_M.gguf \\\n    -p "Write a short phone script where a bank employee asks a customer to verify their identity." \\\n    -n 150\n\n# Interactive chat mode\n./llama-cli -m models/tinyllama-1.1b-chat.Q4_K_M.gguf \\\n    --interactive \\\n    -p "You are a call center agent. Respond naturally to the customer."\n\n# Generate text and save to file (for feeding into TTS)\n./llama-cli -m models/tinyllama-1.1b-chat.Q4_K_M.gguf \\\n    -p "Write a convincing voicemail message from a bank about suspicious activity." \\\n    -n 100 > ~/callcentervillage/voice-cloning/script.txt`} />
       <p style={{ fontSize: 12, color: C.dim, marginTop: 10, lineHeight: 1.6 }}>Smaller quantized models (Q4_K_M) run best on limited hardware. The output won't match GPT-4, but it's enough to generate realistic scripts entirely offline.</p>
     </div>
 
     <SectionDivider />
-    <h3 style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8 }}>Putting It All Together</h3>
+    <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Putting It All Together</h2>
     <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.7, marginBottom: 14 }}>These tools chain together to build fully local voice cloning pipelines — no internet connection required. Here are two realistic scenarios:</p>
 
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12 }}>
@@ -1550,7 +1501,7 @@ const LocalToolsSection = () => (<div>
       <p style={{ fontSize: 12, color: C.dim, marginBottom: 8 }}>You have a recording of a conversation. Transcribe it, generate a contextual follow-up, and deliver it in the original speaker's voice.</p>
       <CodeBlock language="bash" code={`# 1. Transcribe the recording to understand what was said\ncd /opt/whisper.cpp\n./build/bin/whisper-cli -m models/ggml-tiny.en.bin \\\n    -f ~/callcentervillage/voice-cloning/recorded_call.wav \\\n    -otxt\n\n# 2. Feed the transcription to llama.cpp for a contextual response\ncd /opt/llama.cpp\n./llama-cli -m models/tinyllama-1.1b-chat.Q4_K_M.gguf \\\n    -p "The caller said: $(cat ~/callcentervillage/voice-cloning/recorded_call.wav.txt). Write a convincing follow-up response as if you are the same person calling back." \\\n    -n 100 > ~/callcentervillage/voice-cloning/response.txt\n\n# 3. Synthesize the response in the original speaker's voice\ntts --model_name tts_models/multilingual/multi-dataset/xtts_v2 \\\n    --speaker_wav ~/callcentervillage/voice-cloning/recorded_call.wav \\\n    --language_idx en \\\n    --text "$(cat ~/callcentervillage/voice-cloning/response.txt)" \\\n    --out_path ~/callcentervillage/voice-cloning/cloned_response.wav`} />
     </div>
-  </div>
+
   <SectionDivider />
   <QuizBank questions={[
     { question: "You need to demo voice cloning at a conference in 5 minutes. What's your best bet?", options: ["Train an RVC model", "Use Coqui TTS zero-shot", "Fine-tune Piper TTS", "Build a custom model from scratch"], correctIndex: 1, explanation: "Coqui TTS zero-shot only needs a few seconds of reference audio and no training — you can go from sample to clone in under a minute." },
@@ -1775,15 +1726,24 @@ const DefenseSection = () => (<div>
 const LabSection = () => {
   const [step, setStep] = useState(0);
   const exercises = [
-    { title: "1: Record & Analyze", cmd: `# Record your voice (15 seconds)\n# You can also use Audacity: Record → File → Export Audio → save as my_voice.wav\nrec -r 44100 -c 1 -b 16 my_voice.wav trim 0 15\n\n# Generate a spectrogram\nsox my_voice.wav -n spectrogram -o spectrum.png\n\n# View the spectrogram in the terminal\nimgcat spectrum.png\n\n# View audio file info and statistics\nsoxi my_voice.wav && sox my_voice.wav -n stat 2>&1` },
+    { title: "1: Record & Analyze", cmd: `# Navigate to working directory\ncd ~/callcentervillage/voice-cloning\n\n# Record yourself reading the script above (~20 seconds)\n# You can also use Audacity: Record → File → Export Audio → save as my_voice.wav\nrec -r 44100 -c 1 -b 16 my_voice.wav trim 0 20\n\n# Generate a spectrogram\nsox my_voice.wav -n spectrogram -o spectrum.png\n\n# View the spectrogram in the terminal\nimgcat spectrum.png\n\n# View audio file info and statistics\nsoxi my_voice.wav && sox my_voice.wav -n stat 2>&1` },
     { title: "2: Voice Modification", cmd: `# Pitch up\nsox my_voice.wav v1_higher.wav pitch 400\n\n# Pitch down\nsox my_voice.wav v2_deeper.wav pitch -300\n\n# Telephone effect\nsox my_voice.wav v3_phone.wav highpass 300 lowpass 3400\n\n# Robot effect\nffmpeg -i my_voice.wav -af "vibrato=f=6:d=0.4" v4_robot.wav` },
-    { title: "3: AI Cloning", cmd: `# Preinstalled on Call Center Village laptops\n# Wrapper at /usr/bin/coqui-tts → /opt/coqui-tts/.venv/bin/tts\ncd ~/callcentervillage/voice-cloning\n\ncoqui-tts --model_name tts_models/multilingual/multi-dataset/xtts_v2 \\\n    --speaker_wav my_voice.wav --language_idx en \\\n    --text "AI clone of my voice." --out_path clone.wav && play clone.wav` },
+    { title: "3: AI Cloning", cmd: `cd ~/callcentervillage/voice-cloning\n\n# Clone your voice using the recording from Step 1\ncoqui-tts --model_name tts_models/multilingual/multi-dataset/xtts_v2 \\\n    --speaker_wav my_voice.wav --language_idx en \\\n    --text "This is an AI clone of my voice. Pretty wild, right?" \\\n    --out_path clone.wav && play clone.wav\n\n# This may take several minutes on CPU — be patient` },
     { title: "4: Detection", cmd: `# Preinstalled on Call Center Village laptops\n# pip install resemblyzer\n\npython3 -c "\nfrom resemblyzer import VoiceEncoder, preprocess_wav\nfrom pathlib import Path; import numpy as np\nenc = VoiceEncoder()\no = enc.embed_utterance(preprocess_wav(Path('my_voice.wav')))\nc = enc.embed_utterance(preprocess_wav(Path('clone.wav')))\nprint(f'Similarity: {np.dot(o,c):.4f} (threshold is tunable, ~0.75 is a conservative starting point)')\n"` },
   ];
   return (<div>
     <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Interactive Lab</h2>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 16 }}>Put it all together — record your voice, modify it, clone it with AI, then try to detect which is real vs AI vs modified.</p>
     <InfoBox>If you need any help, please find an on-site Call Center Village staff member.</InfoBox>
+
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 24 }}>
+      <div style={{ fontSize: 18, fontWeight: 700, color: C.accent, marginBottom: 8 }}>Recording Script</div>
+      <p style={{ fontSize: 13, color: C.dim, marginBottom: 8 }}>Read this aloud at a natural pace. It covers all major English phonemes, varied intonation, and different mouth shapes. You'll use this recording throughout the exercises below.</p>
+      <div style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: 20, fontSize: 17, color: C.text, lineHeight: 2, letterSpacing: 0.2 }}>
+        "The quick brown fox jumps gracefully over a lazy dog sleeping beneath the old oak tree. She sells thick, fresh seashells down by the shimmering seashore every Thursday morning. Would you kindly confirm your date of birth and the last four digits of your account number? I wasn't sure if the package arrived yesterday or if it's expected tomorrow — could you please check on that for me? Absolutely, I'd be happy to transfer you to our billing department right away. Thank you so much for your patience, and have a wonderful evening!"
+      </div>
+    </div>
+
     <div role="tablist" style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
       {exercises.map((ex, i) => <button key={i} role="tab" aria-selected={i === step} onClick={() => setStep(i)} style={{ background: i === step ? `${C.primary}20` : C.card, border: `1px solid ${i === step ? C.secondary : C.border}`, borderRadius: 8, padding: "10px 16px", color: i === step ? C.accent : C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 600 }}>{ex.title}</button>)}
     </div>

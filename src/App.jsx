@@ -3,12 +3,14 @@ import { C } from "./components";
 import { SECTIONS as VC_SECTIONS, COMPS as VC_COMPS } from "../voice-cloning-training.jsx";
 import { SECTIONS as VA_SECTIONS, COMPS as VA_COMPS } from "../voice-agents-training.jsx";
 import { SECTIONS as SE_SECTIONS, COMPS as SE_COMPS } from "../social-engineering-training.jsx";
+import { SECTIONS as AP_SECTIONS, COMPS as AP_COMPS } from "../appendix-training.jsx";
 import TrainingShell from "./components/TrainingShell";
 
 const MODULES = {
   "voice-cloning": { sections: VC_SECTIONS, comps: VC_COMPS, title: "Voice Cloning", name: "Voice Cloning" },
   "voice-agents": { sections: VA_SECTIONS, comps: VA_COMPS, title: "Voice Agents", name: "Voice Agents" },
   "social-engineering": { sections: SE_SECTIONS, comps: SE_COMPS, title: "Social Engineering", name: "Social Engineering" },
+  "appendix": { sections: AP_SECTIONS, comps: AP_COMPS, title: "Appendix", name: "Appendix" },
 };
 
 const MODULE_SLUGS = Object.keys(MODULES);
