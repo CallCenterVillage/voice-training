@@ -214,6 +214,7 @@ const IntroSection = () => (
         </div>
       ))}
     </div>
+    <p style={{ fontSize: 12, color: C.dim, textAlign: "center", marginBottom: 24 }}>This training is designed for 1920×1080 resolution on a desktop browser. We recommend <a href="https://librewolf.net" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>LibreWolf</a>.</p>
     <div style={{ borderRadius: 12, border: `1px solid ${C.tertiary}44`, overflow: "hidden" }}>
       <div style={{ background: `${C.tertiary}25`, padding: 20 }}>
         <div style={{ fontSize: 15, color: C.tertiary, fontWeight: 700, marginBottom: 8 }}><Icon name="warning" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />ETHICAL NOTICE</div>

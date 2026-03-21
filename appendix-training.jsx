@@ -1455,6 +1455,14 @@ sudo apt install -y htop` },
   { name: "lolcat", desc: "Colorize terminal output with rainbow gradients",
     installCode: `# === Install lolcat ===
 sudo apt install -y lolcat` },
+  { name: "librewolf", desc: "Privacy-focused Firefox fork — no telemetry, hardened defaults",
+    installCode: `# === Install LibreWolf ===
+# See https://librewolf.net/installation/ for your distro
+
+# Ubuntu/Pop!_OS
+sudo apt update && sudo apt install -y extrepo
+sudo extrepo enable librewolf
+sudo apt update && sudo apt install -y librewolf` },
   { name: "lynx", desc: "Text-based web browser for the terminal",
     installCode: `# === Install lynx ===
 sudo apt install -y lynx` },
@@ -1553,7 +1561,7 @@ const ThankYouSection = () => (
     </div>
 
     <div style={{ marginTop: 32 }} />
-    <InfoBox>Please email <a href="mailto:support@callcentervillage.com" style={{ color: C.accent, textDecoration: "none" }}>support@callcentervillage.com</a> with feedback. Feel free to use an <a href="https://www.privacyguides.org/en/email-aliasing/" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>email alias</a> if you'd like to remain anonymous.</InfoBox>
+    <InfoBox>Please submit village feedback at <a href="https://www.callcentervillage.com/contact" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>callcentervillage.com/contact</a> or email us at <a href="mailto:support@callcentervillage.com" style={{ color: C.accent, textDecoration: "none" }}>support@callcentervillage.com</a>. Feel free to use an <a href="https://www.privacyguides.org/en/email-aliasing/" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>email alias</a> if you'd like to remain anonymous.</InfoBox>
 
     <div style={{ textAlign: "center", marginTop: 48, fontSize: 18, fontStyle: "italic", lineHeight: 1.8 }}>
       <span style={{ color: C.muted }}>Thank you so much for your support,</span><br />
