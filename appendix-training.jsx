@@ -1386,10 +1386,10 @@ const ThankYouSection = () => (
       <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "32px 32px" }}>
         <div style={{ fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 8 }}>The People</div>
         <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.8, margin: 0 }}>
-          To everyone who's shared resources, ideas, feedback, and encouragement along the way — you've shaped what this project has become.
+          To everyone who's shared resources, ideas, feedback, and encouragement along the way — you've shaped what this project has become. There are countless people not named here who've helped us along the way — thank you so much.
         </p>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
-          {["Jay", "Brendan", "Canis", "DEF CON Dan", "chiefgyk3d", "DC614", "Our families"].map(name => (
+          {["Jay", "Sarah", "Brendan", "Canis", "DEF CON Dan", "chiefgyk3d", "DC614", "Our families"].map(name => (
             <span key={name} style={{ background: C.codeBg, border: `1px solid ${C.border}`, padding: "4px 12px", borderRadius: 6, fontSize: 13, color: C.text, fontWeight: 600 }}>{name}</span>
           ))}
         </div>
@@ -1401,11 +1401,33 @@ const ThankYouSection = () => (
           To the customers who trusted us enough to let us test on their systems — thank you. The real-world access you provided is what makes this training grounded in reality rather than theory. None of this training would be possible without your willingness to participate.
         </p>
       </div>
+      <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "32px 32px" }}>
+        <div style={{ fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 8 }}>The Sponsors</div>
+        <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.8, margin: 0 }}>
+          We're still looking for sponsors — so for now, thank you to ourselves. Shout out to <a href="https://www.calltheory.com" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>Call Theory</a> (me, myself, and I) for funding this project out of pocket and believing in it when nobody else would.
+        </p>
+      </div>
     </div>
 
     <div style={{ textAlign: "center", marginTop: 48, fontSize: 18, fontStyle: "italic", lineHeight: 1.8 }}>
       <span style={{ color: C.muted }}>Thank you so much for your support,</span><br />
       <span style={{ fontSize: 32, fontWeight: 800, fontStyle: "normal", background: `linear-gradient(135deg, ${C.primary}, ${C.accent})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Call Center Village</span>
+    </div>
+
+    <div style={{ display: "flex", justifyContent: "center", gap: 24, marginTop: 32, flexWrap: "wrap" }}>
+      {[
+        { label: "Our Website", url: "https://www.callcentervillage.com" },
+        { label: "Mastodon", url: "https://defcon.social/@callcentervillage" },
+        { label: "Village Schedule", url: "https://www.callcentervillage.com/schedule" },
+        { label: "Sponsor Us", url: "https://www.callcentervillage.com/sponsors" },
+      ].map(link => (
+        <a key={link.label} href={link.url} target="_blank" rel="noopener noreferrer"
+          onMouseEnter={e => { e.currentTarget.style.color = C.text; e.currentTarget.style.borderColor = C.accent; }}
+          onMouseLeave={e => { e.currentTarget.style.color = C.muted; e.currentTarget.style.borderColor = C.border; }}
+          style={{ color: C.muted, fontSize: 14, fontWeight: 600, textDecoration: "none", padding: "8px 16px", border: `1px solid ${C.border}`, borderRadius: 8, transition: "all 0.2s ease" }}>
+          {link.label} <span style={{ color: C.accent, fontSize: 12 }}>↗</span>
+        </a>
+      ))}
     </div>
   </div>
 );
