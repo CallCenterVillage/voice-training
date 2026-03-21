@@ -5,6 +5,7 @@ const SectionDivider = () => <hr style={{ border: "none", borderTop: "1px solid 
 const toAnchorId = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-+$/, "");
 
 const SECTIONS = [
+  { id: "intro", title: "Welcome", icon: "book" },
   { id: "cli-glossary", title: "CLI Tool Glossary", icon: "command-line" },
   { id: "voice-glossary", title: "Voice Tool Glossary", icon: "microphone" },
   { id: "project-glossary", title: "AI Tool Glossary", icon: "cpu" },
@@ -19,6 +20,67 @@ const SECTIONS = [
   { id: "project-credits", title: "Project Credits", icon: "code-bracket" },
   { id: "thank-you", title: "Thank You", icon: "heart" },
 ];
+
+const IntroSection = () => (
+  <div>
+    <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
+      <img src="/images/ccv-logo.png" alt="CCV" style={{ width: 64, height: 64, borderRadius: 12, border: `2px solid ${C.primary}` }} />
+      <div>
+        <h1 style={{ margin: 0, fontSize: 42, fontWeight: 800, letterSpacing: -1, lineHeight: 1.1, background: `linear-gradient(135deg, ${C.primary}, ${C.accent})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Appendix</h1>
+        <div style={{ fontSize: 14, color: C.muted, marginTop: 4 }}>Call Center Village Training Reference</div>
+      </div>
+    </div>
+    <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.7, marginBottom: 20 }}>Quick reference commands, cheat sheets, and recipes for common tasks you'll encounter in the lab. Everything here is configured on the Call Center Village laptops.</p>
+    <p style={{ fontSize: 13, color: C.dim, lineHeight: 1.7, marginBottom: 20 }}>All commands assume Pop!_OS, tools installed in <code style={{ background: C.codeBg, padding: "2px 6px", borderRadius: 4, fontSize: 12 }}>/opt/</code>, and audio files at 8kHz mono unless noted otherwise.</p>
+
+    <div style={{ overflowX: "auto", marginBottom: 20 }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <thead>
+          <tr style={{ borderBottom: `2px solid ${C.border}` }}>
+            {["Tool", "Location", "Port", "Purpose"].map(h => <th key={h} style={{ padding: "8px 12px", textAlign: "left", color: C.accent, fontWeight: 700 }}>{h}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {[
+            ["whisper.cpp", "/opt/whisper.cpp", "CLI", "Speech-to-text transcription"],
+            ["Faster Whisper", "/opt/faster-whisper", "CLI", "Accelerated speech-to-text"],
+            ["llama.cpp", "/opt/llama.cpp", "CLI / 8080", "Local language model inference"],
+            ["Piper", "/opt/piper", "CLI", "Lightweight local TTS"],
+            ["Kokoro", "/opt/kokoro", "CLI", "ONNX-based TTS"],
+            ["Kokoro-FastAPI", "/opt/kokoro-fastapi", "8880", "Fast TTS API"],
+            ["Coqui TTS", "/opt/coqui-tts", "CLI", "XTTS voice cloning"],
+            ["Spark TTS", "/opt/spark-tts", "CLI", "Zero-shot voice cloning"],
+            ["Qwen3-TTS", "/opt/qwen3-tts", "8001", "LLM-based TTS"],
+            ["OpenVoice", "/opt/openvoice", "7866", "Tone color conversion"],
+            ["RVC", "/opt/rvc", "7865", "Voice conversion training"],
+          ].map((row, i) => (
+            <tr key={i} style={{ borderBottom: `1px solid ${C.border}` }}>
+              {row.map((cell, j) => <td key={j} style={{ padding: "8px 12px", color: j === 0 ? C.text : C.muted, fontWeight: j === 0 ? 600 : 400 }}>{cell}</td>)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <div style={{ fontSize: 15, fontWeight: 700, color: C.text, marginBottom: 10 }}>Laptop Accounts</div>
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
+      <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "12px 16px" }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: C.dim, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>supervisor</div>
+        <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.6 }}>
+          Admin account with sudo privileges. Only used by Call Center Village staff.
+        </div>
+      </div>
+      <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "12px 16px" }}>
+        <div style={{ fontSize: 12, fontWeight: 700, color: C.dim, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>callcentervillage</div>
+        <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.6 }}>
+          Standard user account. If you need help with anything that requires elevated access, find a supervisor.
+        </div>
+      </div>
+    </div>
+
+    <p style={{ fontSize: 12, color: C.dim, textAlign: "center" }}>This training is designed for 1920×1080 resolution on a desktop browser with a headset and microphone. We recommend <a href="https://librewolf.net" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>LibreWolf</a>.</p>
+  </div>
+);
 
 const AudioSection = () => (
   <div>
@@ -1507,13 +1569,13 @@ const FunToolsSection = () => (
 
 // Set anchors dynamically from data arrays
 const sortByLabel = (a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: "base" });
-SECTIONS[0].anchors = cliTools.map(t => ({ id: `cli-${toAnchorId(t.name)}`, label: t.name })).sort(sortByLabel);
-SECTIONS[1].anchors = voiceTools.map(t => ({ id: `voice-${toAnchorId(t.name)}`, label: t.name })).sort(sortByLabel);
-SECTIONS[2].anchors = allProjectTools.map(t => ({ id: `tool-${toAnchorId(t.name)}`, label: t.name })).sort(sortByLabel);
-SECTIONS[3].anchors = funTools.map(t => ({ id: `fun-${toAnchorId(t.name)}`, label: t.name }));
-// SECTIONS[4] = Audio Tips — anchors defined inline
-SECTIONS[5].anchors = resources.flatMap(g => g.items.map(r => ({ id: `res-${toAnchorId(r.name)}`, label: r.name }))).sort(sortByLabel);
-SECTIONS[6].anchors = [
+SECTIONS[1].anchors = cliTools.map(t => ({ id: `cli-${toAnchorId(t.name)}`, label: t.name })).sort(sortByLabel);
+SECTIONS[2].anchors = voiceTools.map(t => ({ id: `voice-${toAnchorId(t.name)}`, label: t.name })).sort(sortByLabel);
+SECTIONS[3].anchors = allProjectTools.map(t => ({ id: `tool-${toAnchorId(t.name)}`, label: t.name })).sort(sortByLabel);
+SECTIONS[4].anchors = funTools.map(t => ({ id: `fun-${toAnchorId(t.name)}`, label: t.name }));
+// SECTIONS[5] = Audio Tips — anchors defined inline
+SECTIONS[6].anchors = resources.flatMap(g => g.items.map(r => ({ id: `res-${toAnchorId(r.name)}`, label: r.name }))).sort(sortByLabel);
+SECTIONS[7].anchors = [
   { id: "bw-ai-disclosure", label: "AI Disclosure" },
   { id: "bw-getting-started", label: "Getting Started" },
   ...builtWithItems.map(t => ({ id: `bw-${toAnchorId(t.name)}`, label: t.name })),
@@ -1586,7 +1648,7 @@ const ThankYouSection = () => (
   </div>
 );
 
-const COMPS = [CLIGlossarySection, VoiceGlossarySection, ProjectGlossarySection, FunToolsSection, AudioSection, ResourcesSection, BuiltWithSection, ThankYouSection];
+const COMPS = [IntroSection, CLIGlossarySection, VoiceGlossarySection, ProjectGlossarySection, FunToolsSection, AudioSection, ResourcesSection, BuiltWithSection, ThankYouSection];
 
 export { SECTIONS, COMPS };
 
