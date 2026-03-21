@@ -1339,6 +1339,7 @@ const resources = [
     { name: "AUTOVON", url: "https://en.wikipedia.org/wiki/Autovon#Multilevel_precedence_and_preemption", desc: "Military telephone network that used DTMF keys A–D" },
     { name: "Call Recording Laws", url: "https://en.wikipedia.org/wiki/Telephone_call_recording_laws", desc: "Recording laws by jurisdiction" },
     { name: "Social Engineering", url: "https://en.wikipedia.org/wiki/Social_engineering_(security)", desc: "Wikipedia overview of social engineering in security" },
+    { name: "Privacy Guides — Email Aliasing", url: "https://www.privacyguides.org/en/email-aliasing/", desc: "Guide to email aliasing for privacy", archiveUrl: "https://web.archive.org/web/20260321195812/https://www.privacyguides.org/en/email-aliasing/" },
     { name: "Vector Databases", url: "https://en.wikipedia.org/wiki/Vector_database", desc: "How vector similarity search works" },
   ] },
 ];
@@ -1552,7 +1553,7 @@ const ThankYouSection = () => (
     </div>
 
     <div style={{ marginTop: 32 }} />
-    <InfoBox>Please email <a href="mailto:support@callcentervillage.com" style={{ color: C.accent, textDecoration: "none" }}>support@callcentervillage.com</a> with feedback. Feel free to use an email alias if you'd like to remain anonymous.</InfoBox>
+    <InfoBox>Please email <a href="mailto:support@callcentervillage.com" style={{ color: C.accent, textDecoration: "none" }}>support@callcentervillage.com</a> with feedback. Feel free to use an <a href="https://www.privacyguides.org/en/email-aliasing/" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>email alias</a> if you'd like to remain anonymous.</InfoBox>
 
     <div style={{ textAlign: "center", marginTop: 48, fontSize: 18, fontStyle: "italic", lineHeight: 1.8 }}>
       <span style={{ color: C.muted }}>Thank you so much for your support,</span><br />
