@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { C } from "./colors";
 import ProgressBar from "./ProgressBar";
 import Icon from "./Icon";
@@ -8,7 +8,24 @@ const DRAWER_WIDTH = 260;
 
 const TrainingShell = ({ sections, sectionComponents, moduleTitle, logoUrl = "/images/ccv-logo.png", topOffset = 0, currentSection, onNavigate }) => {
   const [navOpen, setNavOpen] = useState(false);
+  const [activeAnchor, setActiveAnchor] = useState(null);
   const Section = sectionComponents[currentSection];
+  const anchors = sections[currentSection].anchors;
+
+  useEffect(() => {
+    if (!anchors) return;
+    const ids = anchors.map(a => a.id);
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          setActiveAnchor(entry.target.id);
+          break;
+        }
+      }
+    }, { rootMargin: "-120px 0px -60% 0px", threshold: 0 });
+    ids.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
+    return () => observer.disconnect();
+  }, [anchors, currentSection]);
 
   return (
     <div style={{ minHeight: "100vh", background: C.bg, color: C.text, fontFamily: "'Inter', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
@@ -74,14 +91,15 @@ const TrainingShell = ({ sections, sectionComponents, moduleTitle, logoUrl = "/i
           >
             <div style={{ fontSize: 11, fontWeight: 700, color: C.dim, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10, paddingLeft: 8 }}>On this page</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 1, maxHeight: `calc(100vh - ${160 + topOffset}px)`, overflowY: "auto" }}>
-              {sections[currentSection].anchors.map(a => (
-                <a key={a.id} href={`#${a.id}`} onClick={e => { e.preventDefault(); document.getElementById(a.id)?.scrollIntoView({ behavior: "smooth", block: "start" }); }}
-                  onMouseEnter={e => { e.currentTarget.style.color = C.text; e.currentTarget.style.background = `${C.accent}10`; }}
-                  onMouseLeave={e => { e.currentTarget.style.color = C.dim; e.currentTarget.style.background = "transparent"; }}
-                  style={{ fontSize: 12, color: C.dim, textDecoration: "none", padding: "4px 8px", borderRadius: 4, lineHeight: 1.5, transition: "all 0.15s ease" }}>
+              {sections[currentSection].anchors.map(a => {
+                const isActive = activeAnchor === a.id;
+                return <a key={a.id} href={`#${a.id}`} onClick={e => { e.preventDefault(); document.getElementById(a.id)?.scrollIntoView({ behavior: "smooth", block: "start" }); }}
+                  onMouseEnter={e => { if (!isActive) { e.currentTarget.style.color = C.text; e.currentTarget.style.background = `${C.accent}10`; } }}
+                  onMouseLeave={e => { if (!isActive) { e.currentTarget.style.color = C.dim; e.currentTarget.style.background = "transparent"; } }}
+                  style={{ fontSize: 12, color: isActive ? C.accent : C.dim, fontWeight: isActive ? 600 : 400, textDecoration: "none", padding: "4px 8px", borderRadius: 4, lineHeight: 1.5, transition: "all 0.15s ease", background: isActive ? `${C.accent}10` : "transparent" }}>
                   {a.label}
-                </a>
-              ))}
+                </a>;
+              })}
             </div>
           </aside>
         )}

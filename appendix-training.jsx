@@ -16,7 +16,7 @@ const SECTIONS = [
     { id: "yt-dlp", label: "Extracting Audio (yt-dlp)" },
   ] },
   { id: "resources", title: "Additional Resources", icon: "book" },
-  { id: "built-with", title: "Project Credits", icon: "code-bracket" },
+  { id: "project-credits", title: "Project Credits", icon: "code-bracket" },
   { id: "thank-you", title: "Thank You", icon: "heart" },
 ];
 
@@ -298,7 +298,8 @@ yt-dlp --version
 sudo apt install -y curl
 
 # Verify
-curl --version` },
+curl --version`,
+    note: <>Created and maintained by <a href="https://mastodon.social/@bagder" target="_blank" rel="noopener noreferrer" style={{ color: C.secondary, textDecoration: "none" }}>Daniel Stenberg</a></> },
   { name: "jq", desc: "JSON processor for parsing API responses", install: "system package",
     installCode: `# === Install jq ===
 sudo apt install -y jq
@@ -433,6 +434,7 @@ const CLIGlossarySection = () => (
               <CodeBlock language="bash" code={t.installCode} />
             </div>
           )}
+          {t.note && <p style={{ fontSize: 12, color: C.dim, marginTop: 10, marginBottom: 0 }}>{t.note}</p>}
         </div>
       ))}
     </div>
@@ -1307,29 +1309,31 @@ const ProjectGlossarySection = () => (
 
 const resources = [
   { category: "Hugging Face", items: [
-    { name: "Whisper.cpp Models", url: "https://huggingface.co/ggerganov/whisper.cpp", desc: "Pre-converted GGML models for whisper.cpp" },
-    { name: "Audio Course", url: "https://huggingface.co/learn/audio-course", desc: "Comprehensive introduction to training and fine-tuning audio models" },
+    { name: "Whisper.cpp Models", url: "https://huggingface.co/ggerganov/whisper.cpp", desc: "Pre-converted GGML models for whisper.cpp", archiveUrl: "https://web.archive.org/web/20260321191955/https://huggingface.co/ggerganov/whisper.cpp" },
+    { name: "Hugging Face Audio Course", url: "https://huggingface.co/learn/audio-course", desc: "Comprehensive introduction to training and fine-tuning audio models", archiveUrl: "https://web.archive.org/web/20260321190820/https://huggingface.co/learn/audio-course/chapter0/introduction" },
   ] },
   { category: "Legal & Regulatory", items: [
-    { name: "FTC — AI-Enabled Voice Cloning", url: "https://www.ftc.gov/policy/advocacy-research/tech-at-ftc/2023/11/preventing-harms-ai-enabled-voice-cloning", desc: "FTC guidance on preventing harms from voice cloning" },
-    { name: "FCC — AI Voices in Robocalls", url: "https://www.fcc.gov/document/fcc-makes-ai-generated-voices-robocalls-illegal", desc: "FCC ruling making AI-generated voice robocalls illegal" },
-    { name: "FCC — Consumer Guide to Robocalls", url: "https://www.fcc.gov/consumers/guides/stop-unwanted-robocalls-and-texts", desc: "Consumer guide on robocalls and AI voices" },
-    { name: "EU AI Act", url: "https://artificialintelligenceact.eu/", desc: "Official text and resources for the EU AI Act" },
-    { name: "NCSL — AI Legislation Tracker", url: "https://www.ncsl.org/technology-and-communication/artificial-intelligence-2024-legislation", desc: "State-level AI legislation tracker" },
-    { name: "NCSL — Computer Crime Statutes", url: "https://www.ncsl.org/technology-and-communication/computer-crime-statutes", desc: "Computer crime statutes by state" },
-    { name: "AI Voice Cloning and Consent", url: "https://sites.law.duq.edu/juris/2025/11/25/the-law-speaks-up-ai-voice-cloning-and-consent/", desc: "Duquesne Law review on AI voice cloning and consent" },
-    { name: "California BOT Disclosure Act", url: "https://leginfo.legislature.ca.gov/faces/billNavClient.xhtml?bill_id=201720180SB1001", desc: "California SB-1001 requiring bot disclosure" },
-    { name: "Keep Call Centers in America Act", url: "https://www.congress.gov/bill/119th-congress/senate-bill/2495/text", desc: "U.S. Senate bill on call center operations" },
+    { name: "FTC — AI-Enabled Voice Cloning", url: "https://www.ftc.gov/policy/advocacy-research/tech-at-ftc/2023/11/preventing-harms-ai-enabled-voice-cloning", desc: "FTC guidance on preventing harms from voice cloning", archiveUrl: "https://web.archive.org/web/20260321191107/https://www.ftc.gov/policy/advocacy-research/tech-at-ftc/2023/11/preventing-harms-ai-enabled-voice-cloning" },
+    { name: "FCC — AI Voices in Robocalls", url: "https://www.fcc.gov/document/fcc-makes-ai-generated-voices-robocalls-illegal", desc: "FCC ruling making AI-generated voice robocalls illegal", archiveUrl: "https://web.archive.org/web/20260303174307/https://www.fcc.gov/document/fcc-makes-ai-generated-voices-robocalls-illegal" },
+    { name: "FCC — Consumer Guide to Robocalls", url: "https://www.fcc.gov/consumers/guides/stop-unwanted-robocalls-and-texts", desc: "Consumer guide on robocalls and AI voices", archiveUrl: "https://web.archive.org/web/20260314194700/https://www.fcc.gov/consumers/guides/stop-unwanted-robocalls-and-texts" },
+    { name: "EU AI Act", url: "https://artificialintelligenceact.eu/", desc: "Official text and resources for the EU AI Act", archiveUrl: "https://web.archive.org/web/20260314014731/https://artificialintelligenceact.eu/" },
+    { name: "NCSL — AI Legislation Tracker", url: "https://www.ncsl.org/technology-and-communication/artificial-intelligence-2024-legislation", desc: "State-level AI legislation tracker", archiveUrl: "https://web.archive.org/web/20260321191047/https://www.ncsl.org/technology-and-communication/artificial-intelligence-2024-legislation" },
+    { name: "NCSL — Computer Crime Statutes", url: "https://www.ncsl.org/technology-and-communication/computer-crime-statutes", desc: "Computer crime statutes by state", archiveUrl: "https://web.archive.org/web/20260321191139/https://www.ncsl.org/technology-and-communication/computer-crime-statutes" },
+    { name: "AI Voice Cloning and Consent", url: "https://sites.law.duq.edu/juris/2025/11/25/the-law-speaks-up-ai-voice-cloning-and-consent/", desc: "Duquesne Law review on AI voice cloning and consent", archiveUrl: "https://web.archive.org/web/20260321191044/https://sites.law.duq.edu/juris/2025/11/25/the-law-speaks-up-ai-voice-cloning-and-consent/" },
+    { name: "California BOT Disclosure Act", url: "https://leginfo.legislature.ca.gov/faces/billNavClient.xhtml?bill_id=201720180SB1001", desc: "California SB-1001 requiring bot disclosure", archiveUrl: "https://web.archive.org/web/20260321191121if_/https://leginfo.legislature.ca.gov/faces/billNavClient.xhtml?bill_id=201720180SB1001" },
+    { name: "Keep Call Centers in America Act", url: "https://www.congress.gov/bill/119th-congress/senate-bill/2495/text", desc: "U.S. Senate bill on call center operations", archiveUrl: "https://web.archive.org/web/20260321191015/https://www.congress.gov/bill/119th-congress/senate-bill/2495/text" },
   ] },
   { category: "Security Frameworks", items: [
-    { name: "MITRE ATT&CK — Phishing", url: "https://attack.mitre.org/techniques/T1598/", desc: "Phishing for information technique documentation" },
-    { name: "CISA — Recognize Phishing", url: "https://www.cisa.gov/secure-our-world/recognize-and-report-phishing", desc: "CISA guide to recognizing and reporting phishing" },
-    { name: "FTC — Phishing Scams", url: "https://www.ftc.gov/news-events/topics/identity-theft/phishing-scams", desc: "FTC phishing scam prevention resources" },
-    { name: "NIST — Social Engineering", url: "https://csrc.nist.gov/glossary/term/social_engineering", desc: "NIST definition and resources on social engineering" },
+    { name: "MITRE ATT&CK — Phishing", url: "https://attack.mitre.org/techniques/T1598/", desc: "Phishing for information technique documentation", archiveUrl: "https://web.archive.org/web/20260304062642/https://attack.mitre.org/techniques/T1598/" },
+    { name: "CISA — Recognize Phishing", url: "https://www.cisa.gov/secure-our-world/recognize-and-report-phishing", desc: "CISA guide to recognizing and reporting phishing", archiveUrl: "https://web.archive.org/web/20260321191026/https://www.cisa.gov/secure-our-world/recognize-and-report-phishing" },
+    { name: "FTC — Phishing Scams", url: "https://www.ftc.gov/news-events/topics/identity-theft/phishing-scams", desc: "FTC phishing scam prevention resources", archiveUrl: "https://web.archive.org/web/20260321191114/https://www.ftc.gov/news-events/topics/identity-theft/phishing-scams" },
+    { name: "NIST — Social Engineering", url: "https://csrc.nist.gov/glossary/term/social_engineering", desc: "NIST definition and resources on social engineering", archiveUrl: "https://web.archive.org/web/20260321190947/https://csrc.nist.gov/glossary/term/social_engineering" },
   ] },
   { category: "Reference", items: [
-    { name: "ASVspoof Challenge", url: "https://www.asvspoof.org", desc: "International challenge producing open-source anti-spoofing models" },
-    { name: "Neural Speech Synthesis Survey", url: "https://arxiv.org/pdf/2106.15561", desc: "Academic survey on neural speech synthesis (arXiv)" },
+    { name: "FFmpeg/Libav Tutorial", url: "https://github.com/leandromoreira/ffmpeg-libav-tutorial", desc: "Learn FFmpeg libav the hard way — from zero to hero", archiveUrl: "https://web.archive.org/web/20260321190600/https://github.com/leandromoreira/ffmpeg-libav-tutorial" },
+    { name: "Ultimate Guide to FFmpeg", url: "https://img.ly/blog/ultimate-guide-to-ffmpeg/", desc: "Comprehensive FFmpeg tutorial and reference", archiveUrl: "https://web.archive.org/web/20260321185713/https://img.ly/blog/ultimate-guide-to-ffmpeg/" },
+    { name: "ASVspoof Challenge", url: "https://www.asvspoof.org", desc: "International challenge producing open-source anti-spoofing models", archiveUrl: "https://web.archive.org/web/20260311161316/https://www.asvspoof.org/" },
+    { name: "Neural Speech Synthesis Survey", url: "https://arxiv.org/pdf/2106.15561", desc: "Academic survey on neural speech synthesis (arXiv)", archiveUrl: "https://web.archive.org/web/20260306112320/https://arxiv.org/pdf/2106.15561" },
     { name: "ARPAbet Phoneme Set", url: "https://en.wikipedia.org/wiki/ARPABET", desc: "The phoneme set used by most English TTS models" },
     { name: "Audio Deepfakes", url: "https://en.wikipedia.org/wiki/Audio_deepfake", desc: "Wikipedia overview of audio deepfake technology" },
     { name: "AUTOVON", url: "https://en.wikipedia.org/wiki/Autovon#Multilevel_precedence_and_preemption", desc: "Military telephone network that used DTMF keys A–D" },
@@ -1339,26 +1343,32 @@ const resources = [
   ] },
 ];
 
+const allResources = resources.flatMap(g => g.items.map(r => ({ ...r, category: g.category })))
+  .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
+
+const resourceTagColors = {
+  "Hugging Face": C.accent,
+  "Legal & Regulatory": C.tertiary,
+  "Security Frameworks": C.secondary,
+  "Reference": C.highlight,
+};
+
 const ResourcesSection = () => (
   <div>
     <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Additional Resources</h2>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>
       External references, legal guidance, and educational materials referenced throughout the training.
     </p>
-    <div style={{ display: "grid", gap: 28 }}>
-      {resources.map(group => (
-        <div key={group.category}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: C.text, marginBottom: 10 }}>{group.category}</div>
-          <div style={{ display: "grid", gap: 8 }}>
-            {group.items.map(r => (
-              <a key={r.name} id={`res-${toAnchorId(r.name)}`} href={r.url} target="_blank" rel="noopener noreferrer"
-                onMouseEnter={e => { e.currentTarget.style.borderColor = C.accent; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; }}
-                style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "12px 16px", textDecoration: "none", display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap", transition: "border-color 0.2s ease", scrollMarginTop: 120 }}>
-                <span style={{ color: C.accent, fontSize: 14, fontWeight: 600, whiteSpace: "nowrap" }}>{r.name} ↗</span>
-                <span style={{ color: C.muted, fontSize: 13, flex: 1, minWidth: 200 }}>{r.desc}</span>
-              </a>
-            ))}
+    <div style={{ display: "grid", gap: 20 }}>
+      {allResources.map(r => (
+        <div key={r.name} id={`res-${toAnchorId(r.name)}`} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "18px 20px", scrollMarginTop: 120 }}>
+          <div style={{ marginBottom: 6 }}>
+            <span style={{ color: C.text, fontSize: 15, fontWeight: 700 }}>{r.name}</span>
+          </div>
+          <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.6, margin: "0 0 8px 0" }}>{r.desc}</p>
+          <div style={{ fontSize: 12 }}>
+            <a href={r.url} target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>{r.url} ↗</a>
+            {r.archiveUrl && <> [<a href={r.archiveUrl} target="_blank" rel="noopener noreferrer" style={{ color: C.secondary, opacity: 0.6, textDecoration: "none" }}>archive</a>]</>}
           </div>
         </div>
       ))}
@@ -1383,21 +1393,14 @@ const BuiltWithSection = () => (
       This training application is built with the following open-source projects.
     </p>
 
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12 }}>
-      {builtWithItems.map(t => (
-        <a key={t.name} id={`bw-${toAnchorId(t.name)}`} href={t.url} target="_blank" rel="noopener noreferrer"
-          onMouseEnter={e => { e.currentTarget.style.borderColor = C.accent; }}
-          onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; }}
-          style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "16px 18px", textDecoration: "none", scrollMarginTop: 120, transition: "border-color 0.2s ease", display: "block" }}>
-          <div style={{ fontSize: 15, fontWeight: 700, color: C.text, marginBottom: 4 }}>
-            {t.name} <span style={{ color: C.accent, fontSize: 13 }}>↗</span>
-          </div>
-          <div style={{ fontSize: 13, color: C.muted }}>{t.note}</div>
-        </a>
-      ))}
+    <div id="bw-ai-disclosure" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "20px 24px", marginBottom: 24, scrollMarginTop: 120 }}>
+      <div style={{ fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 8 }}>AI Disclosure</div>
+      <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.7, margin: 0 }}>
+        This training application UI was built with the assistance of <a href="https://claude.ai/claude-code" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>Claude Code</a> and <a href="https://claude.ai" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>Claude</a> by Anthropic. Claude was also used to figure out the (often ancient) Python environments for the tools configured on the Call Center Village laptops.
+      </p>
     </div>
 
-    <div id="bw-getting-started" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "20px 24px", marginTop: 24, scrollMarginTop: 120 }}>
+    <div id="bw-getting-started" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "20px 24px", marginBottom: 24, scrollMarginTop: 120 }}>
       <div style={{ fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 12 }}>Getting Started</div>
       <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.7, margin: "0 0 12px 0" }}>
         Clone this project and run it locally in your browser.
@@ -1418,11 +1421,19 @@ pnpm run build
 pnpm run preview`} />
     </div>
 
-    <div id="bw-ai-disclosure" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "20px 24px", marginTop: 24, scrollMarginTop: 120 }}>
-      <div style={{ fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 8 }}>AI Disclosure</div>
-      <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.7, margin: 0 }}>
-        This training application UI was built with the assistance of <a href="https://claude.ai/claude-code" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>Claude Code</a> and <a href="https://claude.ai" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>Claude</a> by Anthropic. Claude was also used to figure out the (often ancient) Python environments for the tools configured on the Call Center Village laptops.
-      </p>
+    <div style={{ fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 12 }}>Application Stack</div>
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12 }}>
+      {builtWithItems.map(t => (
+        <a key={t.name} id={`bw-${toAnchorId(t.name)}`} href={t.url} target="_blank" rel="noopener noreferrer"
+          onMouseEnter={e => { e.currentTarget.style.borderColor = C.accent; }}
+          onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; }}
+          style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 10, padding: "16px 18px", textDecoration: "none", scrollMarginTop: 120, transition: "border-color 0.2s ease", display: "block" }}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: C.text, marginBottom: 4 }}>
+            {t.name} <span style={{ color: C.accent, fontSize: 13 }}>↗</span>
+          </div>
+          <div style={{ fontSize: 13, color: C.muted }}>{t.note}</div>
+        </a>
+      ))}
     </div>
   </div>
 );
@@ -1449,12 +1460,14 @@ sudo apt install -y lynx` },
   { name: "neofetch", desc: "Display system info with ASCII art logo",
     installCode: `# === Install neofetch ===
 sudo apt install -y neofetch` },
-  { name: "sunshine", desc: "Self-hosted game streaming server (Moonlight-compatible)",
+  { name: "sunshine", desc: "Self-hosted game streaming server",
     installCode: `# === Install Sunshine ===
-sudo apt install -y sunshine` },
-  { name: "moonlight", desc: "Open-source game streaming client (connects to Sunshine)",
+sudo apt install -y sunshine`,
+    note: <>Sunshine streams to <strong style={{ color: C.muted }}>Moonlight</strong> clients — see the Moonlight entry in this section.</> },
+  { name: "moonlight", desc: "Open-source game streaming client",
     installCode: `# === Install Moonlight ===
-sudo snap install moonlight` },
+sudo snap install moonlight`,
+    note: <>Moonlight connects to a <strong style={{ color: C.muted }}>Sunshine</strong> server — see the Sunshine entry in this section.</> },
 ].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
 
 const FunToolsSection = () => (
@@ -1476,6 +1489,7 @@ const FunToolsSection = () => (
               <CodeBlock language="bash" code={t.installCode} />
             </div>
           )}
+          {t.note && <p style={{ fontSize: 12, color: C.dim, marginTop: 10, marginBottom: 0 }}>{t.note}</p>}
         </div>
       ))}
     </div>
@@ -1491,9 +1505,9 @@ SECTIONS[3].anchors = funTools.map(t => ({ id: `fun-${toAnchorId(t.name)}`, labe
 // SECTIONS[4] = Audio Tips — anchors defined inline
 SECTIONS[5].anchors = resources.flatMap(g => g.items.map(r => ({ id: `res-${toAnchorId(r.name)}`, label: r.name }))).sort(sortByLabel);
 SECTIONS[6].anchors = [
-  ...builtWithItems.map(t => ({ id: `bw-${toAnchorId(t.name)}`, label: t.name })),
-  { id: "bw-getting-started", label: "Getting Started" },
   { id: "bw-ai-disclosure", label: "AI Disclosure" },
+  { id: "bw-getting-started", label: "Getting Started" },
+  ...builtWithItems.map(t => ({ id: `bw-${toAnchorId(t.name)}`, label: t.name })),
 ];
 
 const ThankYouSection = () => (
@@ -1517,7 +1531,7 @@ const ThankYouSection = () => (
           To everyone who's shared resources, ideas, feedback, and encouragement — you've shaped what this project has become. There are countless people not named here who've helped us along the way — thank you so much.
         </p>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
-          {["Jay", "Sarah", "Brendan", "Canis", "DEF CON Dan", "ChiefGyk3d", "DC614", "Our families"].map(name => (
+          {["Patrick", "Jay", "Sarah", "Brendan", "Canis", "DEF CON Dan", "ChiefGyk3d", "DC614", "Our families"].map(name => (
             <span key={name} style={{ background: C.codeBg, border: `1px solid ${C.border}`, padding: "4px 12px", borderRadius: 6, fontSize: 13, color: C.text, fontWeight: 600 }}>{name}</span>
           ))}
         </div>
@@ -1536,6 +1550,9 @@ const ThankYouSection = () => (
         </p>
       </div>
     </div>
+
+    <div style={{ marginTop: 32 }} />
+    <InfoBox>Please email <a href="mailto:support@callcentervillage.com" style={{ color: C.accent, textDecoration: "none" }}>support@callcentervillage.com</a> with feedback. Feel free to use an email alias if you'd like to remain anonymous.</InfoBox>
 
     <div style={{ textAlign: "center", marginTop: 48, fontSize: 18, fontStyle: "italic", lineHeight: 1.8 }}>
       <span style={{ color: C.muted }}>Thank you so much for your support,</span><br />
