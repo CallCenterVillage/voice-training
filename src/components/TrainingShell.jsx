@@ -2,12 +2,12 @@ import { useState, useEffect } from "react";
 import { C } from "./colors";
 import ProgressBar from "./ProgressBar";
 import Icon from "./Icon";
-import { Bars3Icon, XMarkIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, ChevronDoubleRightIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 
 const DRAWER_WIDTH = 260;
 
 const TrainingShell = ({ sections, sectionComponents, moduleTitle, logoUrl = "/images/ccv-logo.png", topOffset = 0, currentSection, onNavigate }) => {
-  const [navOpen, setNavOpen] = useState(false);
+  const [navOpen, setNavOpen] = useState(true);
   const [activeAnchor, setActiveAnchor] = useState(null);
   const Section = sectionComponents[currentSection];
   const anchors = sections[currentSection].anchors;
@@ -40,7 +40,7 @@ const TrainingShell = ({ sections, sectionComponents, moduleTitle, logoUrl = "/i
           onMouseEnter={e => { e.currentTarget.style.borderColor = C.accent; e.currentTarget.style.color = C.text; e.currentTarget.style.background = `${C.accent}15`; }}
           onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.color = C.muted; e.currentTarget.style.background = "none"; }}
           style={{ background: "none", border: `1px solid ${C.border}`, borderRadius: 6, padding: "8px 12px", color: C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 14, display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s ease" }}>
-          {navOpen ? <><XMarkIcon style={{ width: 16, height: 16 }} aria-hidden="true" /> Hide</> : <><Bars3Icon style={{ width: 16, height: 16 }} aria-hidden="true" /> Sections</>}
+          {navOpen ? <><ChevronDoubleRightIcon style={{ width: 16, height: 16 }} aria-hidden="true" /> Hide</> : <><Bars3Icon style={{ width: 16, height: 16 }} aria-hidden="true" /> Sections</>}
         </button>
       </header>
 
