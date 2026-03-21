@@ -67,7 +67,7 @@ export default function App() {
   const mod = MODULES[route.moduleSlug];
 
   return (
-    <div style={{ fontFamily: "'DM Sans', 'Segoe UI', sans-serif" }}>
+    <div style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
       <nav aria-label="Module switcher" style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 9999,
         background: `${C.bg}ee`, borderBottom: `1px solid ${C.border}`,
@@ -89,7 +89,7 @@ export default function App() {
                 border: `1px solid ${isActive ? C.primary : C.border}`,
                 borderRadius: 6, padding: "8px 20px",
                 color: isActive ? "#fff" : C.muted,
-                cursor: "pointer", fontFamily: "'DM Sans', 'Segoe UI', sans-serif",
+                cursor: "pointer", fontFamily: "'Inter', 'Segoe UI', sans-serif",
                 fontSize: 14, fontWeight: 600,
                 transition: "all 0.2s ease",
               }}

@@ -74,6 +74,7 @@ import {
   Cog6ToothIcon,
   ArrowDownTrayIcon,
   CircleStackIcon,
+  HeartIcon,
 } from "@heroicons/react/24/outline";
 
 const iconMap = {
@@ -154,6 +155,7 @@ const iconMap = {
   cog: Cog6ToothIcon,
   download: ArrowDownTrayIcon,
   database: CircleStackIcon,
+  heart: HeartIcon,
 };
 
 const Icon = ({ name, size = 20, className, style, ...props }) => {

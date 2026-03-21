@@ -678,7 +678,7 @@ const SpectrumViz = () => {
 };
 
 const PipelineDiagram = ({ steps, activeStep = -1, onStepClick }) => (
-  <div style={{ display: "flex", alignItems: "center", gap: 0, overflowX: "auto", padding: "16px 0" }}>
+  <div style={{ display: "flex", alignItems: "center", gap: 0, overflowX: "auto", padding: "8px 0 0 0" }}>
     {steps.map((step, i) => (
       <div key={i} style={{ display: "flex", alignItems: "center" }}>
         <div
@@ -706,12 +706,14 @@ const inlineCode = (text) => {
 };
 
 const ToolComparison = ({ tools }) => {
-  const [idx, setIdx] = useState(0);
-  const t = tools[idx];
+  const [selectedName, setSelectedName] = useState(tools[0]?.name);
+  const matchIdx = tools.findIndex(t => t.name === selectedName);
+  const safeIdx = matchIdx >= 0 ? matchIdx : 0;
+  const t = tools[safeIdx];
   return (
     <div style={{ background: C.card, borderRadius: 12, padding: 20, border: `1px solid ${C.border}` }}>
       <div role="tablist" style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
-        {tools.map((tool, i) => <button key={i} role="tab" aria-selected={i === idx} onClick={() => setIdx(i)} style={{ background: i === idx ? `${C.primary}20` : "#06040c", border: `1px solid ${i === idx ? C.secondary : C.border}`, borderRadius: 8, padding: "8px 14px", color: i === idx ? C.accent : C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600 }}>{tool.name}</button>)}
+        {tools.map((tool, i) => <button key={i} role="tab" aria-selected={i === safeIdx} onClick={() => setSelectedName(tool.name)} style={{ background: i === safeIdx ? `${C.primary}20` : "#06040c", border: `1px solid ${i === safeIdx ? C.secondary : C.border}`, borderRadius: 8, padding: "8px 14px", color: i === safeIdx ? C.accent : C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600 }}>{tool.name}</button>)}
       </div>
       <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.8 }}>
         <div style={{ color: C.text, fontWeight: 600, marginBottom: 4 }}>{t.name}</div>
@@ -955,9 +957,11 @@ const TraditionalSection = () => {
     <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Non-AI Voice Modification</h2>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 12 }}>Long before AI voice cloning, traditional audio tools could alter pitch, tone, and timbre characteristics. These techniques are well-understood and leave detectable signatures — but they're fast, accessible, widely used, and can still be combined with newer AI tools.</p>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 8 }}>We're representing the voice modification pipeline here as six steps, but real-world chains can be longer or shorter depending on the goal. Only <span style={{ fontStyle: "italic" }}>Input</span> and <span style={{ fontStyle: "italic" }}>Output</span> are required — <span style={{ fontStyle: "italic" }}>EQ/Filter</span>, <span style={{ fontStyle: "italic" }}>Pitch Shift</span>, <span style={{ fontStyle: "italic" }}>Formant</span>, and <span style={{ fontStyle: "italic" }}>FX Chain</span> are all optional stages you can mix and match to manipulate the audio.</p>
-    <div style={{ borderLeft: `3px solid ${C.secondary}`, paddingLeft: 16, margin: "12px 0", fontStyle: "italic", color: C.dim, fontSize: 13, lineHeight: 1.7 }}>"This is my audio-toolkit. There are many like it, but this one is mine."<br />"My audio-toolkit is my best friend. It is my life."<br />"I must master it as I must master my life."<br />"Without me, my audio-toolkit is useless."<br />"Without my audio-toolkit, I am useless."<br />— <a href="https://en.wikipedia.org/wiki/Soundwave_(Transformers)" target="_blank" rel="noopener noreferrer" style={{ color: C.dim, textDecoration: "underline" }}>Soundwave</a>, probably</div>
+    <div style={{ fontSize: 15, fontWeight: 700, color: C.text, marginTop: 20, marginBottom: 8 }}>The Audiomancer's Creed</div>
+    <div style={{ borderLeft: `3px solid ${C.secondary}`, paddingLeft: 16, margin: "0 0 8px 0", fontStyle: "italic", color: C.dim, fontSize: 13, lineHeight: 1.7 }}>"This is my audio-toolkit. There are many like it, but this one is mine."<br />"My audio-toolkit is my best friend. It is my life."<br />"I must master it as I must master my life."<br />"Without me, my audio-toolkit is useless."<br />"Without my audio-toolkit, I am useless."</div>
+    <div style={{ fontSize: 12, color: C.dim, marginBottom: 40 }}>— <a href="https://en.wikipedia.org/wiki/Soundwave_(Transformers)" target="_blank" rel="noopener noreferrer" style={{ color: C.dim, textDecoration: "underline" }}>Soundwave</a>, probably</div>
     <h3 style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8 }}>Example Tool Chains</h3>
-    <p style={{ color: C.secondary, lineHeight: 1.7, marginBottom: 24, fontSize: 13 }}>Click each step below to see common tools for that stage. All tools referenced are already preinstalled.</p>
+    <p style={{ color: C.secondary, lineHeight: 1.7, marginTop: 0, marginBottom: 10, fontSize: 13 }}>Click each step below to see common tools for that stage. All tools referenced are already preinstalled.</p>
     <PipelineDiagram activeStep={activeStep} onStepClick={i => setActiveStep(i)} steps={[{ icon: "microphone", label: "Input" }, { icon: "chart-bar", label: "EQ/Filter" }, { icon: "arrow-path", label: "Pitch Shift" }, { icon: "scale", label: "Formant" }, { icon: "speaker-wave", label: "FX Chain" }, { icon: "headphones", label: "Output" }]} />
     <p style={{ color: C.accent, fontSize: 14, lineHeight: 1.7, marginBottom: 12 }}>{[
       "Record or obtain an audio file and convert it into a format your tool chain can work with. This is the starting point for any voice modification workflow.",
@@ -1033,16 +1037,16 @@ const TraditionalSection = () => {
       </div>
       <div style={{ display: "grid", gap: 12, color: C.muted, fontSize: 14, lineHeight: 1.8 }}>
         {[
-          { name: "Male → Female (rough)", cmd: "sox input.wav output.wav pitch 500 equalizer 250 2q -6 equalizer 4000 1q 5 && play output.wav" },
-          { name: "Female → Male (rough)", cmd: "sox input.wav output.wav pitch -400 equalizer 200 2q 4 equalizer 3500 1q -5 && play output.wav" },
-          { name: "Robot / Anonymizer", cmd: 'ffmpeg -i input.wav -af "vibrato=f=8:d=0.5,chorus=0.5:0.9:50:0.4:0.25:2" output.wav && play output.wav' },
-          { name: "Phone Call Simulation", cmd: "sox input.wav output.wav gain -6 highpass 300 lowpass 3400 compand 0.3,1 6:-70,-60,-20 -5 -90 0.2 gain -n -1 && play output.wav" },
-          { name: "Whisper Effect", cmd: 'ffmpeg -i input.wav -af "highpass=f=500,lowpass=f=4000,volume=0.4,afftdn=nf=-20" output.wav && play output.wav' },
-          { name: "Underwater / Muffled", cmd: "sox input.wav output.wav lowpass 600 reverb 80 gain -n -1 && play output.wav" },
-          { name: "Aged / Gravelly Voice", cmd: "sox input.wav output.wav pitch -200 overdrive 8 equalizer 800 2q 4 reverb 20 gain -n -1 && play output.wav" },
-          { name: "Piped: Record → Pitch Shift → Telephone Effect", cmd: "sox input.wav -t wav - pitch 300 | sox -t wav - output.wav highpass 300 lowpass 3400 gain -n -1 && play output.wav" },
-          { name: "Piped: Pitch Up → Reverb → Normalize", cmd: "sox input.wav -t wav - pitch 500 | sox -t wav - output.wav reverb 40 gain -n -1 && play output.wav" },
-          { name: "Piped: FFmpeg Filter → SoX Post-Processing", cmd: 'ffmpeg -i input.wav -af "vibrato=f=6:d=0.3" -f s16le -ar 16000 -ac 1 - | sox -t raw -r 16000 -e signed -b 16 -c 1 - output.wav equalizer 3000 1q 4 gain -n -1 && play output.wav' },
+          { name: "Male → Female (rough)", cmd: "sox input.wav output.wav \\\n  pitch 500 \\\n  equalizer 250 2q -6 \\\n  equalizer 4000 1q 5 \\\n  && play output.wav" },
+          { name: "Female → Male (rough)", cmd: "sox input.wav output.wav \\\n  pitch -400 \\\n  equalizer 200 2q 4 \\\n  equalizer 3500 1q -5 \\\n  && play output.wav" },
+          { name: "Robot / Anonymizer", cmd: 'ffmpeg -i input.wav \\\n  -af "vibrato=f=8:d=0.5,chorus=0.5:0.9:50:0.4:0.25:2" \\\n  output.wav && play output.wav' },
+          { name: "Phone Call Simulation", cmd: "sox input.wav output.wav \\\n  gain -6 \\\n  highpass 300 \\\n  lowpass 3400 \\\n  compand 0.3,1 6:-70,-60,-20 -5 -90 0.2 \\\n  gain -n -1 \\\n  && play output.wav" },
+          { name: "Whisper Effect", cmd: 'ffmpeg -i input.wav \\\n  -af "highpass=f=500,lowpass=f=4000,volume=0.4,afftdn=nf=-20" \\\n  output.wav && play output.wav' },
+          { name: "Underwater / Muffled", cmd: "sox input.wav output.wav \\\n  lowpass 600 \\\n  reverb 80 \\\n  gain -n -1 \\\n  && play output.wav" },
+          { name: "Aged / Gravelly Voice", cmd: "sox input.wav output.wav \\\n  pitch -200 \\\n  overdrive 8 \\\n  equalizer 800 2q 4 \\\n  reverb 20 \\\n  gain -n -1 \\\n  && play output.wav" },
+          { name: "Piped: Record → Pitch Shift → Telephone Effect", cmd: "sox input.wav -t wav - pitch 300 \\\n  | sox -t wav - output.wav \\\n  highpass 300 \\\n  lowpass 3400 \\\n  gain -n -1 \\\n  && play output.wav" },
+          { name: "Piped: Pitch Up → Reverb → Normalize", cmd: "sox input.wav -t wav - pitch 500 \\\n  | sox -t wav - output.wav \\\n  reverb 40 \\\n  gain -n -1 \\\n  && play output.wav" },
+          { name: "Piped: FFmpeg Filter → SoX Post-Processing", cmd: 'ffmpeg -i input.wav \\\n  -af "vibrato=f=6:d=0.3" \\\n  -f s16le -ar 16000 -ac 1 - \\\n  | sox -t raw -r 16000 -e signed -b 16 -c 1 - output.wav \\\n  equalizer 3000 1q 4 \\\n  gain -n -1 \\\n  && play output.wav' },
         ].map((r, i) => <div key={i} style={{ background: "#06040c", padding: 12, borderRadius: 8 }}><div style={{ color: C.tertiary, fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{r.name}</div><CodeBlock code={r.cmd} language="bash" /></div>)}
       </div>
     </div>
@@ -1227,10 +1231,10 @@ const AI_FLOW_DETAILS = {
   TTS: [
     { title: "Text Input", detail: "Raw text is fed into the system. This can be anything — a script, a sentence, or even a single word.", example: '"Hello, this is your bank calling about your account."' },
     { title: "Phoneme Conversion", detail: "Text is converted into phonemes — the distinct units of sound in a language. This step handles pronunciation, abbreviations, and numbers.", example: "HH AH L OW / DH IH S / IH Z / Y AO R / B AE NG K / K AO L IH NG ...", footnote: <>Most English TTS models use the <a href="https://en.wikipedia.org/wiki/ARPABET" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "underline" }}>ARPAbet phoneme</a> set.</> },
-    { title: "Voice Model", detail: "The neural network applies the cloned voice's characteristics — pitch, timbre, speaking style — to the phoneme sequence. Think of it like a voice filter: the phonemes say WHAT to speak, and the voice model says HOW to speak it — matching the target person's unique sound. This is the step where fine-tuned vs. zero-shot matters most.", example: "How the voice model learns the target voice:\n\nFine-tuned: The model is trained on 10-30 min of the\ntarget's audio over hours of GPU time. This bakes the\nvoice deeply into the model. Highest quality.\n\nZero-shot: A pre-trained speaker encoder extracts a\nvoice embedding from just 3-10 seconds of audio.\nNo training needed — a voicemail greeting is enough.\nFaster but lower quality.\n\nModel architectures:\n\nAutoregressive (Coqui TTS, Tortoise)\n  One frame at a time — high quality, slower\n\nDiffusion (Grad-TTS, NaturalSpeech)\n  Refines noise into speech — great quality\n\nNon-autoregressive (FastSpeech, StyleTTS2)\n  All frames in parallel — very fast" },
+    { title: "Voice Model", detail: "The neural network applies the cloned voice's characteristics — pitch, timbre, speaking style — to the phoneme sequence. Think of it like a voice filter: the phonemes say WHAT to speak, and the voice model says HOW to speak it — matching the target person's unique sound. Different model architectures make different tradeoffs between quality and speed.", exampleLabel: "Explanation", exampleComponent: "architectures" },
     { title: "Mel Spectrogram", detail: "Most models output a mel spectrogram — a visual representation of the audio's frequency content over time. Think of it as a detailed blueprint for the sound. Each row is a frequency band (low at bottom, high at top) and each column is a moment in time. Brighter colors mean more energy at that frequency. Some newer models (VALL-E, Bark) use discrete audio tokens instead, and end-to-end models like VITS skip this step entirely and generate waveforms directly.", exampleComponent: "melspec" , exampleCaption: <><div>Spectrogram generated from a speech recording using SoX — horizontal bands are harmonics, bright regions show where vocal energy concentrates.</div><div style={{ marginTop: 4 }}>A true mel spectrogram compresses the upper frequencies to match human hearing perception.</div></> },
     { title: "Vocoder", detail: "The previous step created a blueprint (the spectrogram) — but you can't play a blueprint through a speaker. The vocoder's job is to turn that blueprint into actual sound waves. Think of it like a 3D printer for audio: it takes the visual plan and builds the real thing, sample by sample, 22,050 times per second.", exampleComponent: "vocoder" },
-    { title: "Audio Output", detail: "The final waveform is saved as an audio file. At this point it sounds like the cloned voice speaking the input text. With fine-tuned models this takes minutes of generation time; with zero-shot, the entire process from reference clip to output can take under a minute.", exampleComponent: "tts-audio" },
+    { title: "Audio Output", detail: "The final waveform is saved as an audio file. At this point it sounds like the cloned voice speaking the input text. Generation time depends on the model architecture — autoregressive models take longer, while non-autoregressive models can generate audio much faster than real-time.", exampleComponent: "tts-audio" },
   ],
   "Voice Conversion": [
     { title: "Source Audio", detail: "You start with a recording of someone speaking — this could be your own voice, or any audio clip. The key thing is that the words, timing, rhythm, and emotion in this recording will all be preserved in the final output. Only the voice identity changes.", example: "Think of it like lip-syncing in reverse: you provide the\nperformance (what to say and how to say it), and the\nmodel swaps in a different voice.\n\nSource: You recording yourself saying\n\"I need to verify your account details.\"\n\nThe words, pacing, and emotion stay — only the voice changes." },
@@ -1301,9 +1305,24 @@ const AISection = () => {
           <div style={{ fontSize: 14, fontWeight: 700, color: C.accent, marginBottom: 6 }}>{activeDetail.title}</div>
           <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 10 }}>{activeDetail.detail}</div>
           <div style={{ background: `${C.primary}10`, border: `1px solid ${C.primary}33`, borderRadius: 6, padding: 10 }}>
-            <div style={{ fontSize: 11, color: C.dim, textTransform: "uppercase", letterSpacing: 1, marginBottom: 4 }}>Example</div>
-            {activeDetail.exampleComponent === "vocoder" ? <VocoderViz /> : activeDetail.exampleComponent === "melspec" ? <div>
-              <CodeBlock code={'# Generate a spectrogram from your audio file\n# SoX produces a linear spectrogram\n# similar to a mel spectrogram, but with an evenly spaced frequency axis\nsox input.wav -n spectrogram -o spectrogram.png\n\n# View the spectrogram in the terminal\nimgcat spectrogram.png'} language="bash" />
+            <div style={{ fontSize: 11, color: C.dim, textTransform: "uppercase", letterSpacing: 1, marginBottom: 10, textAlign: "right" }}>{activeDetail.exampleLabel || "Example"}</div>
+            {activeDetail.exampleComponent === "architectures" ? <div style={{ display: "flex", flexDirection: "column", gap: 28, padding: "4px 12px" }}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: C.accent, marginBottom: 4 }}>Autoregressive</div>
+                <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.6, marginBottom: 4 }}>Generates one audio frame at a time, each depending on the previous. High quality but slow — can't skip ahead or parallelize. Like writing a sentence one word at a time.</div>
+              </div>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: C.secondary, marginBottom: 4 }}>Non-Autoregressive</div>
+                <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.6 }}>Generates ALL frames in parallel at once. Much faster — this is how services can process 2 minutes of audio in 2 seconds. The model predicts the entire output simultaneously rather than sequentially.</div>
+              </div>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: C.tertiary, marginBottom: 4 }}>Diffusion</div>
+                <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.6 }}>Starts with random noise and iteratively refines it into speech over many steps. Great quality, slower than non-autoregressive but more flexible.</div>
+              </div>
+              <div style={{ fontSize: 13, color: C.text, borderTop: `1px solid ${C.border}`, paddingTop: 10 }}>The speed difference matters: autoregressive models process audio roughly in real-time (1s of audio ≈ 1s of compute), while non-autoregressive models can be 10-100x faster than real-time.</div>
+              <div style={{ fontSize: 12, color: C.dim, marginTop: 8 }}>Further reading: <a href="https://arxiv.org/pdf/2106.15561" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "underline" }}>A Survey on Neural Speech Synthesis (arXiv)</a></div>
+            </div> : activeDetail.exampleComponent === "vocoder" ? <VocoderViz /> : activeDetail.exampleComponent === "melspec" ? <div>
+              <CodeBlock code={'cd ~/callcentervillage/voice-cloning\n\n# Generate a spectrogram from your audio file\n# SoX produces a linear spectrogram\n# similar to a mel spectrogram, but with an evenly spaced frequency axis\nsox input.wav -n spectrogram -o spectrogram.png\n\n# View the spectrogram in the terminal\nimgcat spectrogram.png'} language="bash" />
               <img src="/images/melspec.png" alt="Mel spectrogram of speech" style={{ width: "100%", borderRadius: 4, border: `1px solid ${C.border}`, marginTop: 10 }} />
               {activeDetail.exampleCaption && <div style={{ fontSize: 11, color: C.dim, marginTop: 6, lineHeight: 1.5, textAlign: "center" }}>{activeDetail.exampleCaption}</div>}
             </div> : <div style={{ fontSize: 13, color: C.text, fontFamily: "'JetBrains Mono', 'Fira Code', monospace", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{activeDetail.example}</div>}
@@ -1326,7 +1345,7 @@ const AISection = () => {
       </>}
     </div>
     <div style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: 14, marginBottom: 16 }}>
-      <div style={{ fontSize: 12, color: C.dim, textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>TTS and Voice Conversion Tool Reference</div>
+      <div style={{ fontSize: 12, color: C.dim, textTransform: "uppercase", letterSpacing: 1, marginBottom: 16 }}>TTS and Voice Conversion Tool Reference</div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
         {[
           { name: "Coqui TTS", url: "https://github.com/coqui-ai/TTS" },
@@ -1449,11 +1468,11 @@ const LocalToolsSection = () => (<div>
   <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Reference Tools</h2>
   <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>Hands-on tools for voice cloning, conversion, and synthesis — all running locally on your machine.</p>
   <ToolComparison tools={[
-    { name: "Coqui TTS", desc: <><span>Open-source TTS with zero-shot cloning via XTTS v2 model. 16+ languages.</span><div style={{ background: `${C.highlight}10`, border: `1px solid ${C.highlight}33`, borderRadius: 8, padding: "10px 14px", marginTop: 8, display: "flex", alignItems: "flex-start", gap: 10, fontSize: 13 }}><Icon name="warning" size={16} style={{ color: C.highlight, flexShrink: 0, marginTop: 2 }} /><span style={{ color: C.muted }}>Coqui AI shut down in 2024. This tool has significant dependency issues and may require manual troubleshooting to install. It's pre-configured on these laptops, but setting it up elsewhere can be painful.</span></div></>, pros: ["Zero-shot", "Multi-language", "Fine-tunable"], cons: ["Coqui shut down", "GPU recommended"], install: `# Preinstalled on Call Center Village laptops\n# Wrapper at /usr/bin/coqui-tts → /opt/coqui-tts/.venv/bin/tts\ncd ~/callcentervillage/voice-cloning\n\ncoqui-tts --model_name tts_models/multilingual/multi-dataset/xtts_v2 \\\n    --speaker_wav input.wav --language_idx en \\\n    --text "Somebody once told me, the world is gonna roll me." \\\n    --out_path output.wav && play output.wav` },
+    { name: "Coqui TTS", desc: <><span>Open-source TTS with zero-shot cloning via XTTS v2 model. 16+ languages.</span><div style={{ background: `${C.highlight}10`, border: `1px solid ${C.highlight}33`, borderRadius: 8, padding: "10px 14px", marginTop: 8, display: "flex", alignItems: "flex-start", gap: 10, fontSize: 13 }}><Icon name="warning" size={16} style={{ color: C.highlight, flexShrink: 0, marginTop: 2 }} /><span style={{ color: C.muted }}>Coqui AI shut down in 2024. This tool has significant dependency issues and may require manual troubleshooting to install. It's pre-configured on these laptops, but setting it up elsewhere can be painful.</span></div></>, pros: ["Zero-shot", "Multi-language", "Fine-tunable"], cons: ["Coqui shut down", "GPU recommended"], install: `# Preinstalled on Call Center Village laptops\n# Wrapper at /usr/local/bin/coqui-tts → /opt/coqui-tts/.venv/bin/tts\ncd ~/callcentervillage/voice-cloning\n\ncoqui-tts --model_name tts_models/multilingual/multi-dataset/xtts_v2 \\\n    --speaker_wav input.wav --language_idx en \\\n    --text "Somebody once told me, the world is gonna roll me." \\\n    --out_path output.wav && play output.wav` },
     { name: "Piper TTS", desc: "Neural TTS for edge devices. Runs on Raspberry Pi.", pros: ["Runs anywhere", "Super fast", "Many voices"], cons: ["Not zero-shot", "Training needed"], install: `# Preinstalled on Call Center Village laptops\n# pip install piper-tts\ncd ~/callcentervillage/voice-cloning\n\necho "Hello" | piper --model /opt/piper/models/en_US-lessac-medium.onnx --output_file output.wav && play output.wav` },
-    { name: "Spark TTS", desc: "Built on Qwen2.5 LLM — zero-shot voice cloning with controllable gender, pitch, and speaking rate. Bilingual (English/Chinese).", pros: ["Zero-shot", "Controllable", "LLM-based"], cons: ["GPU recommended", "Newer project"], install: `# Preinstalled on Call Center Village laptops\n# Wrapper at /usr/bin/spark-tts → /opt/spark-tts\ncd ~/callcentervillage/voice-cloning\n\nspark-tts --text "My fellow Americans." --device 0 \\\n    --save_dir ~/callcentervillage/voice-cloning \\\n    --prompt_speech_path /opt/spark-tts/pretrained_models/potus/reference.wav \\\n    --prompt_text "$(cat /opt/spark-tts/pretrained_models/potus/reference.txt)"` },
+    { name: "Spark TTS", desc: "Built on Qwen2.5 LLM — zero-shot voice cloning with controllable gender, pitch, and speaking rate. Bilingual (English/Chinese).", pros: ["Zero-shot", "Controllable", "LLM-based"], cons: ["GPU recommended", "Newer project"], install: `# Preinstalled on Call Center Village laptops\n# Wrapper at /usr/local/bin/spark-tts → /opt/spark-tts\ncd ~/callcentervillage/voice-cloning\n\nspark-tts --text "My fellow Americans." --device 0 \\\n    --save_dir ~/callcentervillage/voice-cloning \\\n    --prompt_speech_path /opt/spark-tts/pretrained_models/potus/reference.wav \\\n    --prompt_text "$(cat /opt/spark-tts/pretrained_models/potus/reference.txt)"` },
     { name: "RVC", desc: "Voice conversion. Real-time on consumer GPUs. Huge community.", pros: ["Best VC quality", "Real-time", "Large community"], cons: ["Complex setup", "GPU recommended"], install: `# RVC is running as a background service on these laptops\n# Open the web interface in your browser:\n# http://localhost:7865` },
-    { name: "OpenVoice", desc: "Instant cloning with tone/emotion control. MIT license.", pros: ["Fast", "Emotion control", "Lightweight"], cons: ["Best quality in English", "Less natural"], install: `# Preinstalled on Call Center Village laptops\n# git clone https://github.com/myshell-ai/OpenVoice\n# cd OpenVoice && pip install -e .\n\n# Clone a voice from a reference clip (zero-shot)\npython -m openvoice_cli single \\\n    -i input.wav \\\n    -r reference_voice.wav \\\n    -o output.wav\n\n# Batch process a folder of audio files\npython -m openvoice_cli batch \\\n    -id ./input_folder \\\n    -rf ./reference_voice.wav \\\n    -od ./output_folder` },
+    { name: "OpenVoice", desc: "Instant cloning with tone/emotion control. MIT license.", pros: ["Fast", "Emotion control", "Lightweight"], cons: ["Best quality in English", "Less natural"], install: `# Preinstalled on Call Center Village laptops\n# Installed at /opt/openvoice\ncd ~/callcentervillage/voice-cloning\n\n# Single file voice conversion\nopenvoice single -i input.wav \\\n    -r /opt/openvoice/reference_voice.wav \\\n    -o cloned_output.wav -d cpu && play cloned_output.wav\n\n# Batch process a folder of audio files\nopenvoice batch -id ./input_folder \\\n    -rf /opt/openvoice/reference_voice.wav \\\n    -od ./output_folder -d cpu` },
   ]} />
     <SectionDivider />
     <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Supporting Tools</h2>
