@@ -5,15 +5,17 @@ const SectionDivider = () => <hr style={{ border: "none", borderTop: "1px solid 
 const toAnchorId = (name) => name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/-+$/, "");
 
 const SECTIONS = [
+  { id: "cli-glossary", title: "CLI Tool Glossary", icon: "command-line" },
+  { id: "voice-glossary", title: "Voice Tool Glossary", icon: "microphone" },
+  { id: "project-glossary", title: "AI Tool Glossary", icon: "cpu" },
+  { id: "fun-tools", title: "Other Tools", icon: "star" },
   { id: "audio", title: "Audio Tips", icon: "speaker-wave", anchors: [
     { id: "dtmf-table", label: "DTMF Frequency Table" },
     { id: "dtmf", label: "DTMF Tone Generation" },
+    { id: "telephone-tones", label: "Telephone Tones" },
     { id: "yt-dlp", label: "Extracting Audio (yt-dlp)" },
   ] },
-  { id: "voice-glossary", title: "Voice Tool Glossary", icon: "microphone" },
-  { id: "cli-glossary", title: "CLI Tool Glossary", icon: "command-line" },
-  { id: "project-glossary", title: "Project Tool Glossary", icon: "cpu" },
-  { id: "fun-tools", title: "Other Tools", icon: "star" },
+  { id: "resources", title: "Additional Resources", icon: "book" },
   { id: "built-with", title: "Project Credits", icon: "code-bracket" },
   { id: "thank-you", title: "Thank You", icon: "heart" },
 ];
@@ -55,7 +57,7 @@ const AudioSection = () => (
         </tbody>
       </table>
     </div>
-    <p style={{ color: C.dim, fontSize: 13, lineHeight: 1.7, marginBottom: 12 }}>Keys A–D are defined in the standard but rarely found on consumer phones. They're used in military, amateur radio, and some PBX systems.</p>
+    <p style={{ color: C.dim, fontSize: 13, lineHeight: 1.7, marginBottom: 12 }}>Keys A–D were originally used in the military's <a href="https://en.wikipedia.org/wiki/Autovon#Multilevel_precedence_and_preemption" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>AUTOVON</a> network for precedence and preemption signaling, and can still be found in some amateur radio and PBX systems.</p>
 
     <SectionDivider />
 
@@ -82,6 +84,58 @@ ffmpeg -f lavfi -i "sine=frequency=770:duration=0.25" \\
         <li>Set the duration and amplitude, then click OK</li>
         <li>File → Export Audio → save as WAV</li>
       </ol>
+    </div>
+
+    <SectionDivider />
+
+    <div id="telephone-tones" style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4, scrollMarginTop: 120 }}>Telephone Tones</div>
+    <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.7, marginBottom: 12 }}>Generate standard telephone signaling tones with SoX — useful for testing IVR systems, simulating call flows, and understanding PSTN audio.</p>
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12 }}>
+      <CodeBlock language="bash" code={`# Dial tone (North American)
+sox -n -r 8000 -c 1 dialtone.wav \\
+  synth 3 sine 350 sine 440 \\
+  && play dialtone.wav
+
+# Busy signal
+sox -n -r 8000 -c 1 busy.wav \\
+  synth 0.5 sine 480 sine 620 \\
+  pad 0 0.5 repeat 4 \\
+  && play busy.wav
+
+# Ringback tone
+sox -n -r 8000 -c 1 ringback.wav \\
+  synth 2 sine 440 sine 480 \\
+  pad 0 4 repeat 3 \\
+  && play ringback.wav
+
+# Off-hook warning (receiver left off hook)
+sox -n -r 8000 -c 1 offhook.wav \\
+  synth 0.1 sine 1400 sine 2060 sine 2450 sine 2600 \\
+  pad 0 0.1 repeat 20 \\
+  && play offhook.wav
+
+# Comfort noise (low hiss for dead-air filling)
+sox -n -r 8000 -c 1 comfort_noise.wav \\
+  synth 5 brownnoise vol 0.02 \\
+  && play comfort_noise.wav
+
+# Call waiting beep
+sox -n -r 8000 -c 1 callwaiting.wav \\
+  synth 0.3 sine 440 \\
+  pad 0 9.7 repeat 2 \\
+  && play callwaiting.wav
+
+# SIT tones (Special Information Tones — the "your call cannot be completed" intro)
+sox -n -r 8000 -c 1 sit.wav \\
+  synth 0.33 sine 913.8 : \\
+  synth 0.33 sine 1370.6 : \\
+  synth 0.33 sine 1776.7 \\
+  && play sit.wav
+
+# PSTN bandpass filter (make any audio sound like it's over a phone line)
+sox input.wav -r 8000 -c 1 phoneline.wav \\
+  sinc 300-3400 \\
+  && play phoneline.wav`} />
     </div>
 
     <SectionDivider />
@@ -1205,7 +1259,7 @@ const allProjectTools = Object.entries(projectTools).flatMap(([category, tools])
 
 const ProjectGlossarySection = () => (
   <div>
-    <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Project Tool Glossary</h2>
+    <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>AI Tool Glossary</h2>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>
       AI and audio tools used across the training.
       Each tool includes installation instructions for setting up in <code style={{ background: C.codeBg, padding: "2px 6px", borderRadius: 4, fontSize: 13 }}>/opt</code> and
@@ -1245,6 +1299,67 @@ const ProjectGlossarySection = () => (
               <CodeBlock language="bash" code={t.installCode} />
             </div>
           )}
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+const resources = [
+  { category: "Hugging Face", items: [
+    { name: "Whisper.cpp Models", url: "https://huggingface.co/ggerganov/whisper.cpp", desc: "Pre-converted GGML models for whisper.cpp" },
+    { name: "Audio Course", url: "https://huggingface.co/learn/audio-course", desc: "Comprehensive introduction to training and fine-tuning audio models" },
+  ] },
+  { category: "Legal & Regulatory", items: [
+    { name: "FTC — AI-Enabled Voice Cloning", url: "https://www.ftc.gov/policy/advocacy-research/tech-at-ftc/2023/11/preventing-harms-ai-enabled-voice-cloning", desc: "FTC guidance on preventing harms from voice cloning" },
+    { name: "FCC — AI Voices in Robocalls", url: "https://www.fcc.gov/document/fcc-makes-ai-generated-voices-robocalls-illegal", desc: "FCC ruling making AI-generated voice robocalls illegal" },
+    { name: "FCC — Consumer Guide to Robocalls", url: "https://www.fcc.gov/consumers/guides/stop-unwanted-robocalls-and-texts", desc: "Consumer guide on robocalls and AI voices" },
+    { name: "EU AI Act", url: "https://artificialintelligenceact.eu/", desc: "Official text and resources for the EU AI Act" },
+    { name: "NCSL — AI Legislation Tracker", url: "https://www.ncsl.org/technology-and-communication/artificial-intelligence-2024-legislation", desc: "State-level AI legislation tracker" },
+    { name: "NCSL — Computer Crime Statutes", url: "https://www.ncsl.org/technology-and-communication/computer-crime-statutes", desc: "Computer crime statutes by state" },
+    { name: "AI Voice Cloning and Consent", url: "https://sites.law.duq.edu/juris/2025/11/25/the-law-speaks-up-ai-voice-cloning-and-consent/", desc: "Duquesne Law review on AI voice cloning and consent" },
+    { name: "California BOT Disclosure Act", url: "https://leginfo.legislature.ca.gov/faces/billNavClient.xhtml?bill_id=201720180SB1001", desc: "California SB-1001 requiring bot disclosure" },
+    { name: "Keep Call Centers in America Act", url: "https://www.congress.gov/bill/119th-congress/senate-bill/2495/text", desc: "U.S. Senate bill on call center operations" },
+  ] },
+  { category: "Security Frameworks", items: [
+    { name: "MITRE ATT&CK — Phishing", url: "https://attack.mitre.org/techniques/T1598/", desc: "Phishing for information technique documentation" },
+    { name: "CISA — Recognize Phishing", url: "https://www.cisa.gov/secure-our-world/recognize-and-report-phishing", desc: "CISA guide to recognizing and reporting phishing" },
+    { name: "FTC — Phishing Scams", url: "https://www.ftc.gov/news-events/topics/identity-theft/phishing-scams", desc: "FTC phishing scam prevention resources" },
+    { name: "NIST — Social Engineering", url: "https://csrc.nist.gov/glossary/term/social_engineering", desc: "NIST definition and resources on social engineering" },
+  ] },
+  { category: "Reference", items: [
+    { name: "ASVspoof Challenge", url: "https://www.asvspoof.org", desc: "International challenge producing open-source anti-spoofing models" },
+    { name: "Neural Speech Synthesis Survey", url: "https://arxiv.org/pdf/2106.15561", desc: "Academic survey on neural speech synthesis (arXiv)" },
+    { name: "ARPAbet Phoneme Set", url: "https://en.wikipedia.org/wiki/ARPABET", desc: "The phoneme set used by most English TTS models" },
+    { name: "Audio Deepfakes", url: "https://en.wikipedia.org/wiki/Audio_deepfake", desc: "Wikipedia overview of audio deepfake technology" },
+    { name: "AUTOVON", url: "https://en.wikipedia.org/wiki/Autovon#Multilevel_precedence_and_preemption", desc: "Military telephone network that used DTMF keys A–D" },
+    { name: "Call Recording Laws", url: "https://en.wikipedia.org/wiki/Telephone_call_recording_laws", desc: "Recording laws by jurisdiction" },
+    { name: "Social Engineering", url: "https://en.wikipedia.org/wiki/Social_engineering_(security)", desc: "Wikipedia overview of social engineering in security" },
+    { name: "Vector Databases", url: "https://en.wikipedia.org/wiki/Vector_database", desc: "How vector similarity search works" },
+  ] },
+];
+
+const ResourcesSection = () => (
+  <div>
+    <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Additional Resources</h2>
+    <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>
+      External references, legal guidance, and educational materials referenced throughout the training.
+    </p>
+    <div style={{ display: "grid", gap: 28 }}>
+      {resources.map(group => (
+        <div key={group.category}>
+          <div style={{ fontSize: 15, fontWeight: 700, color: C.text, marginBottom: 10 }}>{group.category}</div>
+          <div style={{ display: "grid", gap: 8 }}>
+            {group.items.map(r => (
+              <a key={r.name} id={`res-${toAnchorId(r.name)}`} href={r.url} target="_blank" rel="noopener noreferrer"
+                onMouseEnter={e => { e.currentTarget.style.borderColor = C.accent; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; }}
+                style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "12px 16px", textDecoration: "none", display: "flex", alignItems: "baseline", gap: 12, flexWrap: "wrap", transition: "border-color 0.2s ease", scrollMarginTop: 120 }}>
+                <span style={{ color: C.accent, fontSize: 14, fontWeight: 600, whiteSpace: "nowrap" }}>{r.name} ↗</span>
+                <span style={{ color: C.muted, fontSize: 13, flex: 1, minWidth: 200 }}>{r.desc}</span>
+              </a>
+            ))}
+          </div>
         </div>
       ))}
     </div>
@@ -1301,6 +1416,13 @@ pnpm run dev
 # Or build for production
 pnpm run build
 pnpm run preview`} />
+    </div>
+
+    <div id="bw-ai-disclosure" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "20px 24px", marginTop: 24, scrollMarginTop: 120 }}>
+      <div style={{ fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 8 }}>AI Disclosure</div>
+      <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.7, margin: 0 }}>
+        This training application UI was built with the assistance of <a href="https://claude.ai/claude-code" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>Claude Code</a> and <a href="https://claude.ai" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>Claude</a> by Anthropic. Claude was also used to figure out the (often ancient) Python environments for the tools configured on the Call Center Village laptops.
+      </p>
     </div>
   </div>
 );
@@ -1362,34 +1484,40 @@ const FunToolsSection = () => (
 
 // Set anchors dynamically from data arrays
 const sortByLabel = (a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: "base" });
+SECTIONS[0].anchors = cliTools.map(t => ({ id: `cli-${toAnchorId(t.name)}`, label: t.name })).sort(sortByLabel);
 SECTIONS[1].anchors = voiceTools.map(t => ({ id: `voice-${toAnchorId(t.name)}`, label: t.name })).sort(sortByLabel);
-SECTIONS[2].anchors = cliTools.map(t => ({ id: `cli-${toAnchorId(t.name)}`, label: t.name })).sort(sortByLabel);
-SECTIONS[3].anchors = allProjectTools.map(t => ({ id: `tool-${toAnchorId(t.name)}`, label: t.name })).sort(sortByLabel);
-SECTIONS[4].anchors = funTools.map(t => ({ id: `fun-${toAnchorId(t.name)}`, label: t.name }));
-SECTIONS[5].anchors = builtWithItems.map(t => ({ id: `bw-${toAnchorId(t.name)}`, label: t.name }));
+SECTIONS[2].anchors = allProjectTools.map(t => ({ id: `tool-${toAnchorId(t.name)}`, label: t.name })).sort(sortByLabel);
+SECTIONS[3].anchors = funTools.map(t => ({ id: `fun-${toAnchorId(t.name)}`, label: t.name }));
+// SECTIONS[4] = Audio Tips — anchors defined inline
+SECTIONS[5].anchors = resources.flatMap(g => g.items.map(r => ({ id: `res-${toAnchorId(r.name)}`, label: r.name }))).sort(sortByLabel);
+SECTIONS[6].anchors = [
+  ...builtWithItems.map(t => ({ id: `bw-${toAnchorId(t.name)}`, label: t.name })),
+  { id: "bw-getting-started", label: "Getting Started" },
+  { id: "bw-ai-disclosure", label: "AI Disclosure" },
+];
 
 const ThankYouSection = () => (
   <div>
     <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Thank You</h2>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 32 }}>
-      Call Center Village wouldn't exist without the people who've supported it along the way.
+      Call Center Village wouldn't exist without the people who've supported us along the way.
     </p>
 
     <div style={{ display: "grid", gap: 24 }}>
       <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "32px 32px" }}>
         <div style={{ fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 8 }}>The Conferences</div>
         <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.8, margin: 0 }}>
-          To every conference that gave Call Center Village a chance — and let us come back even after we failed. Thank you for the floor space, the badge access, and the willingness to take a risk on something weird. Every iteration of the village has been better because of the communities that hosted us.
+          To every conference that gave Call Center Village a chance — and let us come back even after we failed. Thank you for the floor space, the badge access, and the willingness to take the risk on something new. Every iteration of the village has been better because of the communities that hosted us.
         </p>
       </div>
 
       <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "32px 32px" }}>
         <div style={{ fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 8 }}>The People</div>
         <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.8, margin: 0 }}>
-          To everyone who's shared resources, ideas, feedback, and encouragement along the way — you've shaped what this project has become. There are countless people not named here who've helped us along the way — thank you so much.
+          To everyone who's shared resources, ideas, feedback, and encouragement — you've shaped what this project has become. There are countless people not named here who've helped us along the way — thank you so much.
         </p>
         <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
-          {["Jay", "Sarah", "Brendan", "Canis", "DEF CON Dan", "chiefgyk3d", "DC614", "Our families"].map(name => (
+          {["Jay", "Sarah", "Brendan", "Canis", "DEF CON Dan", "ChiefGyk3d", "DC614", "Our families"].map(name => (
             <span key={name} style={{ background: C.codeBg, border: `1px solid ${C.border}`, padding: "4px 12px", borderRadius: 6, fontSize: 13, color: C.text, fontWeight: 600 }}>{name}</span>
           ))}
         </div>
@@ -1404,7 +1532,7 @@ const ThankYouSection = () => (
       <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "32px 32px" }}>
         <div style={{ fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 8 }}>The Sponsors</div>
         <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.8, margin: 0 }}>
-          We're still looking for sponsors — so for now, thank you to ourselves. Shout out to <a href="https://www.calltheory.com" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>Call Theory</a> (me, myself, and I) for funding this project out of pocket and believing in it when nobody else would.
+          We're still looking for sponsors! If you'd like to support Call Center Village, visit <a href="https://www.callcentervillage.com/sponsors" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>callcentervillage.com/sponsors</a>.
         </p>
       </div>
     </div>
@@ -1432,7 +1560,7 @@ const ThankYouSection = () => (
   </div>
 );
 
-const COMPS = [AudioSection, VoiceGlossarySection, CLIGlossarySection, ProjectGlossarySection, FunToolsSection, BuiltWithSection, ThankYouSection];
+const COMPS = [CLIGlossarySection, VoiceGlossarySection, ProjectGlossarySection, FunToolsSection, AudioSection, ResourcesSection, BuiltWithSection, ThankYouSection];
 
 export { SECTIONS, COMPS };
 

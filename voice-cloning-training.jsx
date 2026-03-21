@@ -1484,15 +1484,19 @@ const LocalToolsSection = () => (<div>
       <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 12 }}>Powered by OpenAI's Whisper model, compiled to run efficiently on CPU. Transcribe audio files, extract text from recordings for re-synthesis, or analyze call recordings — all offline.</p>
       <CodeBlock language="bash" code={`# whisper.cpp is installed at /opt/whisper.cpp\ncd /opt/whisper.cpp\n\n# Transcribe an audio file (using the tiny model for speed on i3)\n./build/bin/whisper-cli -m models/ggml-tiny.en.bin -f ~/callcentervillage/voice-cloning/input.wav\n\n# Transcribe with timestamps\n./build/bin/whisper-cli -m models/ggml-tiny.en.bin -f ~/callcentervillage/voice-cloning/input.wav -otxt\n\n# Output as SRT subtitles\n./build/bin/whisper-cli -m models/ggml-tiny.en.bin -f ~/callcentervillage/voice-cloning/input.wav -osrt\n\n# Use the small model for better accuracy (slower)\n./build/bin/whisper-cli -m models/ggml-small.en.bin -f ~/callcentervillage/voice-cloning/input.wav`} />
       <p style={{ fontSize: 12, color: C.dim, marginTop: 10, marginBottom: 12, lineHeight: 1.6 }}>The <strong style={{ color: C.muted }}>tiny</strong> model is fastest and works well on low-powered hardware. Use <strong style={{ color: C.muted }}>small</strong> for better accuracy if you can wait a bit longer. Models ending in <strong style={{ color: C.muted }}>.en</strong> are English-only and slightly more accurate for English.</p>
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13, marginTop: 32 }}>
         <thead><tr style={{ borderBottom: `1px solid ${C.border}` }}>{["Model", "Size", "Memory", "Speed", "Accuracy"].map(h => <th key={h} style={{ padding: 8, textAlign: "left", color: C.accent, fontWeight: 700 }}>{h}</th>)}</tr></thead>
         <tbody>{[
-          ["tiny / tiny.en", "75 MB", "~390 MB", "★★★★★", "★★☆☆☆"],
-          ["base / base.en", "142 MB", "~500 MB", "★★★★☆", "★★★☆☆"],
-          ["small / small.en", "466 MB", "~1.0 GB", "★★★☆☆", "★★★★☆"],
-          ["medium / medium.en", "1.5 GB", "~2.6 GB", "★★☆☆☆", "★★★★☆"],
-          ["large-v3", "2.9 GB", "~4.7 GB", "★☆☆☆☆", "★★★★★"],
-        ].map((row, i) => <tr key={i} onMouseEnter={e => e.currentTarget.style.background = `${C.primary}10`} onMouseLeave={e => e.currentTarget.style.background = "transparent"} style={{ borderBottom: "1px solid #06040c", transition: "background 0.15s ease" }}>{row.map((cell, j) => <td key={j} style={{ padding: 8, color: j === 0 ? C.text : C.muted }}>{cell}</td>)}</tr>)}</tbody>
+          ["tiny / tiny.en", "75 MB", "~390 MB", 5, 2],
+          ["base / base.en", "142 MB", "~500 MB", 4, 3],
+          ["small / small.en", "466 MB", "~1.0 GB", 3, 4],
+          ["medium / medium.en", "1.5 GB", "~2.6 GB", 2, 4],
+          ["large-v3", "2.9 GB", "~4.7 GB", 1, 5],
+        ].map((row, i) => <tr key={i} onMouseEnter={e => e.currentTarget.style.background = `${C.primary}10`} onMouseLeave={e => e.currentTarget.style.background = "transparent"} style={{ borderBottom: "1px solid #06040c", transition: "background 0.15s ease" }}>
+          {row.map((cell, j) => <td key={j} style={{ padding: 8, color: j === 0 ? C.text : C.muted, fontSize: j >= 3 ? 16 : 13 }}>
+            {j >= 3 ? Array.from({ length: 5 }).map((_, s) => <span key={s} style={{ color: s < cell ? C.secondary : C.border }}>{s < cell ? "★" : "☆"}</span>) : cell}
+          </td>)}
+        </tr>)}</tbody>
       </table>
       <p style={{ fontSize: 11, color: C.dim, marginTop: 8 }}>For these laptops, <strong style={{ color: C.muted }}>tiny</strong> or <strong style={{ color: C.muted }}>base</strong> are recommended. See all available models at <a href="https://huggingface.co/ggerganov/whisper.cpp" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "underline" }}>huggingface.co/ggerganov/whisper.cpp</a>.</p>
     </div>
