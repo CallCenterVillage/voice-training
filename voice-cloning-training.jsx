@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from "react";
-import { C, CodeBlock, InteractiveCard, QuizBank, TrainingShell, Icon, InfoBox, NextModuleLink } from './src/components';
+import { C, CodeBlock, InteractiveCard, QuizBank, TrainingShell, Icon, InfoBox, NextModuleLink, StarRating } from './src/components';
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 
 const SECTIONS = [
@@ -1373,7 +1373,7 @@ const AISection = () => {
       <div style={{ fontSize: 12, color: C.dim, textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>Quality vs. Effort</div>
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
         <thead><tr style={{ borderBottom: `1px solid ${C.border}` }}>{["Method", "Audio", "Compute", "Quality", "Real-Time"].map(h => <th key={h} style={{ padding: 8, textAlign: "left", color: C.accent, fontWeight: 700 }}>{h}</th>)}</tr></thead>
-        <tbody>{[["eSpeak NG / Festival", "None", "None", 1, "Yes"], ["TTS (zero-shot)", "3-10s", "Medium", 3, "Sometimes"], ["TTS (fine-tuned)", "5-30min", "High", 4, "No"], ["VC (zero-shot)", "3-10s", "Medium", 3, "Yes"], ["VC (fine-tuned / RVC)", "10-30min", "High", 5, "Yes*"], ["Commercial API", "10-30s", "None", 4, "Yes"]].map((row, i) => <tr key={i} onMouseEnter={e => e.currentTarget.style.background = `${C.primary}10`} onMouseLeave={e => e.currentTarget.style.background = "transparent"} style={{ borderBottom: "1px solid #06040c", transition: "background 0.15s ease", cursor: "default" }}>{row.map((cell, j) => <td key={j} style={{ padding: 8, color: j === 0 ? C.text : C.muted }}>{j === 3 ? Array.from({ length: cell }, (_, k) => <Icon key={k} name="star" size={14} style={{ display: "inline-block", color: C.accent }} />) : cell}</td>)}</tr>)}</tbody>
+        <tbody>{[["eSpeak NG / Festival", "None", "None", 1, "Yes"], ["TTS (zero-shot)", "3-10s", "Medium", 3, "Sometimes"], ["TTS (fine-tuned)", "5-30min", "High", 4, "No"], ["VC (zero-shot)", "3-10s", "Medium", 3, "Yes"], ["VC (fine-tuned / RVC)", "10-30min", "High", 5, "Yes*"], ["Commercial API", "10-30s", "None", 4, "Yes"]].map((row, i) => <tr key={i} onMouseEnter={e => e.currentTarget.style.background = `${C.primary}10`} onMouseLeave={e => e.currentTarget.style.background = "transparent"} style={{ borderBottom: "1px solid #06040c", transition: "background 0.15s ease", cursor: "default" }}>{row.map((cell, j) => <td key={j} style={{ padding: 8, color: j === 0 ? C.text : C.muted }}>{j === 3 ? <StarRating rating={cell} size={14} /> : cell}</td>)}</tr>)}</tbody>
       </table>
     </div>
     <SectionDivider />
@@ -1497,7 +1497,7 @@ const LocalToolsSection = () => (<div>
           ["large-v3", "2.9 GB", "~4.7 GB", 1, 5],
         ].map((row, i) => <tr key={i} onMouseEnter={e => e.currentTarget.style.background = `${C.primary}10`} onMouseLeave={e => e.currentTarget.style.background = "transparent"} style={{ borderBottom: "1px solid #06040c", transition: "background 0.15s ease" }}>
           {row.map((cell, j) => <td key={j} style={{ padding: 8, color: j === 0 ? C.text : C.muted, fontSize: j >= 3 ? 16 : 13 }}>
-            {j >= 3 ? Array.from({ length: 5 }).map((_, s) => <span key={s} style={{ color: s < cell ? C.secondary : C.border }}>{s < cell ? "★" : "☆"}</span>) : cell}
+            {j >= 3 ? <StarRating rating={cell} /> : cell}
           </td>)}
         </tr>)}</tbody>
       </table>
