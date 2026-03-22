@@ -1269,15 +1269,15 @@ cd /opt/resemblyzer
 sudo uv venv .venv --python 3.12
 
 # Install Resemblyzer
-sudo uv pip install --python .venv/bin/python3 resemblyzer
+# webrtcvad is broken on Python 3.12+ — use webrtcvad-wheels instead
+sudo uv pip install --python .venv/bin/python3 resemblyzer webrtcvad-wheels
 
 # === Create system wrapper ===
 sudo tee /usr/local/bin/resemblyzer << 'EOF'
 #!/bin/bash
 # Usage: resemblyzer <original.wav> <clone.wav>
 # Returns similarity score between two voice samples
-source /opt/resemblyzer/.venv/bin/activate
-exec python3 -c "
+exec /opt/resemblyzer/.venv/bin/python3 -c "
 import sys, numpy as np
 from resemblyzer import VoiceEncoder, preprocess_wav
 from pathlib import Path
@@ -1425,6 +1425,7 @@ const resources = [
     { name: "Call Recording Laws", url: "https://en.wikipedia.org/wiki/Telephone_call_recording_laws", desc: "Recording laws by jurisdiction" },
     { name: "Social Engineering", url: "https://en.wikipedia.org/wiki/Social_engineering_(security)", desc: "Wikipedia overview of social engineering in security" },
     { name: "Privacy Guides — Email Aliasing", url: "https://www.privacyguides.org/en/email-aliasing/", desc: "Guide to email aliasing for privacy", archiveUrl: "https://web.archive.org/web/20260321195812/https://www.privacyguides.org/en/email-aliasing/" },
+    { name: "Nyquist–Shannon Sampling Theorem", url: "https://en.wikipedia.org/wiki/Nyquist%E2%80%93Shannon_sampling_theorem", desc: "The fundamental limit on digital audio sampling rates" },
     { name: "Vector Databases", url: "https://en.wikipedia.org/wiki/Vector_database", desc: "How vector similarity search works" },
   ] },
 ];

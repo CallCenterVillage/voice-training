@@ -203,7 +203,7 @@ const IntroSection = () => (
     </div>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 12, marginBottom: 32 }}>
       {[
-        { label: "Duration", value: "~30 min", icon: "clock" },
+        { label: "Duration", value: "~1 hour", icon: "clock" },
         { label: "Difficulty", value: "Advanced", icon: "trending-up" },
         { label: "Prerequisites", value: "Python, APIs, CLI", icon: "clipboard" },
       ].map((item, i) => (
