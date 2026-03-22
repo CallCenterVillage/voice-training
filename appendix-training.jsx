@@ -341,14 +341,16 @@ sudo apt install -y sngrep
 sngrep --version` },
   { name: "imgcat", desc: "Display images in the terminal (renders PNG/JPG/GIF inline in supported terminals)", install: "built from source (Go)",
     installCode: `# === Build imgcat from source ===
-# Requires Go
-sudo apt install -y golang-go
+# Requires Go (sudo apt install -y golang-go)
 
-# Build and install in one step
-sudo go install github.com/danielgatis/imgcat@latest
+# Switch to root for installation
+sudo su
 
-# Copy the binary to /usr/local/bin so all users can access it
-sudo cp ~/go/bin/imgcat /usr/local/bin/imgcat
+go install github.com/danielgatis/imgcat@latest
+cp ~/go/bin/imgcat /usr/local/bin/imgcat
+
+# Return to normal user
+exit
 
 # Verify
 imgcat --help` },
@@ -356,26 +358,34 @@ imgcat --help` },
     installCode: `# === Install yt-dlp via uv ===
 # The apt version is often outdated — uv keeps it current
 
-sudo mkdir -p /opt/yt-dlp
+# Switch to root for installation
+sudo su
+
+mkdir -p /opt/yt-dlp
 cd /opt/yt-dlp
 
 # Create venv and install with uv
-sudo uv venv .venv --python 3.12
-sudo uv pip install --python .venv/bin/python3 yt-dlp
+uv venv .venv --python 3.12
+uv pip install --python .venv/bin/python3 yt-dlp
 
 # === Create system wrapper ===
-sudo tee /usr/local/bin/yt-dlp << 'EOF'
+tee /usr/local/bin/yt-dlp << 'EOF'
 #!/bin/bash
 source /opt/yt-dlp/.venv/bin/activate
 exec yt-dlp "$@"
 EOF
-sudo chmod +x /usr/local/bin/yt-dlp
+chmod +x /usr/local/bin/yt-dlp
+
+# Return to normal user
+exit
 
 # Verify
 yt-dlp --version
 
-# === Update yt-dlp ===
-# sudo uv pip install --python /opt/yt-dlp/.venv/bin/python3 --upgrade yt-dlp` },
+# === Update yt-dlp (run as root) ===
+# sudo su
+# uv pip install --python /opt/yt-dlp/.venv/bin/python3 --upgrade yt-dlp
+# exit` },
   { name: "curl", desc: "HTTP client for API requests", install: "system package",
     installCode: `# === Install curl ===
 # Usually pre-installed on Ubuntu/Pop!_OS
@@ -532,23 +542,29 @@ const projectTools = {
       installCode: `# === Install whisper.cpp to /opt ===
 # C++ project — no Python venv needed
 
+# Switch to root for installation
+sudo su
+
 # Clone the repository
-sudo git clone https://github.com/ggml-org/whisper.cpp /opt/whisper.cpp
+git clone https://github.com/ggml-org/whisper.cpp /opt/whisper.cpp
 cd /opt/whisper.cpp
 
 # Build with CMake
-sudo cmake -B build
-sudo cmake --build build --config Release -j$(nproc)
+cmake -B build
+cmake --build build --config Release -j$(nproc)
 
 # Download models
-sudo bash models/download-ggml-model.sh tiny.en
-sudo bash models/download-ggml-model.sh base.en
-sudo bash models/download-ggml-model.sh small.en
+bash models/download-ggml-model.sh tiny.en
+bash models/download-ggml-model.sh base.en
+bash models/download-ggml-model.sh small.en
 
 # === Create system wrappers ===
-sudo ln -sf /opt/whisper.cpp/build/bin/whisper-cli /usr/local/bin/whisper-cli
-sudo ln -sf /opt/whisper.cpp/build/bin/whisper-stream /usr/local/bin/whisper-stream
-sudo ln -sf /opt/whisper.cpp/build/bin/whisper-server /usr/local/bin/whisper-server
+ln -sf /opt/whisper.cpp/build/bin/whisper-cli /usr/local/bin/whisper-cli
+ln -sf /opt/whisper.cpp/build/bin/whisper-stream /usr/local/bin/whisper-stream
+ln -sf /opt/whisper.cpp/build/bin/whisper-server /usr/local/bin/whisper-server
+
+# Return to normal user
+exit
 
 # Verify
 whisper-cli -m /opt/whisper.cpp/models/ggml-tiny.en.bin -f test.wav` },
@@ -556,14 +572,17 @@ whisper-cli -m /opt/whisper.cpp/models/ggml-tiny.en.bin -f test.wav` },
       installCode: `# === Install Faster Whisper to /opt ===
 # Python 3.12 · CPU (onnxruntime + ctranslate2)
 
-sudo mkdir -p /opt/faster-whisper
+# Switch to root for installation
+sudo su
+
+mkdir -p /opt/faster-whisper
 cd /opt/faster-whisper
 
 # Create venv with uv (Python 3.12)
-sudo uv venv .venv --python 3.12
+uv venv .venv --python 3.12
 
 # Install faster-whisper and dependencies
-sudo uv pip install --python .venv/bin/python3 \\
+uv pip install --python .venv/bin/python3 \\
   faster-whisper==1.2.1 \\
   ctranslate2==4.7.1 \\
   onnxruntime==1.24.3
@@ -571,7 +590,7 @@ sudo uv pip install --python .venv/bin/python3 \\
 # Models download automatically on first use to ~/.cache/huggingface
 
 # === Create system wrapper ===
-sudo tee /usr/local/bin/faster-whisper << 'EOF'
+tee /usr/local/bin/faster-whisper << 'EOF'
 #!/bin/bash
 # Usage: faster-whisper <audio_file> [model_size]
 source /opt/faster-whisper/.venv/bin/activate
@@ -585,7 +604,10 @@ for segment in segments:
     print('[%.2fs -> %.2fs] %s' % (segment.start, segment.end, segment.text))
 " "$1"
 EOF
-sudo chmod +x /usr/local/bin/faster-whisper
+chmod +x /usr/local/bin/faster-whisper
+
+# Return to normal user
+exit
 
 # Verify
 faster-whisper test.wav` },
@@ -595,25 +617,31 @@ faster-whisper test.wav` },
       installCode: `# === Install llama.cpp to /opt ===
 # C++ project — no Python venv needed
 
+# Switch to root for installation
+sudo su
+
 # Clone the repository
-sudo git clone https://github.com/ggml-org/llama.cpp /opt/llama.cpp
+git clone https://github.com/ggml-org/llama.cpp /opt/llama.cpp
 cd /opt/llama.cpp
 
 # Build with CMake
-sudo cmake -B build
-sudo cmake --build build --config Release -j$(nproc)
+cmake -B build
+cmake --build build --config Release -j$(nproc)
 
 # Download a model (example: Llama 3.2 1B quantized)
-sudo mkdir -p /opt/llama.cpp/models
+mkdir -p /opt/llama.cpp/models
 # Download GGUF models from Hugging Face, e.g.:
 # sudo wget -O /opt/llama.cpp/models/llama-3.2-1b-instruct-q4_k_m.gguf \\
 #   "https://huggingface.co/bartowski/Llama-3.2-1B-Instruct-GGUF/resolve/main/Llama-3.2-1B-Instruct-Q4_K_M.gguf"
 
 # === Create system wrappers ===
-sudo ln -sf /opt/llama.cpp/build/bin/llama-cli /usr/local/bin/llama-cli
-sudo ln -sf /opt/llama.cpp/build/bin/llama-server /usr/local/bin/llama-server
-sudo ln -sf /opt/llama.cpp/build/bin/llama-simple /usr/local/bin/llama-simple
-sudo ln -sf /opt/llama.cpp/build/bin/llama-tts /usr/local/bin/llama-tts
+ln -sf /opt/llama.cpp/build/bin/llama-cli /usr/local/bin/llama-cli
+ln -sf /opt/llama.cpp/build/bin/llama-server /usr/local/bin/llama-server
+ln -sf /opt/llama.cpp/build/bin/llama-simple /usr/local/bin/llama-simple
+ln -sf /opt/llama.cpp/build/bin/llama-tts /usr/local/bin/llama-tts
+
+# Return to normal user
+exit
 
 # Verify
 llama-cli -m /opt/llama.cpp/models/llama-3.2-1b-instruct-q4_k_m.gguf \\
@@ -624,14 +652,17 @@ llama-cli -m /opt/llama.cpp/models/llama-3.2-1b-instruct-q4_k_m.gguf \\
       installCode: `# === Install Piper TTS to /opt ===
 # Python 3.14 · CPU (onnxruntime)
 
-sudo mkdir -p /opt/piper/models
+# Switch to root for installation
+sudo su
+
+mkdir -p /opt/piper/models
 cd /opt/piper
 
 # Create venv with uv (Python 3.14)
-sudo uv venv .venv --python 3.14
+uv venv .venv --python 3.14
 
 # Install piper-tts
-sudo uv pip install --python .venv/bin/python3 \\
+uv pip install --python .venv/bin/python3 \\
   piper-tts==1.4.1 \\
   onnxruntime==1.24.3
 
@@ -641,12 +672,15 @@ sudo wget https://github.com/rhasspy/piper/releases/download/v0.0.2/voice-en-us-
 sudo tar xzf voice-en-us-lessac-medium.tar.gz && sudo rm voice-en-us-lessac-medium.tar.gz
 
 # === Create system wrapper ===
-sudo tee /usr/local/bin/piper << 'EOF'
+tee /usr/local/bin/piper << 'EOF'
 #!/bin/bash
 source /opt/piper/.venv/bin/activate
 exec piper "$@"
 EOF
-sudo chmod +x /usr/local/bin/piper
+chmod +x /usr/local/bin/piper
+
+# Return to normal user
+exit
 
 # Verify
 echo "Hello from Piper" | piper \\
@@ -661,14 +695,17 @@ echo "Streaming audio" | piper \\
       installCode: `# === Install Kokoro TTS to /opt ===
 # Python 3.14 · CPU (onnxruntime)
 
-sudo mkdir -p /opt/kokoro
+# Switch to root for installation
+sudo su
+
+mkdir -p /opt/kokoro
 cd /opt/kokoro
 
 # Create venv with uv (Python 3.14)
-sudo uv venv .venv --python 3.14
+uv venv .venv --python 3.14
 
 # Install kokoro-onnx and dependencies
-sudo uv pip install --python .venv/bin/python3 \\
+uv pip install --python .venv/bin/python3 \\
   kokoro-onnx==0.5.0 \\
   soundfile==0.13.1 \\
   onnxruntime==1.24.3
@@ -676,7 +713,7 @@ sudo uv pip install --python .venv/bin/python3 \\
 # Models download automatically on first run
 
 # === Create system wrapper ===
-sudo tee /usr/local/bin/kokoro << 'EOF'
+tee /usr/local/bin/kokoro << 'EOF'
 #!/bin/bash
 # Usage: echo "text" | kokoro > output.raw
 #        echo "text" | kokoro | aplay -r 24000 -f S16_LE
@@ -693,7 +730,10 @@ raw = (samples * 32767).astype(np.int16).tobytes()
 sys.stdout.buffer.write(raw)
 " "$@"
 EOF
-sudo chmod +x /usr/local/bin/kokoro
+chmod +x /usr/local/bin/kokoro
+
+# Return to normal user
+exit
 
 # Verify
 echo "Hello from Kokoro" | kokoro | aplay -r 24000 -f S16_LE` },
@@ -701,14 +741,17 @@ echo "Hello from Kokoro" | kokoro | aplay -r 24000 -f S16_LE` },
       installCode: `# === Install Kokoro-FastAPI to /opt ===
 # Runs via podman-compose (containerized)
 
-sudo git clone https://github.com/remsky/Kokoro-FastAPI /opt/kokoro-fastapi
+# Switch to root for installation
+sudo su
+
+git clone https://github.com/remsky/Kokoro-FastAPI /opt/kokoro-fastapi
 cd /opt/kokoro-fastapi
 
 # Start with podman-compose (see docker-compose.yml in repo)
 sudo podman-compose up -d
 
 # === Create system wrapper ===
-sudo tee /usr/local/bin/kokoro-fastapi << 'EOF'
+tee /usr/local/bin/kokoro-fastapi << 'EOF'
 #!/bin/bash
 # Usage: kokoro-fastapi start | stop | restart | status
 cd /opt/kokoro-fastapi
@@ -719,7 +762,10 @@ case "\${1:-start}" in
   status)  sudo podman-compose ps ;;
 esac
 EOF
-sudo chmod +x /usr/local/bin/kokoro-fastapi
+chmod +x /usr/local/bin/kokoro-fastapi
+
+# Return to normal user
+exit
 
 # Verify
 curl -s http://localhost:8880/v1/audio/speech \\
@@ -730,26 +776,32 @@ curl -s http://localhost:8880/v1/audio/speech \\
       installCode: `# === Install Coqui TTS to /opt ===
 # Python 3.11 · CPU-only PyTorch
 
-sudo mkdir -p /opt/coqui-tts
+# Switch to root for installation
+sudo su
+
+mkdir -p /opt/coqui-tts
 cd /opt/coqui-tts
 
 # Create venv with uv (Python 3.11 — required by Coqui)
-sudo uv venv .venv --python 3.11
+uv venv .venv --python 3.11
 
 # Install CPU-only PyTorch first, then Coqui TTS
-sudo uv pip install --python .venv/bin/python3 \\
+uv pip install --python .venv/bin/python3 \\
   torch==2.5.1+cpu torchaudio==2.5.1+cpu \\
   --extra-index-url https://download.pytorch.org/whl/cpu
-sudo uv pip install --python .venv/bin/python3 \\
+uv pip install --python .venv/bin/python3 \\
   tts==0.22.0
 
 # === Create system wrapper ===
-sudo tee /usr/local/bin/coqui-tts << 'EOF'
+tee /usr/local/bin/coqui-tts << 'EOF'
 #!/bin/bash
 source /opt/coqui-tts/.venv/bin/activate
 exec tts "$@"
 EOF
-sudo chmod +x /usr/local/bin/coqui-tts
+chmod +x /usr/local/bin/coqui-tts
+
+# Return to normal user
+exit
 
 # Verify
 coqui-tts --text "Hello from Coqui" \\
@@ -766,32 +818,38 @@ coqui-tts --model_name tts_models/multilingual/multi-dataset/xtts_v2 \\
       installCode: `# === Install Spark TTS to /opt ===
 # Python 3.12 · CUDA 12.1 PyTorch
 
+# Switch to root for installation
+sudo su
+
 # Clone the repository
-sudo git clone https://github.com/SparkAudio/Spark-TTS /opt/spark-tts
+git clone https://github.com/SparkAudio/Spark-TTS /opt/spark-tts
 cd /opt/spark-tts
 
 # Create venv with uv (Python 3.12)
-sudo uv venv .venv --python 3.12
+uv venv .venv --python 3.12
 
 # Install CUDA PyTorch first
-sudo uv pip install --python .venv/bin/python3 \\
+uv pip install --python .venv/bin/python3 \\
   torch==2.5.1+cu121 torchaudio==2.5.1+cu121 \\
   --extra-index-url https://download.pytorch.org/whl/cu121
 
 # Install project dependencies from requirements.txt
-sudo uv pip install --python .venv/bin/python3 -r requirements.txt
+uv pip install --python .venv/bin/python3 -r requirements.txt
 
 # Download pretrained models (follow repo instructions)
 # Models go in /opt/spark-tts/pretrained_models/
 
 # === Create system wrapper ===
-sudo tee /usr/local/bin/spark-tts << 'EOF'
+tee /usr/local/bin/spark-tts << 'EOF'
 #!/bin/bash
 cd /opt/spark-tts
 source .venv/bin/activate
 exec python3 spark_tts_cli.py "$@"
 EOF
-sudo chmod +x /usr/local/bin/spark-tts
+chmod +x /usr/local/bin/spark-tts
+
+# Return to normal user
+exit
 
 # Verify — zero-shot voice cloning
 spark-tts --text "Hello from Spark TTS" --device 0 \\
@@ -826,36 +884,45 @@ echo "Hello" | festival --tts` },
       installCode: `# === Install Bark to /opt ===
 # Python 3.12 · CUDA PyTorch recommended (large models)
 
-sudo mkdir -p /opt/bark
+# Switch to root for installation
+sudo su
+
+mkdir -p /opt/bark
 cd /opt/bark
 
 # Create venv with uv
-sudo uv venv .venv --python 3.12
+uv venv .venv --python 3.12
 
 # Install PyTorch (CUDA or CPU)
-sudo uv pip install --python .venv/bin/python3 \\
+uv pip install --python .venv/bin/python3 \\
   torch==2.5.1+cu121 \\
   --extra-index-url https://download.pytorch.org/whl/cu121
 
 # Install Bark from git
-sudo uv pip install --python .venv/bin/python3 \\
+uv pip install --python .venv/bin/python3 \\
   git+https://github.com/suno-ai/bark.git scipy
 
 # Pre-download models (~5GB)
-sudo .venv/bin/python3 -c "
+# Bark's checkpoints use numpy types blocked by PyTorch 2.6+ weights_only default
+# We monkey-patch torch.load to force weights_only=False
+.venv/bin/python3 -c "
+import torch
+_original_load = torch.load
+torch.load = lambda *args, **kwargs: _original_load(*args, **{**kwargs, 'weights_only': False})
 from bark import preload_models
 preload_models()
 print('Models downloaded successfully')
 "
 
 # === Create system wrapper ===
-sudo tee /usr/local/bin/bark-tts << 'EOF'
+tee /usr/local/bin/bark-tts << 'EOF'
 #!/bin/bash
 # Usage: bark-tts "Text to speak" [output.wav]
-source /opt/bark/.venv/bin/activate
 OUTPUT=\${2:-bark_output.wav}
-exec python3 -c "
-import sys
+exec /opt/bark/.venv/bin/python3 -c "
+import sys, torch
+_original_load = torch.load
+torch.load = lambda *args, **kwargs: _original_load(*args, **{**kwargs, 'weights_only': False})
 from bark import SAMPLE_RATE, generate_audio, preload_models
 from scipy.io.wavfile import write as write_wav
 preload_models()
@@ -864,7 +931,10 @@ write_wav(sys.argv[2], SAMPLE_RATE, audio)
 print(f'Saved to {sys.argv[2]}')
 " "$1" "$OUTPUT"
 EOF
-sudo chmod +x /usr/local/bin/bark-tts
+chmod +x /usr/local/bin/bark-tts
+
+# Return to normal user
+exit
 
 # Verify
 bark-tts "Hello from Bark [laughs]" test.wav && play test.wav` },
@@ -872,28 +942,34 @@ bark-tts "Hello from Bark [laughs]" test.wav && play test.wav` },
       installCode: `# === Install Tortoise TTS to /opt ===
 # Python 3.11 · CUDA PyTorch recommended
 
+# Switch to root for installation
+sudo su
+
 # Clone the repository
-sudo git clone https://github.com/neonbjb/tortoise-tts /opt/tortoise-tts
+git clone https://github.com/neonbjb/tortoise-tts /opt/tortoise-tts
 cd /opt/tortoise-tts
 
 # Create venv with uv
-sudo uv venv .venv --python 3.11
+uv venv .venv --python 3.11
 
 # Install PyTorch then project
-sudo uv pip install --python .venv/bin/python3 \\
+uv pip install --python .venv/bin/python3 \\
   torch==2.5.1+cu121 torchaudio==2.5.1+cu121 \\
   --extra-index-url https://download.pytorch.org/whl/cu121
-sudo uv pip install --python .venv/bin/python3 -r requirements.txt
-sudo uv pip install --python .venv/bin/python3 -e .
+uv pip install --python .venv/bin/python3 -r requirements.txt
+uv pip install --python .venv/bin/python3 -e .
 
 # === Create system wrapper ===
-sudo tee /usr/local/bin/tortoise-tts << 'EOF'
+tee /usr/local/bin/tortoise-tts << 'EOF'
 #!/bin/bash
 cd /opt/tortoise-tts
 source .venv/bin/activate
 exec python3 tortoise/do_tts.py "$@"
 EOF
-sudo chmod +x /usr/local/bin/tortoise-tts
+chmod +x /usr/local/bin/tortoise-tts
+
+# Return to normal user
+exit
 
 # Verify (slow — Tortoise prioritizes quality over speed)
 tortoise-tts --text "Hello from Tortoise" --voice random --output_path .
@@ -902,31 +978,37 @@ play *_0.wav` },
       installCode: `# === Install StyleTTS2 to /opt ===
 # Python 3.11 · CUDA PyTorch recommended
 
+# Switch to root for installation
+sudo su
+
 # Clone the repository
-sudo git clone https://github.com/yl4579/StyleTTS2 /opt/styletts2
+git clone https://github.com/yl4579/StyleTTS2 /opt/styletts2
 cd /opt/styletts2
 
 # Create venv with uv
-sudo uv venv .venv --python 3.11
+uv venv .venv --python 3.11
 
 # Install PyTorch then dependencies
-sudo uv pip install --python .venv/bin/python3 \\
+uv pip install --python .venv/bin/python3 \\
   torch==2.5.1+cu121 torchaudio==2.5.1+cu121 \\
   --extra-index-url https://download.pytorch.org/whl/cu121
-sudo uv pip install --python .venv/bin/python3 \\
+uv pip install --python .venv/bin/python3 \\
   -r requirements.txt phonemizer scipy
 
 # Download pretrained models (follow repo README)
 # Place models in /opt/styletts2/Models/
 
 # === Create system wrapper ===
-sudo tee /usr/local/bin/styletts2 << 'EOF'
+tee /usr/local/bin/styletts2 << 'EOF'
 #!/bin/bash
 cd /opt/styletts2
 source .venv/bin/activate
 exec python3 run_tts.py "$@"
 EOF
-sudo chmod +x /usr/local/bin/styletts2
+chmod +x /usr/local/bin/styletts2
+
+# Return to normal user
+exit
 
 # Verify
 styletts2 --text "Hello from StyleTTS2" --output test.wav && play test.wav` },
@@ -934,28 +1016,34 @@ styletts2 --text "Hello from StyleTTS2" --output test.wav && play test.wav` },
       installCode: `# === Install MetaVoice to /opt ===
 # Python 3.11 · CUDA PyTorch recommended
 
+# Switch to root for installation
+sudo su
+
 # Clone the repository
-sudo git clone https://github.com/metavoiceio/metavoice-src /opt/metavoice
+git clone https://github.com/metavoiceio/metavoice-src /opt/metavoice
 cd /opt/metavoice
 
 # Create venv with uv
-sudo uv venv .venv --python 3.11
+uv venv .venv --python 3.11
 
 # Install PyTorch then project
-sudo uv pip install --python .venv/bin/python3 \\
+uv pip install --python .venv/bin/python3 \\
   torch==2.5.1+cu121 torchaudio==2.5.1+cu121 \\
   --extra-index-url https://download.pytorch.org/whl/cu121
-sudo uv pip install --python .venv/bin/python3 -r requirements.txt
-sudo uv pip install --python .venv/bin/python3 -e .
+uv pip install --python .venv/bin/python3 -r requirements.txt
+uv pip install --python .venv/bin/python3 -e .
 
 # === Create system wrapper ===
-sudo tee /usr/local/bin/metavoice << 'EOF'
+tee /usr/local/bin/metavoice << 'EOF'
 #!/bin/bash
 cd /opt/metavoice
 source .venv/bin/activate
 exec python3 -m fam.llm.serve "$@"
 EOF
-sudo chmod +x /usr/local/bin/metavoice
+chmod +x /usr/local/bin/metavoice
+
+# Return to normal user
+exit
 
 # Verify — starts the TTS server
 metavoice --port 58003` },
@@ -963,19 +1051,22 @@ metavoice --port 58003` },
       installCode: `# === Install Qwen3-TTS to /opt ===
 # Python 3.12 · CUDA 12.1 PyTorch
 
-sudo mkdir -p /opt/qwen3-tts
+# Switch to root for installation
+sudo su
+
+mkdir -p /opt/qwen3-tts
 cd /opt/qwen3-tts
 
 # Create venv with uv (Python 3.12)
-sudo uv venv .venv --python 3.12
+uv venv .venv --python 3.12
 
 # Install CUDA PyTorch first
-sudo uv pip install --python .venv/bin/python3 \\
+uv pip install --python .venv/bin/python3 \\
   torch==2.5.1+cu121 torchaudio==2.5.1+cu121 torchvision==0.20.1+cu121 \\
   --extra-index-url https://download.pytorch.org/whl/cu121
 
 # Install qwen-tts and dependencies
-sudo uv pip install --python .venv/bin/python3 \\
+uv pip install --python .venv/bin/python3 \\
   qwen-tts==0.1.1 \\
   transformers==4.57.3 \\
   accelerate==1.12.0 \\
@@ -986,13 +1077,16 @@ sudo uv pip install --python .venv/bin/python3 \\
 # Models download from Hugging Face on first use
 
 # === Create system wrapper ===
-sudo tee /usr/local/bin/qwen3-tts << 'EOF'
+tee /usr/local/bin/qwen3-tts << 'EOF'
 #!/bin/bash
 cd /opt/qwen3-tts
 source .venv/bin/activate
 exec python3 -m qwen_tts "$@"
 EOF
-sudo chmod +x /usr/local/bin/qwen3-tts
+chmod +x /usr/local/bin/qwen3-tts
+
+# Return to normal user
+exit
 
 # Verify
 qwen3-tts --text "Hello from Qwen TTS" --output test.wav && play test.wav` },
@@ -1000,28 +1094,34 @@ qwen3-tts --text "Hello from Qwen TTS" --output test.wav && play test.wav` },
       installCode: `# === Install F5-TTS to /opt ===
 # Python 3.12 · CUDA PyTorch recommended
 
+# Switch to root for installation
+sudo su
+
 # Clone the repository
-sudo git clone https://github.com/SWivid/F5-TTS /opt/f5-tts
+git clone https://github.com/SWivid/F5-TTS /opt/f5-tts
 cd /opt/f5-tts
 
 # Create venv with uv
-sudo uv venv .venv --python 3.12
+uv venv .venv --python 3.12
 
 # Install PyTorch then project
-sudo uv pip install --python .venv/bin/python3 \\
+uv pip install --python .venv/bin/python3 \\
   torch==2.5.1+cu121 torchaudio==2.5.1+cu121 \\
   --extra-index-url https://download.pytorch.org/whl/cu121
-sudo uv pip install --python .venv/bin/python3 -r requirements.txt
-sudo uv pip install --python .venv/bin/python3 -e .
+uv pip install --python .venv/bin/python3 -r requirements.txt
+uv pip install --python .venv/bin/python3 -e .
 
 # === Create system wrapper ===
-sudo tee /usr/local/bin/f5-tts << 'EOF'
+tee /usr/local/bin/f5-tts << 'EOF'
 #!/bin/bash
 cd /opt/f5-tts
 source .venv/bin/activate
 exec python3 -m f5_tts.infer "$@"
 EOF
-sudo chmod +x /usr/local/bin/f5-tts
+chmod +x /usr/local/bin/f5-tts
+
+# Return to normal user
+exit
 
 # Verify — zero-shot cloning
 f5-tts --ref_audio reference.wav --ref_text "Reference transcript" \\
@@ -1030,20 +1130,23 @@ f5-tts --ref_audio reference.wav --ref_text "Reference transcript" \\
       installCode: `# === Install Chatterbox to /opt ===
 # Python 3.12 · CUDA PyTorch recommended
 
-sudo mkdir -p /opt/chatterbox
+# Switch to root for installation
+sudo su
+
+mkdir -p /opt/chatterbox
 cd /opt/chatterbox
 
 # Create venv with uv
-sudo uv venv .venv --python 3.12
+uv venv .venv --python 3.12
 
 # Install PyTorch then Chatterbox
-sudo uv pip install --python .venv/bin/python3 \\
+uv pip install --python .venv/bin/python3 \\
   torch==2.5.1+cu121 torchaudio==2.5.1+cu121 \\
   --extra-index-url https://download.pytorch.org/whl/cu121
-sudo uv pip install --python .venv/bin/python3 chatterbox-tts
+uv pip install --python .venv/bin/python3 chatterbox-tts
 
 # === Create system wrapper ===
-sudo tee /usr/local/bin/chatterbox << 'EOF'
+tee /usr/local/bin/chatterbox << 'EOF'
 #!/bin/bash
 # Usage: chatterbox "Text to speak" --ref reference.wav [--output out.wav]
 source /opt/chatterbox/.venv/bin/activate
@@ -1066,7 +1169,10 @@ torchaudio.save('$OUTPUT', wav, model.sr)
 print(f'Saved to $OUTPUT')
 "
 EOF
-sudo chmod +x /usr/local/bin/chatterbox
+chmod +x /usr/local/bin/chatterbox
+
+# Return to normal user
+exit
 
 # Verify
 chatterbox "Hello from Chatterbox" --ref reference.wav --output test.wav && play test.wav` },
@@ -1076,35 +1182,38 @@ chatterbox "Hello from Chatterbox" --ref reference.wav --output test.wav && play
       installCode: `# === Install RVC to /opt ===
 # Python 3.10 · CUDA 12.1 PyTorch + onnxruntime-gpu
 
+# Switch to root for installation
+sudo su
+
 # Clone the repository
-sudo git clone https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI /opt/rvc
+git clone https://github.com/RVC-Project/Retrieval-based-Voice-Conversion-WebUI /opt/rvc
 cd /opt/rvc
 
 # Create venv with uv (Python 3.10 — required by RVC/fairseq)
-sudo uv venv .venv --python 3.10
+uv venv .venv --python 3.10
 
 # Install CUDA PyTorch first
-sudo uv pip install --python .venv/bin/python3 \\
+uv pip install --python .venv/bin/python3 \\
   torch==2.5.1+cu121 torchaudio==2.5.1+cu121 torchvision==0.20.1+cu121 \\
   --extra-index-url https://download.pytorch.org/whl/cu121
 
 # Install project dependencies
-sudo uv pip install --python .venv/bin/python3 -r requirements.txt
+uv pip install --python .venv/bin/python3 -r requirements.txt
 
 # Download pretrained models
-sudo .venv/bin/python3 tools/download_models.py
+.venv/bin/python3 tools/download_models.py
 
 # === Create system wrapper ===
-sudo tee /usr/local/bin/rvc << 'EOF'
+tee /usr/local/bin/rvc << 'EOF'
 #!/bin/bash
 cd /opt/rvc
 source .venv/bin/activate
 exec python3 infer-web.py "$@"
 EOF
-sudo chmod +x /usr/local/bin/rvc
+chmod +x /usr/local/bin/rvc
 
 # === Create systemd service for background operation ===
-sudo tee /etc/systemd/system/rvc.service << 'EOF'
+tee /etc/systemd/system/rvc.service << 'EOF'
 [Unit]
 Description=RVC Voice Conversion
 After=network.target
@@ -1118,44 +1227,53 @@ Restart=on-failure
 [Install]
 WantedBy=multi-user.target
 EOF
-sudo systemctl daemon-reload
-sudo systemctl enable --now rvc
+systemctl daemon-reload
+systemctl enable --now rvc
+
+# Return to normal user
+exit
 
 # Verify — open http://localhost:7865 in your browser` },
     { name: "OpenVoice", path: "/opt/openvoice", url: "https://github.com/myshell-ai/OpenVoice", desc: "Instant voice cloning with tone color transfer",
       installCode: `# === Install OpenVoice to /opt ===
 # Python 3.9 · CUDA 12.1 PyTorch + MeloTTS
 
+# Switch to root for installation
+sudo su
+
 # Clone the repository
-sudo git clone https://github.com/myshell-ai/OpenVoice /opt/openvoice
+git clone https://github.com/myshell-ai/OpenVoice /opt/openvoice
 cd /opt/openvoice
 
 # Create venv with uv (Python 3.9 — required by OpenVoice)
-sudo uv venv .venv --python 3.9
+uv venv .venv --python 3.9
 
 # Install CUDA PyTorch first
-sudo uv pip install --python .venv/bin/python3 \\
+uv pip install --python .venv/bin/python3 \\
   torch==2.5.1+cu121 torchaudio==2.5.1+cu121 torchvision==0.20.1+cu121 \\
   --extra-index-url https://download.pytorch.org/whl/cu121
 
 # Install OpenVoice and MeloTTS
-sudo uv pip install --python .venv/bin/python3 -r requirements.txt
-sudo uv pip install --python .venv/bin/python3 -e .
-sudo uv pip install --python .venv/bin/python3 \\
+uv pip install --python .venv/bin/python3 -r requirements.txt
+uv pip install --python .venv/bin/python3 -e .
+uv pip install --python .venv/bin/python3 \\
   git+https://github.com/myshell-ai/MeloTTS.git
 
 # Download checkpoints (V2)
-sudo mkdir -p /opt/openvoice/checkpoints
+mkdir -p /opt/openvoice/checkpoints
 # Follow repo instructions to download checkpoints_v2
 
 # === Create system wrapper ===
-sudo tee /usr/local/bin/openvoice << 'EOF'
+tee /usr/local/bin/openvoice << 'EOF'
 #!/bin/bash
 cd /opt/openvoice
 source .venv/bin/activate
 exec python3 openvoice_cli.py "$@"
 EOF
-sudo chmod +x /usr/local/bin/openvoice
+chmod +x /usr/local/bin/openvoice
+
+# Return to normal user
+exit
 
 # Verify — tone color transfer
 openvoice --reference reference.wav \\
@@ -1165,30 +1283,36 @@ openvoice --reference reference.wav \\
       installCode: `# === Install FreeVC to /opt ===
 # Python 3.11 · CUDA PyTorch recommended
 
+# Switch to root for installation
+sudo su
+
 # Clone the repository
-sudo git clone https://github.com/OlaWod/FreeVC /opt/freevc
+git clone https://github.com/OlaWod/FreeVC /opt/freevc
 cd /opt/freevc
 
 # Create venv with uv
-sudo uv venv .venv --python 3.11
+uv venv .venv --python 3.11
 
 # Install PyTorch then dependencies
-sudo uv pip install --python .venv/bin/python3 \\
+uv pip install --python .venv/bin/python3 \\
   torch==2.5.1+cu121 torchaudio==2.5.1+cu121 \\
   --extra-index-url https://download.pytorch.org/whl/cu121
-sudo uv pip install --python .venv/bin/python3 -r requirements.txt
+uv pip install --python .venv/bin/python3 -r requirements.txt
 
 # Download pretrained models (follow repo README)
 # Place checkpoints in /opt/freevc/checkpoints/
 
 # === Create system wrapper ===
-sudo tee /usr/local/bin/freevc << 'EOF'
+tee /usr/local/bin/freevc << 'EOF'
 #!/bin/bash
 cd /opt/freevc
 source .venv/bin/activate
 exec python3 convert.py "$@"
 EOF
-sudo chmod +x /usr/local/bin/freevc
+chmod +x /usr/local/bin/freevc
+
+# Return to normal user
+exit
 
 # Verify
 freevc --source source.wav --target target_speaker.wav \\
@@ -1197,30 +1321,36 @@ freevc --source source.wav --target target_speaker.wav \\
       installCode: `# === Install DDSP-SVC to /opt ===
 # Python 3.11 · CUDA PyTorch recommended
 
+# Switch to root for installation
+sudo su
+
 # Clone the repository
-sudo git clone https://github.com/yxlllc/DDSP-SVC /opt/ddsp-svc
+git clone https://github.com/yxlllc/DDSP-SVC /opt/ddsp-svc
 cd /opt/ddsp-svc
 
 # Create venv with uv
-sudo uv venv .venv --python 3.11
+uv venv .venv --python 3.11
 
 # Install PyTorch then dependencies
-sudo uv pip install --python .venv/bin/python3 \\
+uv pip install --python .venv/bin/python3 \\
   torch==2.5.1+cu121 torchaudio==2.5.1+cu121 \\
   --extra-index-url https://download.pytorch.org/whl/cu121
-sudo uv pip install --python .venv/bin/python3 -r requirements.txt
+uv pip install --python .venv/bin/python3 -r requirements.txt
 
 # Download pretrained models (follow repo README)
 # Models go in /opt/ddsp-svc/pretrain/
 
 # === Create system wrapper ===
-sudo tee /usr/local/bin/ddsp-svc << 'EOF'
+tee /usr/local/bin/ddsp-svc << 'EOF'
 #!/bin/bash
 cd /opt/ddsp-svc
 source .venv/bin/activate
 exec python3 main.py "$@"
 EOF
-sudo chmod +x /usr/local/bin/ddsp-svc
+chmod +x /usr/local/bin/ddsp-svc
+
+# Return to normal user
+exit
 
 # Verify
 ddsp-svc --input source.wav --output converted.wav && play converted.wav` },
@@ -1229,30 +1359,36 @@ ddsp-svc --input source.wav --output converted.wav && play converted.wav` },
     { name: "LiveKit", url: "https://github.com/livekit/livekit", desc: "Open-source real-time audio/video infrastructure",
       installCode: `# === Install LiveKit server ===
 
+# Switch to root for installation
+sudo su
+
 # Install via official script
 curl -sSL https://get.livekit.io | bash
 
 # LiveKit installs to /usr/local/bin/livekit-server — no wrapper needed
 
 # === Install LiveKit Agents SDK (Python) ===
-sudo mkdir -p /opt/livekit
+mkdir -p /opt/livekit
 cd /opt/livekit
 
 # Create venv with uv
-sudo uv venv .venv --python 3.12
+uv venv .venv --python 3.12
 
-sudo uv pip install --python .venv/bin/python3 \\
+uv pip install --python .venv/bin/python3 \\
   livekit-agents \\
   livekit-plugins-openai \\
   livekit-plugins-silero
 
 # === Create wrapper for agent development ===
-sudo tee /usr/local/bin/livekit-agent << 'EOF'
+tee /usr/local/bin/livekit-agent << 'EOF'
 #!/bin/bash
 source /opt/livekit/.venv/bin/activate
 exec python3 "$@"
 EOF
-sudo chmod +x /usr/local/bin/livekit-agent
+chmod +x /usr/local/bin/livekit-agent
+
+# Return to normal user
+exit
 
 # Verify — start dev server
 livekit-server --dev` },
@@ -1262,18 +1398,21 @@ livekit-server --dev` },
       installCode: `# === Install Resemblyzer to /opt ===
 # Python 3.12
 
-sudo mkdir -p /opt/resemblyzer
+# Switch to root for installation
+sudo su
+
+mkdir -p /opt/resemblyzer
 cd /opt/resemblyzer
 
 # Create venv with uv
-sudo uv venv .venv --python 3.12
+uv venv .venv --python 3.12
 
 # Install Resemblyzer
 # webrtcvad is broken on Python 3.12+ — use webrtcvad-wheels instead
-sudo uv pip install --python .venv/bin/python3 resemblyzer webrtcvad-wheels
+uv pip install --python .venv/bin/python3 resemblyzer webrtcvad-wheels
 
 # === Create system wrapper ===
-sudo tee /usr/local/bin/resemblyzer << 'EOF'
+tee /usr/local/bin/resemblyzer << 'EOF'
 #!/bin/bash
 # Usage: resemblyzer <original.wav> <clone.wav>
 # Returns similarity score between two voice samples
@@ -1294,7 +1433,10 @@ else:
     print('Result: Low match — likely different speakers')
 " "$@"
 EOF
-sudo chmod +x /usr/local/bin/resemblyzer
+chmod +x /usr/local/bin/resemblyzer
+
+# Return to normal user
+exit
 
 # Verify
 resemblyzer original.wav clone.wav` },
@@ -1302,17 +1444,20 @@ resemblyzer original.wav clone.wav` },
       installCode: `# === Install pgvector ===
 # PostgreSQL extension — no Python venv needed
 
+# Switch to root for installation
+sudo su
+
 # Install PostgreSQL if not already installed
-sudo apt install -y postgresql postgresql-server-dev-all
+apt install -y postgresql postgresql-server-dev-all
 
 # Build and install pgvector
-sudo git clone https://github.com/pgvector/pgvector /opt/pgvector
+git clone https://github.com/pgvector/pgvector /opt/pgvector
 cd /opt/pgvector
-sudo make
-sudo make install
+make
+make install
 
 # Enable the extension in PostgreSQL
-sudo -u postgres psql -c "CREATE EXTENSION IF NOT EXISTS vector;"
+su -c "psql -c \\"CREATE EXTENSION IF NOT EXISTS vector;\\"" postgres
 
 # No wrapper needed — pgvector is a PostgreSQL extension
 # Use it in SQL:
@@ -1324,6 +1469,10 @@ sudo -u postgres psql -c "CREATE EXTENSION IF NOT EXISTS vector;"
 #   SELECT * FROM voice_embeddings
 #     ORDER BY embedding <=> '[0.1, 0.2, ...]'
 #     LIMIT 5;
+
+# Verify
+# Return to normal user
+exit
 
 # Verify
 sudo -u postgres psql -c "SELECT extversion FROM pg_extension WHERE extname = 'vector';"` },
