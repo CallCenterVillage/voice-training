@@ -31,28 +31,25 @@ const IntroSection = () => (
       </div>
     </div>
     <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.7, marginBottom: 20 }}>Quick reference commands, cheat sheets, and recipes for common tasks you'll encounter in the lab. Everything here is configured on the Call Center Village laptops.</p>
-    <p style={{ fontSize: 13, color: C.dim, lineHeight: 1.7, marginBottom: 20 }}>All commands assume Pop!_OS, tools installed in <code style={{ background: C.codeBg, padding: "2px 6px", borderRadius: 4, fontSize: 12 }}>/opt/</code>, and audio files at 8kHz mono unless noted otherwise.</p>
+    <InfoBox>The Call Center Village laptop environment is Pop!_OS 24.04 LTS from System76.</InfoBox>
 
+    <div style={{ fontSize: 15, fontWeight: 700, color: C.text, marginBottom: 10, marginTop: 24 }}>CLI Tools</div>
     <div style={{ overflowX: "auto", marginBottom: 20 }}>
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
         <thead>
           <tr style={{ borderBottom: `2px solid ${C.border}` }}>
-            {["Tool", "Location", "Port", "Purpose"].map(h => <th key={h} style={{ padding: "8px 12px", textAlign: "left", color: C.accent, fontWeight: 700 }}>{h}</th>)}
+            {["Tool", "Location", "Purpose"].map(h => <th key={h} style={{ padding: "8px 12px", textAlign: "left", color: C.accent, fontWeight: 700 }}>{h}</th>)}
           </tr>
         </thead>
         <tbody>
           {[
-            ["whisper.cpp", "/opt/whisper.cpp", "CLI", "Speech-to-text transcription"],
-            ["Faster Whisper", "/opt/faster-whisper", "CLI", "Accelerated speech-to-text"],
-            ["llama.cpp", "/opt/llama.cpp", "CLI / 8080", "Local language model inference"],
-            ["Piper", "/opt/piper", "CLI", "Lightweight local TTS"],
-            ["Kokoro", "/opt/kokoro", "CLI", "ONNX-based TTS"],
-            ["Kokoro-FastAPI", "/opt/kokoro-fastapi", "8880", "Fast TTS API"],
-            ["Coqui TTS", "/opt/coqui-tts", "CLI", "XTTS voice cloning"],
-            ["Spark TTS", "/opt/spark-tts", "CLI", "Zero-shot voice cloning"],
-            ["Qwen3-TTS", "/opt/qwen3-tts", "8001", "LLM-based TTS"],
-            ["OpenVoice", "/opt/openvoice", "7866", "Tone color conversion"],
-            ["RVC", "/opt/rvc", "7865", "Voice conversion training"],
+            ["whisper.cpp", "/opt/whisper.cpp", "Speech-to-text transcription"],
+            ["Faster Whisper", "/opt/faster-whisper", "Accelerated speech-to-text"],
+            ["llama.cpp", "/opt/llama.cpp", "Local language model inference"],
+            ["Piper", "/opt/piper", "Lightweight local TTS"],
+            ["Kokoro", "/opt/kokoro", "ONNX-based TTS"],
+            ["Coqui TTS", "/opt/coqui-tts", "XTTS voice cloning"],
+            ["Spark TTS", "/opt/spark-tts", "Zero-shot voice cloning"],
           ].map((row, i) => (
             <tr key={i} style={{ borderBottom: `1px solid ${C.border}` }}>
               {row.map((cell, j) => <td key={j} style={{ padding: "8px 12px", color: j === 0 ? C.text : C.muted, fontWeight: j === 0 ? 600 : 400 }}>{cell}</td>)}
@@ -62,18 +59,44 @@ const IntroSection = () => (
       </table>
     </div>
 
+    <div style={{ fontSize: 15, fontWeight: 700, color: C.text, marginBottom: 10, marginTop: 32 }}>HTTP Services</div>
+    <div style={{ overflowX: "auto", marginBottom: 32 }}>
+      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+        <thead>
+          <tr style={{ borderBottom: `2px solid ${C.border}` }}>
+            {["Tool", "Location", "URL", "Purpose"].map(h => <th key={h} style={{ padding: "8px 12px", textAlign: "left", color: C.accent, fontWeight: 700 }}>{h}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {[
+            ["llama.cpp", "/opt/llama.cpp", "http://localhost:8080", "LLM API server"],
+            ["Kokoro-FastAPI", "/opt/kokoro-fastapi", "http://localhost:8880", "Fast TTS API"],
+            ["Qwen3-TTS", "/opt/qwen3-tts", "http://localhost:8001", "LLM-based TTS"],
+            ["OpenVoice", "/opt/openvoice", "http://localhost:7866", "Tone color conversion"],
+            ["RVC", "/opt/rvc", "http://localhost:7865", "Voice conversion training"],
+          ].map((row, i) => (
+            <tr key={i} style={{ borderBottom: `1px solid ${C.border}` }}>
+              {row.map((cell, j) => <td key={j} style={{ padding: "8px 12px", color: j === 0 ? C.text : C.muted, fontWeight: j === 0 ? 600 : 400 }}>
+                {j === 2 ? <a href={cell} target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>{cell}</a> : cell}
+              </td>)}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
     <div style={{ fontSize: 15, fontWeight: 700, color: C.text, marginBottom: 10 }}>Laptop Accounts</div>
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
       <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "12px 16px" }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: C.dim, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>supervisor</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: C.accent, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>callcentervillage</div>
         <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.6 }}>
-          Admin account with sudo privileges. Only used by Call Center Village staff.
+          Standard user account. If you need help with anything that requires elevated access, find a supervisor.
         </div>
       </div>
       <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 8, padding: "12px 16px" }}>
-        <div style={{ fontSize: 12, fontWeight: 700, color: C.dim, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>callcentervillage</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: C.secondary, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>supervisor</div>
         <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.6 }}>
-          Standard user account. If you need help with anything that requires elevated access, find a supervisor.
+          Admin account with sudo privileges. Only used by Call Center Village staff.
         </div>
       </div>
     </div>
