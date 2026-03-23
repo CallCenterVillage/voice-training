@@ -76,9 +76,8 @@ const TrainingShell = ({ sections, sectionComponents, moduleTitle, logoUrl = "/i
       </nav>
 
       <div style={{ padding: "0 12px", marginRight: navOpen ? DRAWER_WIDTH : 0, transition: "margin-right 0.25s ease" }}><ProgressBar current={currentSection} total={sections.length} onNavigate={onNavigate} /></div>
-      <div style={{ display: "flex", flex: 1, justifyContent: "center" }}>
-        {sections[currentSection].anchors && (
-          <aside aria-label="Page index" style={{
+      <div style={{ display: "flex", flex: 1, justifyContent: "center", marginRight: navOpen ? DRAWER_WIDTH : 0, transition: "margin-right 0.25s ease" }}>
+        <aside aria-label={anchors ? "Page index" : undefined} style={{
             width: 220,
             flexShrink: 0,
             position: "sticky",
@@ -88,10 +87,11 @@ const TrainingShell = ({ sections, sectionComponents, moduleTitle, logoUrl = "/i
             display: "none",
           }}
           className="anchor-nav"
-          >
+        >
+          {anchors && <>
             <div style={{ fontSize: 11, fontWeight: 700, color: C.dim, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10, paddingLeft: 8 }}>On this page</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 1, maxHeight: `calc(100vh - ${160 + topOffset}px)`, overflowY: "auto" }}>
-              {sections[currentSection].anchors.map(a => {
+              {anchors.map(a => {
                 const isActive = activeAnchor === a.id;
                 return <a key={a.id} href={`#${a.id}`} onClick={e => { e.preventDefault(); document.getElementById(a.id)?.scrollIntoView({ behavior: "smooth", block: "start" }); }}
                   onMouseEnter={e => { if (!isActive) { e.currentTarget.style.color = C.text; e.currentTarget.style.background = `${C.accent}10`; } }}
@@ -101,8 +101,8 @@ const TrainingShell = ({ sections, sectionComponents, moduleTitle, logoUrl = "/i
                 </a>;
               })}
             </div>
-          </aside>
-        )}
+          </>}
+        </aside>
         <main className="training-content-area" style={{ flex: 1, maxWidth: 960, padding: "24px 12px 80px 48px", width: "100%" }}><Section /></main>
       </div>
       <style>{`@media (min-width: 1280px) { .anchor-nav { display: block !important; } .training-content-area { max-width: 1040px !important; } }`}</style>
