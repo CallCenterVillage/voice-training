@@ -3,7 +3,7 @@ import { ScenarioSim, SectionDivider } from "./_helpers";
 
 const AITargetsSection = () => (
   <div>
-    <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>SE Against AI Agents</h2>
+    <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>SE Against AI Agents</h1>
     <p style={{ color: C.dim, lineHeight: 1.7, marginBottom: 24 }}>
       AI voice agents have unique vulnerabilities that don't exist in human targets. They follow instructions
       predictably, don't get suspicious, and can be systematically probed for weaknesses.

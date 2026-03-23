@@ -4,7 +4,7 @@ import { StaticCard, SectionDivider } from "./_helpers";
 export default function BuildingSection() {
   return (
   <div>
-    <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Building an Agent</h2>
+    <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Building an Agent</h1>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>
       Let&apos;s walk through building a complete voice agent from scratch, step by step. We&apos;ll cover both
       the fully-local approach and the cloud-hybrid approach.

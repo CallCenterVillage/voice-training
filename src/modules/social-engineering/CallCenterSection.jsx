@@ -3,7 +3,7 @@ import { StaticCard, SectionDivider, ScenarioSim } from "./_helpers";
 
 const CallCenterSection = () => (
   <div>
-    <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Call Center Scenarios</h2>
+    <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Call Center Scenarios</h1>
     <p style={{ color: C.dim, lineHeight: 1.7, marginBottom: 24 }}>
       Modern call centers use a mix of human agents and AI. Attackers often need to navigate through both,
       or exploit the handoff between them. These scenarios reflect real-world attack patterns.

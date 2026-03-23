@@ -7,11 +7,11 @@ const FundamentalsSection = () => {
   const waveRef = useRef(null);
   const [wavePlaying, setWavePlaying] = useState(false);
   return (<div>
-    <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Audio Fundamentals</h2>
+    <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Audio Fundamentals</h1>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 12 }}>Before we can understand how voices are cloned, we need to understand what sound actually looks like. Every sound — from a simple beep to a human voice — is a pressure wave moving through the air, and we can visualize these waves to see how they differ.</p>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>A <strong style={{ color: C.text }}>sine wave</strong> is the simplest possible sound: one smooth, repeating frequency. A <strong style={{ color: C.text }}>square wave</strong> snaps abruptly between two levels, producing a harsher tone packed with extra harmonics. Then look at the <strong style={{ color: C.text }}>human voice</strong> — it's dramatically more complex, made up of dozens of overlapping frequencies that shift constantly. That complexity is what makes every voice unique, and it's what voice cloning AI has to learn to reproduce.</p>
     <div style={{ marginBottom: 24 }}>
-      <div id="waveform-explorer" style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 12, scrollMarginTop: 120 }}>Interactive Waveform Explorer</div>
+      <h2 id="waveform-explorer" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 12, scrollMarginTop: 120 }}>Interactive Waveform Explorer</h2>
       <div role="tablist" style={{ display: "flex", gap: 8, marginBottom: 12, alignItems: "center" }}>
         {["sine", "square", "complex"].map(t => <button key={t} role="tab" aria-selected={waveType === t} onClick={() => setWaveType(t)} style={{ background: waveType === t ? `${C.primary}20` : "#06040c", border: `1px solid ${waveType === t ? C.secondary : C.border}`, borderRadius: 6, padding: "6px 12px", color: waveType === t ? C.accent : C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600 }}>{t === "complex" ? "Human Voice" : `${t[0].toUpperCase()+t.slice(1)} Wave`}</button>)}
         <button
@@ -36,7 +36,7 @@ const FundamentalsSection = () => {
 
     <SectionDivider />
     <div>
-      <div id="voice-characteristics" style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>Key Voice Characteristics</div>
+      <h2 id="voice-characteristics" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>Key Voice Characteristics</h2>
       <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 16, fontSize: 14 }}>Every voice has a set of measurable properties that, taken together, form a unique acoustic signature — no two people share the same combination.</p>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 24 }}>
         {[
@@ -49,13 +49,13 @@ const FundamentalsSection = () => {
         ))}
       </div>
       <SectionDivider />
-      <div id="frequency-spectrum" style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>Frequency Spectrum — Your Vocal Fingerprint</div>
+      <h2 id="frequency-spectrum" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>Frequency Spectrum — Your Vocal Fingerprint</h2>
       <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 16, fontSize: 14 }}>Imagine three people — an adult man, an adult woman, and a child — all saying the same vowel sound: "ah" (as in "father"). The graph below shows what each voice looks like in the frequency domain, plotted from low frequencies on the left to high frequencies on the right. The height of each bar represents how loud that frequency is. The peaks labeled F1–F4 are the formant resonances, and they land at different positions for each speaker because their vocal tracts are different sizes.</p>
       <SpectrumViz />
     </div>
     <SectionDivider />
     <div>
-      <div id="audio-quality-recommendations" style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>Audio Quality Recommendations for Cloning</div>
+      <h2 id="audio-quality-recommendations" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>Audio Quality Recommendations for Cloning</h2>
       <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 20, fontSize: 14 }}>Now that you know what makes a voice unique — the fundamental pitch, the formant peaks, the harmonic texture — the question becomes: how good does a recording need to be to preserve all of that? If the sample rate is too low, the upper formants get cut off. If there's too much background noise, the subtle harmonics that define timbre get buried. If the audio clips, the waveform gets distorted beyond recognition. There's no hard cutoff, but these are the general thresholds where most cloning tools start producing usable results.</p>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 24 }}>
         {[
@@ -69,7 +69,9 @@ const FundamentalsSection = () => {
           <RecommendationCard key={i} label={r.label} value={r.value} ideal={r.ideal} detail={r.detail} />
         ))}
       </div>
-      <div id="why-these-numbers-matter" style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 12, scrollMarginTop: 120 }}>Why These Numbers Matter</div>
+      <SectionDivider />
+      <h2 id="why-these-numbers-matter" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 12, scrollMarginTop: 120 }}>Why These Numbers Matter</h2>
+      <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 16, fontSize: 13 }}>Each diagram shows the same voice signal under <span style={{ color: C.tertiary, fontWeight: 600 }}>poor conditions</span> and <span style={{ color: "#58E880", fontWeight: 600 }}>ideal conditions</span>. Low sample rates lose upper formants, noise buries subtle harmonics, clipping flattens peaks, low bit depth adds staircase artifacts, short recordings miss phonemes the AI needs to learn, and lossy formats throw away detail the model depends on.</p>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
         <AudioQualityCard title="Sample Rate">
           <svg width="200" height="108" viewBox="0 0 200 108" style={{ width: "100%", height: 108 }}>
@@ -148,14 +150,15 @@ const FundamentalsSection = () => {
           </svg>
         </AudioQualityCard>
       </div>
-      <p style={{ color: C.muted, lineHeight: 1.7, marginTop: 16, fontSize: 13 }}>Each diagram shows the same voice signal under <span style={{ color: C.tertiary, fontWeight: 600 }}>poor conditions</span> and <span style={{ color: "#58E880", fontWeight: 600 }}>ideal conditions</span>. Low sample rates lose upper formants, noise buries subtle harmonics, clipping flattens peaks, low bit depth adds staircase artifacts, short recordings miss phonemes the AI needs to learn, and lossy formats throw away detail the model depends on.</p>
     </div>
     <SectionDivider />
-    <QuizBank questions={[
-      { question: "What are formants?", options: ["The base frequency of your voice", "Resonance peaks shaped by your vocal tract", "The volume of each syllable", "Digital encoding of speech"], correctIndex: 1, explanation: "Formants are resonance frequencies shaped by your vocal tract. They're one of the primary features that makes each voice unique." },
-      { question: "What sample rate is generally considered the minimum for voice cloning?", options: ["8kHz", "16kHz", "44.1kHz", "96kHz"], correctIndex: 1, explanation: "16kHz is the commonly accepted baseline — below this, too much frequency information tends to be lost for most cloning tools. 44.1kHz or higher is ideal, but 16kHz usually captures enough of the essential voice frequencies." },
-      { question: "Which voice characteristic tends to be the HARDEST for AI to clone?", options: ["Base pitch", "Prosody and emotional expression", "Vowel formants", "Volume"], correctIndex: 1, explanation: "Prosody — rhythm, stress, intonation, emotion — generally requires understanding meaning and context, not just acoustic patterns. Most current AI models struggle with this more than the other characteristics." },
-    ]} />
+    <div id="knowledge-check" style={{ scrollMarginTop: 120 }}>
+      <QuizBank questions={[
+        { question: "What are formants?", options: ["The base frequency of your voice", "Resonance peaks shaped by your vocal tract", "The volume of each syllable", "Digital encoding of speech"], correctIndex: 1, explanation: "Formants are resonance frequencies shaped by your vocal tract. They're one of the primary features that makes each voice unique." },
+        { question: "What sample rate is generally considered the minimum for voice cloning?", options: ["8kHz", "16kHz", "44.1kHz", "96kHz"], correctIndex: 1, explanation: "16kHz is the commonly accepted baseline — below this, too much frequency information tends to be lost for most cloning tools. 44.1kHz or higher is ideal, but 16kHz usually captures enough of the essential voice frequencies." },
+        { question: "Which voice characteristic tends to be the HARDEST for AI to clone?", options: ["Base pitch", "Prosody and emotional expression", "Vowel formants", "Volume"], correctIndex: 1, explanation: "Prosody — rhythm, stress, intonation, emotion — generally requires understanding meaning and context, not just acoustic patterns. Most current AI models struggle with this more than the other characteristics." },
+      ]} />
+    </div>
   </div>);
 };
 

@@ -2,7 +2,7 @@ import { C, CodeBlock, Icon, QuizBank } from '../../components';
 import { SectionDivider, ArtifactLightbox, DefenseCard, DefenseSubCard } from './_helpers';
 
 const DefenseSection = () => (<div>
-  <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Detection & Defense</h2>
+  <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Detection & Defense</h1>
   <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>How to detect and defend against voice cloning attacks.</p>
   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
     {[
@@ -19,62 +19,63 @@ const DefenseSection = () => (<div>
   </div>
 
   <SectionDivider />
-  <h3 id="detection-and-defense-tools" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>Detection & Defense Tools</h3>
+  <h2 id="detection-and-defense-tools" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>Detection & Defense Tools</h2>
   <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.7, marginBottom: 14 }}>Specific tools and approaches for each layer of defense. Some of these are hands-on tools you can run locally, others are processes and training programs to implement at your organization.</p>
 
-  <DefenseCard id="technical-detection" title="Technical Detection" titleColor={C.accent} desc="Analyze audio files for signs of AI generation using spectral analysis and voice comparison tools.">
-    <div style={{ display: "grid", gap: 10 }}>
-      <div style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>Resemblyzer</div>
-          <a href="https://github.com/resemble-ai/Resemblyzer" target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: C.accent, textDecoration: "none" }}>GitHub ↗</a>
-        </div>
-        <p style={{ fontSize: 13, color: C.dim, marginBottom: 8 }}>Python library for speaker verification and voice comparison. Compares voice embeddings to detect if a voice sample matches a known speaker — useful for flagging potential clones. Runs on CPU.</p>
-        <CodeBlock language="bash" code={'# Preinstalled on Call Center Village laptops\n# pip install resemblyzer\n\n# Compare two voice samples for similarity\npython3 -c "\nfrom resemblyzer import VoiceEncoder, preprocess_wav\nfrom pathlib import Path; import numpy as np\nenc = VoiceEncoder()\noriginal = enc.embed_utterance(preprocess_wav(Path(\'original.wav\')))\nsuspect = enc.embed_utterance(preprocess_wav(Path(\'suspect.wav\')))\nsimilarity = np.dot(original, suspect)\nprint(f\'Similarity: {similarity:.4f}\')\nprint(\'Likely same speaker\' if similarity > 0.75 else \'Different speaker or potential clone\')\n"'} />
+  <h2 id="technical-detection" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>Technical Detection</h2>
+  <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.7, marginBottom: 14 }}>Analyze audio files for signs of AI generation using spectral analysis and voice comparison tools.</p>
+  <div style={{ display: "grid", gap: 24, marginBottom: 24 }}>
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 16 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+        <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>Resemblyzer</div>
+        <a href="https://github.com/resemble-ai/Resemblyzer" target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: C.accent, textDecoration: "none" }}>GitHub ↗</a>
       </div>
-      <div style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16 }}>
-        <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 6 }}>SoX Spectrogram Analysis</div>
-        <p style={{ fontSize: 13, color: C.dim, marginBottom: 8 }}>Generate spectrograms and inspect them visually for vocoder artifacts, missing room tone, or unnatural frequency patterns. Already installed on the laptops.</p>
-        <CodeBlock language="bash" code={'# Generate a spectrogram to visually inspect\nsox suspect.wav -n spectrogram -o suspect_spec.png\n\n# View the spectrogram in the terminal\nimgcat suspect_spec.png\n\n# Compare frequency statistics between original and suspect\nsoxi original.wav && sox original.wav -n stat 2>&1\nsoxi suspect.wav && sox suspect.wav -n stat 2>&1'} />
-      </div>
+      <p style={{ fontSize: 13, color: C.dim, marginBottom: 8 }}>Python library for speaker verification and voice comparison. Compares voice embeddings to detect if a voice sample matches a known speaker — useful for flagging potential clones. Runs on CPU.</p>
+      <CodeBlock language="bash" code={'# Preinstalled on Call Center Village laptops\n\n# Compare two voice samples for similarity\nresemblyzer original.wav suspect.wav'} />
     </div>
-  </DefenseCard>
-
-  <DefenseCard id="ai-powered-detection" title="AI-Powered Detection" titleColor={C.tertiary} desc="Machine learning models trained specifically to distinguish real speech from AI-generated speech.">
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-      <DefenseSubCard title="ASVspoof Challenge Models" desc="International challenge producing open-source anti-spoofing models. Trained on large datasets of real and fake speech — state of the art in detection." link="https://www.asvspoof.org" linkLabel="asvspoof.org" />
-      <DefenseSubCard title="awesome-fake-audio-detection" desc="Curated list of papers, datasets, and code for audio deepfake detection. A good starting point for finding models you can test." link="https://github.com/john852517791/awesome-fake-audio-detection" linkLabel="GitHub" />
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 16 }}>
+      <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 6 }}>SoX Spectrogram Analysis</div>
+      <p style={{ fontSize: 13, color: C.dim, marginBottom: 8 }}>Generate spectrograms and inspect them visually for vocoder artifacts, missing room tone, or unnatural frequency patterns. Already installed on the laptops.</p>
+      <CodeBlock language="bash" code={'# Generate a spectrogram to visually inspect\nsox suspect.wav -n spectrogram -o suspect_spec.png\n\n# View the spectrogram in the terminal\nimgcat suspect_spec.png\n\n# Compare frequency statistics between original and suspect\nsoxi original.wav && sox original.wav -n stat 2>&1\nsoxi suspect.wav && sox suspect.wav -n stat 2>&1'} />
     </div>
-  </DefenseCard>
-
-  <DefenseCard id="procedural-defense" title="Procedural Defense" titleColor={C.highlight} desc="No technology needed — these are process-based defenses that any organization or family can implement immediately. Voice cloning attacks don't just target companies — they target your parents, grandparents, and kids too.">
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-      {[
-        { title: "Callback Verification", desc: "Never act on a sensitive request from an inbound call. Hang up and call the person back on a known, verified number. This applies at work and at home — if \"your son\" calls asking for money, hang up and call him back." },
-        { title: "Challenge Questions", desc: "Ask something only the real person would know — not information available on social media or company directories." },
-        { title: "Family Code Words", desc: "Establish a family safe word that only your family knows. If someone calls claiming to be a relative in an emergency, ask for the code word. Teach this to elderly family members especially." },
-        { title: "Multi-Channel Confirmation", desc: "Confirm sensitive requests through a second channel — email, Slack, in-person — before acting." },
-      ].map((d, i) => <DefenseSubCard key={i} title={d.title} desc={d.desc} />)}
-    </div>
-  </DefenseCard>
-
-  <DefenseCard id="organizational" title="Organizational" titleColor={C.secondary} desc="Build a culture of security awareness so staff can recognize and respond to voice-based social engineering.">
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-      {[
-        { title: "Security Awareness Training", desc: "Regular training sessions on voice cloning threats — what they sound like, how they work, and how to respond. Programs like KnowBe4, SANS Security Awareness, or Proofpoint offer modules specifically on vishing and voice deepfakes." },
-        { title: "No Voice-Only Auth for High Value", desc: "Never authorize wire transfers, password resets, or access changes based solely on a phone call — regardless of who it sounds like." },
-        { title: "Voice Biometric + PIN", desc: "If using voiceprint authentication, always pair it with a second factor like a PIN or OTP. Voice alone is no longer sufficient." },
-        { title: "Audit Suspicious Calls", desc: "Log and review calls that involve sensitive actions. Flag calls where the caller resisted verification or pushed urgency." },
-      ].map((d, i) => <DefenseSubCard key={i} title={d.title} desc={d.desc} />)}
-    </div>
-  </DefenseCard>
+  </div>
 
   <SectionDivider />
-  <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, marginBottom: 12, overflow: "hidden" }}>
-    <div id="spectral-artifacts" style={{ padding: "16px 20px", fontSize: 15, fontWeight: 600, color: C.text, display: "flex", alignItems: "center", scrollMarginTop: 120 }}><Icon name="beaker" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Spectral Artifacts to Look For</div>
-    <div style={{ padding: "0 20px 20px", color: C.muted, fontSize: 14, lineHeight: 1.8 }}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-        {[
+  <h2 id="ai-powered-detection" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>AI-Powered Detection</h2>
+  <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.7, marginBottom: 14 }}>Machine learning models trained specifically to distinguish real speech from AI-generated speech.</p>
+  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 24 }}>
+    <DefenseSubCard title="ASVspoof Challenge Models" desc="International challenge producing open-source anti-spoofing models. Trained on large datasets of real and fake speech — state of the art in detection." link="https://www.asvspoof.org" linkLabel="asvspoof.org" />
+    <DefenseSubCard title="awesome-fake-audio-detection" desc="Curated list of papers, datasets, and code for audio deepfake detection. A good starting point for finding models you can test." link="https://github.com/john852517791/awesome-fake-audio-detection" linkLabel="GitHub" />
+  </div>
+
+  <SectionDivider />
+  <h2 id="procedural-defense" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>Procedural Defense</h2>
+  <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.7, marginBottom: 14 }}>No technology needed — these are process-based defenses that any organization or family can implement immediately. Voice cloning attacks don't just target companies — they target your parents, grandparents, and kids too.</p>
+  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 24 }}>
+    {[
+      { title: "Callback Verification", desc: "Never act on a sensitive request from an inbound call. Hang up and call the person back on a known, verified number. This applies at work and at home — if \"your son\" calls asking for money, hang up and call him back.", link: "https://www.jpmorgan.com/insights/cybersecurity/business-email-compromise/when-callbacks-go-wrong", linkLabel: "JP Morgan — When Callbacks Go Wrong" },
+      { title: "Challenge Questions", desc: "Ask something only the real person would know — not information available on social media or company directories. Note that NIST SP 800-63 no longer considers knowledge-based authentication (security questions) acceptable on its own due to the ease with which attackers can discover answers — but in a phone conversation, personal questions the caller can't Google remain a useful signal.", link: "https://pages.nist.gov/800-63-3/sp800-63b.html", linkLabel: "NIST SP 800-63B — Authentication Guidelines" },
+      { title: "Family Code Words", desc: "Establish a family safe word that only your family knows. If someone calls claiming to be a relative in an emergency, ask for the code word. Pick something an outsider couldn't guess — not birthdays, pet names, or anything on social media. Teach this to elderly family members especially.", link: "https://www.staysafeonline.org/articles/why-your-family-and-coworkers-need-a-safe-word-in-the-age-of-ai", linkLabel: "National Cybersecurity Alliance — Safe Words in the Age of AI" },
+      { title: "Multi-Channel Confirmation", desc: "Confirm sensitive requests through a second channel — email, Slack, in-person — before acting. Out-of-band verification makes it dramatically harder for attackers to succeed because they'd need to compromise multiple independent communication channels simultaneously.", link: "https://pages.nist.gov/800-63-4/sp800-63b/authenticators/", linkLabel: "NIST SP 800-63B — Out-of-Band Authenticators" },
+    ].map((d, i) => <DefenseSubCard key={i} title={d.title} desc={d.desc} link={d.link} linkLabel={d.linkLabel} />)}
+  </div>
+
+  <SectionDivider />
+  <h2 id="organizational" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>Organizational Controls</h2>
+  <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.7, marginBottom: 14 }}>Build a culture of security awareness so staff can recognize and respond to voice-based social engineering.</p>
+  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 24 }}>
+    {[
+      { title: "Security Awareness Training", desc: "Regular training sessions on voice cloning threats — what they sound like, how they work, and how to respond. Programs like KnowBe4, SANS Security Awareness, or Proofpoint offer modules specifically on vishing and voice deepfakes. A 2025 Gartner survey found 62% of organizations reported experiencing a deepfake attack involving social engineering.", link: "https://www.knowbe4.com/products/security-awareness-training", linkLabel: "KnowBe4 — Security Awareness Training" },
+      { title: "No Voice-Only Auth for High Value", desc: "Never authorize wire transfers, password resets, or access changes based solely on a phone call — regardless of who it sounds like. Implement dual control — one person receives the request, a second person authorizes the release — and verify through a known number, not one provided in the request.", link: "https://www.fourscorelaw.com/resources/wire-transfers-best-practices", linkLabel: "Fourscore Law — Wire Transfer Best Practices" },
+      { title: "Voice Biometric + PIN", desc: "If using voiceprint authentication, always pair it with a second factor like a PIN or OTP. Voice alone is no longer sufficient. NIST now specifies that systems shall not rely solely on voice for authentication, as convincing audio deepfakes have made standalone voice biometrics insecure.", link: "https://pages.nist.gov/800-63-4/sp800-63b.html", linkLabel: "NIST SP 800-63B — Digital Identity Guidelines" },
+      { title: "Audit Suspicious Calls", desc: "Log and review calls that involve sensitive actions. Flag calls where the caller resisted verification or pushed urgency. Correlate voice call activity with authentication events — VoIP/SIP logs, MFA push anomalies, and remote access tool installation patterns all provide actionable signals.", link: "https://www.cisa.gov/news-events/news/avoiding-social-engineering-and-phishing-attacks", linkLabel: "CISA — Avoiding Social Engineering Attacks" },
+    ].map((d, i) => <DefenseSubCard key={i} title={d.title} desc={d.desc} link={d.link} linkLabel={d.linkLabel} />)}
+  </div>
+
+  <SectionDivider />
+  <h2 id="spectral-artifacts" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 14, scrollMarginTop: 120 }}>Spectral Artifacts to Look For</h2>
+  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 12 }}>
+    {[
           { sign: "Metallic shimmer", desc: "Vocoders leave unnatural energy above 8kHz — natural speech rolls off smoothly, AI shows a bump in the high range", natural: (s) => {
             const pts = Array.from({length: 40}, (_, i) => { const v = Math.max(0.02, 0.85 - i * 0.022 + (Math.sin(i * 1.3) * 0.03)); return `${i * 2.5},${42 - v * 40}`; });
             return <polyline points={pts.join(" ")} fill="none" stroke={s} strokeWidth="1.5" />;
@@ -152,17 +153,15 @@ const DefenseSection = () => (<div>
           );
           return <ArtifactLightbox key={i} sign={s.sign} desc={s.desc} renderViz={renderViz} />;
         })}
-      </div>
-    </div>
   </div>
   <SectionDivider />
-  <QuizBank questions={[
+  <div id="knowledge-check" style={{ scrollMarginTop: 120 }}><QuizBank questions={[
     { question: "Your company's CEO calls the CFO for an urgent wire transfer. What's the best first line of defense?", options: ["AI voice detector", "Personal questions", "Hang up and call CEO's known number", "Check voice against recordings"], correctIndex: 2, explanation: "Callback verification breaks the attacker's channel control." },
     { question: "You're analyzing a suspicious audio file and notice unnatural energy spikes above 8kHz. What does this likely indicate?", options: ["The microphone was too close", "Vocoder artifacts from AI-generated speech", "The audio was recorded in a large room", "Normal background noise"], correctIndex: 1, explanation: "Metallic shimmer above 8kHz is a telltale sign of neural vocoders used in AI speech generation — natural speech rolls off smoothly at high frequencies." },
     { question: "Why is voice biometrics alone insufficient?", options: ["Too expensive", "High-quality clones can fool voiceprint matching", "Requires too much data", "Only works in-person"], correctIndex: 1, explanation: "Quality clones match voiceprints. Liveness detection and MFA are essential." },
     { question: "Your elderly parent gets a frantic call from someone who sounds exactly like you, saying you're in trouble and need money wired immediately. What should they do?", options: ["Send the money — it sounds just like you", "Ask the caller for personal details", "Hang up and call you back on your known number", "Call the police immediately"], correctIndex: 2, explanation: "Callback verification is the single most effective defense against voice cloning attacks. Hanging up breaks the attacker's control of the conversation, and calling back on a known number confirms the real person's identity." },
     { question: "What is the most important organizational policy to prevent voice-based social engineering?", options: ["Install AI detection software on every phone", "Never allow sensitive actions like wire transfers or access changes based solely on a phone call", "Record all phone calls", "Only hire people with deep voices"], correctIndex: 1, explanation: "No voice-only authorization for high-value actions is the most impactful policy. It doesn't matter how convincing the clone is if the process requires a second factor or second channel to confirm." },
-  ]} />
+  ]} /></div>
 </div>);
 
 export default DefenseSection;

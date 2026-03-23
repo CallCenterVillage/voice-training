@@ -3,13 +3,13 @@ import { StaticCard, SectionDivider, ScenarioSim, ThreatMeter } from "./_helpers
 
 const HumanTargetsSection = () => (
   <div>
-    <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>SE Against Humans</h2>
+    <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>SE Against Humans</h1>
     <p style={{ color: C.dim, lineHeight: 1.7, marginBottom: 24 }}>
       Classic social engineering techniques adapted specifically for phone-based attacks against
       call center agents, customer service reps, and support staff.
     </p>
 
-    <div id="threat-assessment" style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 12, scrollMarginTop: 120 }}>Threat Assessment by Attack Type</div>
+    <h2 id="threat-assessment" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 12, scrollMarginTop: 120 }}>Threat Assessment by Attack Type</h2>
     <div style={{ background: C.card, borderRadius: 12, padding: 16, border: `1px solid ${C.border}`, marginBottom: 20 }}>
       <ThreatMeter label="Pretexting / Impersonation" level={4} description="Impersonating customers, executives, vendors, or IT staff to gain account access or sensitive information." />
       <ThreatMeter label="Vishing with Voice Cloning" level={4} description="Using AI-cloned voices of known individuals (CEO, family members) to add credibility to social engineering." />

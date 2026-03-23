@@ -111,6 +111,11 @@ exit
 # Verify
 llama-cli -m /opt/llama.cpp/models/llama-3.2-1b-instruct-q4_k_m.gguf \\
   -cnv -p "You are a helpful assistant."` },
+    { name: "Ollama", url: "https://ollama.com", desc: "One-command local LLM runner — download and run models with a single CLI command" },
+    { name: "LM Studio", url: "https://lmstudio.ai", desc: "Desktop app for running local LLMs with a chat UI and built-in model browser" },
+    { name: "Open WebUI", url: "https://github.com/open-webui/open-webui", desc: "Self-hosted ChatGPT-style interface that works with Ollama, llama.cpp, and other backends" },
+    { name: "LibreChat", url: "https://github.com/danny-avila/LibreChat", desc: "Open-source chat interface supporting local and cloud AI providers with plugin support" },
+    { name: "Jan", url: "https://jan.ai", desc: "Offline-first desktop app for running local models with a clean UI" },
   ],
   "Text-to-Speech": [
     { name: "Piper TTS", path: "/opt/piper", url: "https://github.com/OHF-Voice/piper1-gpl", desc: "Fast local neural text-to-speech",
@@ -960,7 +965,7 @@ export const allProjectTools = Object.entries(projectTools).flatMap(([category, 
 
 const ProjectGlossarySection = () => (
   <div>
-    <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>AI Tool Glossary</h2>
+    <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>AI Tool Glossary</h1>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>
       AI and audio tools used across the training.
       Each tool includes installation instructions for setting up in <code style={{ background: C.codeBg, padding: "2px 6px", borderRadius: 4, fontSize: 13 }}>/opt</code> and

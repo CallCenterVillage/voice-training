@@ -22,6 +22,16 @@ export const resources = [
     { name: "CISA — Recognize Phishing", url: "https://www.cisa.gov/secure-our-world/recognize-and-report-phishing", desc: "CISA guide to recognizing and reporting phishing", archiveUrl: "https://web.archive.org/web/20260321191026/https://www.cisa.gov/secure-our-world/recognize-and-report-phishing" },
     { name: "FTC — Phishing Scams", url: "https://www.ftc.gov/news-events/topics/identity-theft/phishing-scams", desc: "FTC phishing scam prevention resources", archiveUrl: "https://web.archive.org/web/20260321191114/https://www.ftc.gov/news-events/topics/identity-theft/phishing-scams" },
     { name: "NIST — Social Engineering", url: "https://csrc.nist.gov/glossary/term/social_engineering", desc: "NIST definition and resources on social engineering", archiveUrl: "https://web.archive.org/web/20260321190947/https://csrc.nist.gov/glossary/term/social_engineering" },
+    { name: "JP Morgan — When Callbacks Go Wrong", url: "https://www.jpmorgan.com/insights/cybersecurity/business-email-compromise/when-callbacks-go-wrong", desc: "How callback verification can fail and best practices for making it effective against BEC and vishing", archiveUrl: "https://web.archive.org/web/20260323072304/https://www.jpmorgan.com/insights/cybersecurity/business-email-compromise/when-callbacks-go-wrong" },
+    { name: "NIST SP 800-63B — Authentication Guidelines", url: "https://pages.nist.gov/800-63-3/sp800-63b.html", desc: "NIST digital identity guidelines covering authenticator types, knowledge-based authentication limitations, and multi-factor requirements", archiveUrl: "https://web.archive.org/web/20260323072421/https://pages.nist.gov/800-63-3/sp800-63b.html" },
+    { name: "National Cybersecurity Alliance — Safe Words in the Age of AI", url: "https://www.staysafeonline.org/articles/why-your-family-and-coworkers-need-a-safe-word-in-the-age-of-ai", desc: "Why families and coworkers need a safe word to defend against AI voice cloning scams", archiveUrl: "https://web.archive.org/web/20260323072436/https://www.staysafeonline.org/articles/why-your-family-and-coworkers-need-a-safe-word-in-the-age-of-ai" },
+    { name: "FTC — AI Voice Cloning Scams", url: "https://consumer.ftc.gov/consumer-alerts/2023/03/scammers-use-ai-enhance-their-family-emergency-schemes", desc: "FTC consumer alert on how scammers use AI to enhance family emergency schemes" },
+    { name: "NIST SP 800-63B — Out-of-Band Authenticators", url: "https://pages.nist.gov/800-63-4/sp800-63b/authenticators/", desc: "NIST guidelines on out-of-band authenticators and using separate communication channels for verification", archiveUrl: "https://web.archive.org/web/20260323072426/https://pages.nist.gov/800-63-4/sp800-63b/authenticators/" },
+    { name: "FBI IC3 — Internet Crime Complaint Center", url: "https://www.ic3.gov/", desc: "FBI's portal for reporting internet crime including vishing and voice cloning scams" },
+    { name: "KnowBe4 — Security Awareness Training", url: "https://www.knowbe4.com/products/security-awareness-training", desc: "Security awareness training platform with vishing simulations and deepfake training modules", archiveUrl: "https://web.archive.org/web/20260323072451/https://www.knowbe4.com/products/security-awareness-training" },
+    { name: "Wire Transfer Best Practices", url: "https://www.fourscorelaw.com/resources/wire-transfers-best-practices", desc: "Fraud prevention best practices for wire transfers including dual control and voice verification procedures", archiveUrl: "https://web.archive.org/web/20260323072444/https://www.fourscorelaw.com/resources/wire-transfers-best-practices" },
+    { name: "NIST SP 800-63B — Digital Identity Guidelines", url: "https://pages.nist.gov/800-63-4/sp800-63b.html", desc: "NIST guidelines on authentication including why voice biometrics alone are no longer sufficient", archiveUrl: "https://web.archive.org/web/20260323072457/https://pages.nist.gov/800-63-4/sp800-63b.html" },
+    { name: "CISA — Avoiding Social Engineering Attacks", url: "https://www.cisa.gov/news-events/news/avoiding-social-engineering-and-phishing-attacks", desc: "CISA guidance on recognizing and defending against social engineering and phishing attacks", archiveUrl: "https://web.archive.org/web/20260323072503/https://www.cisa.gov/news-events/news/avoiding-social-engineering-and-phishing-attacks" },
   ] },
   { category: "Reference", items: [
     { name: "FFmpeg/Libav Tutorial", url: "https://github.com/leandromoreira/ffmpeg-libav-tutorial", desc: "Learn FFmpeg libav the hard way — from zero to hero", archiveUrl: "https://web.archive.org/web/20260321190600/https://github.com/leandromoreira/ffmpeg-libav-tutorial" },
@@ -51,9 +61,9 @@ const resourceTagColors = {
 
 const ResourcesSection = () => (
   <div>
-    <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Additional Resources</h2>
+    <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Additional Resources</h1>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>
-      External references, legal guidance, and educational materials referenced throughout the training.
+      External websites, resources, and educational materials referenced throughout the training.
     </p>
     <div style={{ display: "grid", gap: 20 }}>
       {allResources.map(r => (

@@ -3,7 +3,7 @@ import { StaticCard, SectionDivider } from "./_helpers";
 
 const CombinedSection = () => (
   <div>
-    <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Combined Attacks</h2>
+    <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Combined Attacks</h1>
     <p style={{ color: C.dim, lineHeight: 1.7, marginBottom: 24 }}>
       The most dangerous attacks combine voice cloning, AI exploitation, and human social engineering
       into a single coordinated operation. This is the frontier of call center threats.

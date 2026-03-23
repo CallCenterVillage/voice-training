@@ -3,7 +3,7 @@ import { StaticCard, SectionDivider } from "./_helpers";
 
 const DefenseSection = () => (
   <div>
-    <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Defense Playbook</h2>
+    <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Defense Playbook</h1>
     <p style={{ color: C.dim, lineHeight: 1.7, marginBottom: 24 }}>
       Comprehensive defense requires protecting both human agents and AI systems simultaneously.
       Here's the complete defensive framework for modern call centers.

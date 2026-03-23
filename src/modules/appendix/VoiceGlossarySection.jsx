@@ -83,7 +83,7 @@ sudo apt install -y festival festvox-kallpc16k` },
 
 const VoiceGlossarySection = () => (
   <div>
-    <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Voice Tool Glossary</h2>
+    <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Voice Tool Glossary</h1>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>
       Audio and voice tools used across the training modules — recording, playback, synthesis, and analysis.
     </p>

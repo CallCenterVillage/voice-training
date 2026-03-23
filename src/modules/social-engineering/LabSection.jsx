@@ -2,7 +2,7 @@ import { C, Icon, InfoBox, NextModuleLink } from "../../components";
 
 const LabSection = () => (
   <div>
-    <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Escalation Desk CTF</h2>
+    <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Escalation Desk CTF</h1>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>
       Put your social engineering skills to the test with our voice-only Capture the Flag (CTF) security challenge.
     </p>

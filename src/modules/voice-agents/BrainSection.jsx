@@ -4,7 +4,7 @@ import { StaticCard, SectionDivider, SystemPromptExplainer } from "./_helpers";
 export default function BrainSection() {
   return (
   <div>
-    <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>The LLM Brain</h2>
+    <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>The LLM Brain</h1>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>
       The large language model (LLM) — also referred to as generative AI — is the decision-making center. It takes the
       text from the speech-to-text engine, generates a response, and sends it to the text-to-speech engine
@@ -19,7 +19,7 @@ export default function BrainSection() {
     </div>
 
     <SectionDivider />
-    <div id="cloud-llm-providers" style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 12, scrollMarginTop: 120 }}>Cloud LLM Providers</div>
+    <h2 id="cloud-llm-providers" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 12, scrollMarginTop: 120 }}>Cloud LLM Providers</h2>
     <InfoBox>These companies are not sponsors or affiliated with this training or Call Center Village. They're listed for educational awareness only.<br /><span style={{ color: C.dim, fontStyle: "italic" }}>That being said, if any of you are reading this — Call Center Village is <a href="https://callcentervillage.com/sponsors" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "underline" }}>always looking for sponsors</a>!</span></InfoBox>
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 12 }}>
       {[
@@ -40,7 +40,7 @@ export default function BrainSection() {
     <p style={{ fontSize: 12, color: C.dim, textAlign: "center", marginTop: 16 }}>Have a suggestion for a cloud LLM provider to include here? Email us at <a href="mailto:support@callcentervillage.com" style={{ color: C.accent, textDecoration: "underline" }}>support@callcentervillage.com</a></p>
 
     <SectionDivider />
-    <h2 id="system-prompts" style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>System Prompts</h2>
+    <h2 id="system-prompts" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>System Prompts</h2>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 16 }}>
       A system prompt is the set of instructions you give to an LLM before it interacts with a user. It defines the model's personality, rules, capabilities, and boundaries — essentially telling it who it is and how to behave. Every LLM-powered application uses one, whether it's a chatbot, a coding assistant, or a voice agent. For voice agents specifically, system prompts need extra considerations because the output is spoken aloud, not read on a screen.
     </p>

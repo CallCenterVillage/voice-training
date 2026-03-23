@@ -9,11 +9,12 @@ export const builtWithItems = [
   { name: "JetBrains Mono", url: "https://www.jetbrains.com/lp/mono/", note: "Code font (self-hosted)" },
   { name: "ESLint", url: "https://eslint.org", note: "Code linting" },
   { name: "Node.js", url: "https://nodejs.org", note: "JavaScript runtime" },
+  { name: "wavesurfer.js", url: "https://wavesurfer.xyz", note: "Audio waveform player" },
 ].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
 
 const BuiltWithSection = () => (
   <div>
-    <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Project Credits</h2>
+    <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Project Credits</h1>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>
       This training application is built with the following open-source projects.
     </p>

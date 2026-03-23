@@ -4,13 +4,13 @@ import { StaticCard, SectionDivider } from "./_helpers";
 export default function TTSSection() {
   return (
   <div>
-    <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Text-to-Speech</h2>
+    <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Text-to-Speech</h1>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>
       The agent&apos;s voice. Modern TTS can stream audio in real-time, sound nearly human,
       and even clone specific voices. Here&apos;s your toolkit.
     </p>
 
-    <div id="local-tts-tools" style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 12, scrollMarginTop: 120 }}>Local / Open-Source Tools</div>
+    <h2 id="local-tts-tools" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 12, scrollMarginTop: 120 }}>Local / Open-Source Tools</h2>
     <div style={{ display: "grid", gap: 24, marginBottom: 24 }}>
       {[
         {
@@ -47,7 +47,7 @@ export default function TTSSection() {
     </div>
 
     <SectionDivider />
-    <div id="commercial-tts" style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 12, scrollMarginTop: 120 }}>Commercial Cloud Alternatives</div>
+    <h2 id="commercial-tts" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 12, scrollMarginTop: 120 }}>Commercial Cloud Alternatives</h2>
     <InfoBox>These companies are not sponsors or affiliated with this training or Call Center Village. They're listed for educational awareness only.<br /><span style={{ color: C.dim, fontStyle: "italic" }}>That being said, if any of you are reading this — Call Center Village is <a href="https://callcentervillage.com/sponsors" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "underline" }}>always looking for sponsors</a>!</span></InfoBox>
     <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 12 }}>
       {[

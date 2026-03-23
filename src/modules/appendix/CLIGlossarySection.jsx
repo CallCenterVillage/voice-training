@@ -172,7 +172,7 @@ uv --version` },
 
 const CLIGlossarySection = () => (
   <div>
-    <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>CLI Tool Glossary</h2>
+    <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>CLI Tool Glossary</h1>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>
       System CLI tools used across the training modules — voice cloning, voice agents, and social engineering.
     </p>

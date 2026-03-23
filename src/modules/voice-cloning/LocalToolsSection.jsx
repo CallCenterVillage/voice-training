@@ -2,10 +2,10 @@ import { C, CodeBlock, Icon, InfoBox, QuizBank, StarRating } from '../../compone
 import { SectionDivider, ToolComparison } from './_helpers';
 
 const LocalToolsSection = () => (<div>
-  <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Local AI Tools</h2>
+  <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Local AI Tools</h1>
   <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>Run everything locally — no cloud, no API keys, no data leaving your machine. But before diving into the tools, it helps to understand the different approaches to voice cloning and how they've evolved — each requires different amounts of data, compute, and effort.</p>
 
-  <div id="voice-cloning-approaches" style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>Voice Cloning Approaches</div>
+  <h2 id="voice-cloning-approaches" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>Voice Cloning Approaches</h2>
   <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 16 }}>
     AI voice cloning has evolved rapidly. Understanding the three main approaches — and how much data each one needs — is key to understanding both the technology and the threat landscape.
   </p>
@@ -40,7 +40,7 @@ const LocalToolsSection = () => (<div>
   </div>
 
   <SectionDivider />
-  <h2 id="reference-tools" style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>Reference Tools</h2>
+  <h2 id="reference-tools" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>Reference Tools</h2>
   <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>Hands-on tools for voice cloning, conversion, and synthesis — all running locally on your machine.</p>
   <ToolComparison tools={[
     { name: "Coqui TTS", desc: <><span>Open-source TTS with zero-shot cloning via XTTS v2 model. 16+ languages.</span><div style={{ background: `${C.highlight}10`, border: `1px solid ${C.highlight}33`, borderRadius: 8, padding: "10px 14px", marginTop: 8, display: "flex", alignItems: "flex-start", gap: 10, fontSize: 13 }}><Icon name="warning" size={16} style={{ color: C.highlight, flexShrink: 0, marginTop: 2 }} /><span style={{ color: C.muted }}>Coqui AI shut down in 2024. This tool has significant dependency issues and may require manual troubleshooting to install. It's pre-configured on these laptops, but setting it up elsewhere can be painful.</span></div></>, pros: ["Zero-shot", "Multi-language", "Fine-tunable"], cons: ["Coqui shut down", "GPU recommended"], install: `# Preinstalled on Call Center Village laptops\n# Wrapper at /usr/local/bin/coqui-tts → /opt/coqui-tts/.venv/bin/tts\ncd ~/callcentervillage/voice-cloning\n\ncoqui-tts --model_name tts_models/multilingual/multi-dataset/xtts_v2 \\\n    --speaker_wav input.wav --language_idx en \\\n    --text "Somebody once told me, the world is gonna roll me." \\\n    --out_path output.wav && play output.wav` },
@@ -50,10 +50,12 @@ const LocalToolsSection = () => (<div>
     { name: "OpenVoice", desc: "Instant cloning with tone/emotion control. MIT license.", pros: ["Fast", "Emotion control", "Lightweight"], cons: ["Best quality in English", "Less natural"], install: `# Preinstalled on Call Center Village laptops\n# Installed at /opt/openvoice\ncd ~/callcentervillage/voice-cloning\n\n# Single file voice conversion\nopenvoice single -i input.wav \\\n    -r /opt/openvoice/reference_voice.wav \\\n    -o cloned_output.wav -d cpu && play cloned_output.wav\n\n# Batch process a folder of audio files\nopenvoice batch -id ./input_folder \\\n    -rf /opt/openvoice/reference_voice.wav \\\n    -od ./output_folder -d cpu` },
   ]} />
     <SectionDivider />
-    <h2 id="supporting-tools" style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>Supporting Tools</h2>
-    <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.7, marginBottom: 24 }}>These tools complete the local voice attack pipeline. Combined with a TTS or voice conversion tool, you have a fully local pipeline with zero cloud dependency.</p>
+    <h2 id="supporting-tools" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>Supporting Tools</h2>
+    <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.7, marginBottom: 12 }}>Voice cloning doesn't happen in isolation — you need to understand what was said before you can generate a convincing response. A speech-to-text tool like whisper.cpp lets you transcribe recordings, voicemails, or intercepted audio into text you can work with. A local LLM like llama.cpp takes that transcript and generates contextually appropriate responses — matching tone, vocabulary, and conversation flow — that you can then feed into a TTS or voice conversion tool.</p>
+    <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.7, marginBottom: 12 }}>Together, these tools close the loop: listen, understand, respond, and speak — all running locally with zero cloud dependency and no API logs. The Call Center Village laptops use whisper.cpp and llama.cpp directly, but there are user-friendly alternatives worth knowing about — <a href="https://ollama.com" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>Ollama</a>, <a href="https://lmstudio.ai" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>LM Studio</a>, <a href="https://github.com/open-webui/open-webui" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>Open WebUI</a>, <a href="https://github.com/danny-avila/LibreChat" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>LibreChat</a>, <a href="https://jan.ai" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>Jan</a> all make it easier to run local models with polished UIs. See <strong style={{ color: C.muted }}>Appendix → Additional Resources</strong> for details on each.</p>
 
-    <div id="whisper-cpp" style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4, scrollMarginTop: 120 }}>whisper.cpp</div>
+    <SectionDivider />
+    <h2 id="whisper-cpp" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 4, scrollMarginTop: 120 }}>whisper.cpp</h2>
     <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.7, marginBottom: 12 }}>Local speech-to-text — transcribe audio to text entirely on your machine.</p>
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12 }}>
       <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 12 }}>Powered by OpenAI's Whisper model, compiled to run efficiently on CPU. Transcribe audio files, extract text from recordings for re-synthesis, or analyze call recordings — all offline.</p>
@@ -76,7 +78,8 @@ const LocalToolsSection = () => (<div>
       <p style={{ fontSize: 11, color: C.dim, marginTop: 8 }}>For these laptops, <strong style={{ color: C.muted }}>tiny</strong> or <strong style={{ color: C.muted }}>base</strong> are recommended. See all available models at <a href="https://huggingface.co/ggerganov/whisper.cpp" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "underline" }}>huggingface.co/ggerganov/whisper.cpp</a>.</p>
     </div>
 
-    <div id="llama-cpp" style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4, marginTop: 24, scrollMarginTop: 120 }}>llama.cpp</div>
+    <SectionDivider />
+    <h2 id="llama-cpp" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 4, marginTop: 24, scrollMarginTop: 120 }}>llama.cpp</h2>
     <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.7, marginBottom: 12 }}>Run large language models locally — generate scripts and dialogue without the cloud.</p>
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12 }}>
       <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 12 }}>Generate realistic call scripts, social engineering dialogue, or conversational responses — all without sending data to the cloud. Perfect for generating text that a cloned voice can speak.</p>
@@ -85,7 +88,7 @@ const LocalToolsSection = () => (<div>
     </div>
 
     <SectionDivider />
-    <h2 id="putting-it-all-together" style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>Putting It All Together</h2>
+    <h2 id="putting-it-all-together" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>Putting It All Together</h2>
     <p style={{ color: C.muted, fontSize: 13, lineHeight: 1.7, marginBottom: 14 }}>These tools chain together to build fully local voice cloning pipelines — no internet connection required. Here are two realistic scenarios:</p>
 
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12 }}>
@@ -101,13 +104,15 @@ const LocalToolsSection = () => (<div>
     </div>
 
   <SectionDivider />
-  <QuizBank questions={[
-    { question: "You need to demo voice cloning at a conference in 5 minutes. What's your best bet?", options: ["Train an RVC model", "Use Coqui TTS zero-shot", "Fine-tune Piper TTS", "Build a custom model from scratch"], correctIndex: 1, explanation: "Coqui TTS zero-shot only needs a few seconds of reference audio and no training — you can go from sample to clone in under a minute." },
-    { question: "You need to transcribe an intercepted phone call, generate a convincing follow-up response, and create a recording in the caller's voice. Which three tools would you use?", options: ["whisper.cpp, llama.cpp, Coqui TTS", "whisper.cpp, Piper TTS, OpenVoice", "llama.cpp, RVC, Piper TTS", "Coqui TTS, OpenVoice, RVC"], correctIndex: 0, explanation: "whisper.cpp transcribes the call so you understand what was said and can feed it into llama.cpp to generate a convincing follow-up response. Coqui TTS then synthesizes it in the original caller's cloned voice." },
-    { question: "What makes Piper TTS different from Coqui TTS?", options: ["Piper TTS supports zero-shot cloning", "Piper TTS is designed for edge devices and runs on very low-powered hardware", "Piper TTS produces higher quality output", "Piper TTS supports more languages"], correctIndex: 1, explanation: "Piper TTS is built for edge devices — it runs on hardware as small as a Raspberry Pi. However, it requires training data and doesn't support zero-shot cloning like Coqui TTS does." },
-    { question: "What is the key difference between RVC and OpenVoice?", options: ["RVC is for TTS, OpenVoice is for voice conversion", "RVC requires fine-tuning with training audio, OpenVoice works zero-shot from a short clip", "OpenVoice produces higher quality clones", "RVC only works on Linux"], correctIndex: 1, explanation: "RVC requires 10-30 minutes of training audio and GPU time for fine-tuning, producing the highest quality clones. Once trained, RVC can run in real-time as a live voice filter. OpenVoice works zero-shot from a brief reference clip — faster to set up, but lower quality." },
-    { question: "In a voice cloning attack chain, what role does whisper.cpp play?", options: ["It generates the cloned voice", "It creates the speaker embedding", "It transcribes audio to text for use with an LLM", "It modifies the pitch of the audio"], correctIndex: 2, explanation: "whisper.cpp is a speech-to-text tool. In an attack chain, it transcribes a recorded conversation so the attacker can understand the context — and that transcription can be fed directly into llama.cpp to generate a convincing follow-up response in the same conversation." },
-  ]} />
+  <div id="knowledge-check" style={{ scrollMarginTop: 120 }}>
+    <QuizBank questions={[
+      { question: "You need to demo voice cloning at a conference in 5 minutes. What's your best bet?", options: ["Train an RVC model", "Use Coqui TTS zero-shot", "Fine-tune Piper TTS", "Build a custom model from scratch"], correctIndex: 1, explanation: "Coqui TTS zero-shot only needs a few seconds of reference audio and no training — you can go from sample to clone in under a minute." },
+      { question: "You need to transcribe an intercepted phone call, generate a convincing follow-up response, and create a recording in the caller's voice. Which three tools would you use?", options: ["whisper.cpp, llama.cpp, Coqui TTS", "whisper.cpp, Piper TTS, OpenVoice", "llama.cpp, RVC, Piper TTS", "Coqui TTS, OpenVoice, RVC"], correctIndex: 0, explanation: "whisper.cpp transcribes the call so you understand what was said and can feed it into llama.cpp to generate a convincing follow-up response. Coqui TTS then synthesizes it in the original caller's cloned voice." },
+      { question: "What makes Piper TTS different from Coqui TTS?", options: ["Piper TTS supports zero-shot cloning", "Piper TTS is designed for edge devices and runs on very low-powered hardware", "Piper TTS produces higher quality output", "Piper TTS supports more languages"], correctIndex: 1, explanation: "Piper TTS is built for edge devices — it runs on hardware as small as a Raspberry Pi. However, it requires training data and doesn't support zero-shot cloning like Coqui TTS does." },
+      { question: "What is the key difference between RVC and OpenVoice?", options: ["RVC is for TTS, OpenVoice is for voice conversion", "RVC requires fine-tuning with training audio, OpenVoice works zero-shot from a short clip", "OpenVoice produces higher quality clones", "RVC only works on Linux"], correctIndex: 1, explanation: "RVC requires 10-30 minutes of training audio and GPU time for fine-tuning, producing the highest quality clones. Once trained, RVC can run in real-time as a live voice filter. OpenVoice works zero-shot from a brief reference clip — faster to set up, but lower quality." },
+      { question: "In a voice cloning attack chain, what role does whisper.cpp play?", options: ["It generates the cloned voice", "It creates the speaker embedding", "It transcribes audio to text for use with an LLM", "It modifies the pitch of the audio"], correctIndex: 2, explanation: "whisper.cpp is a speech-to-text tool. In an attack chain, it transcribes a recorded conversation so the attacker can understand the context — and that transcription can be fed directly into llama.cpp to generate a convincing follow-up response in the same conversation." },
+    ]} />
+  </div>
 </div>);
 
 export default LocalToolsSection;

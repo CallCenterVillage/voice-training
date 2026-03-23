@@ -4,7 +4,7 @@ import { AnimatedFlow, StaticCard, SectionDivider } from "./_helpers";
 export default function LiveKitSection() {
   return (
   <div>
-    <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>LiveKit & Frameworks</h2>
+    <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>LiveKit & Frameworks</h1>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>
       Frameworks handle the hard parts: audio transport, turn-taking, STT/LLM/TTS orchestration,
       and telephony integration. LiveKit Agents is the leading open-source option.

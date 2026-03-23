@@ -8,3 +8,4 @@ export { default as Icon } from "./Icon";
 export { default as InfoBox } from "./InfoBox";
 export { default as NextModuleLink } from "./NextModuleLink";
 export { default as StarRating } from "./StarRating";
+export { default as WaveformPlayer } from "./WaveformPlayer";

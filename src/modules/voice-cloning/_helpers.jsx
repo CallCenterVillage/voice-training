@@ -930,15 +930,31 @@ const DefenseCard = ({ id, title, titleColor = C.text, desc, children }) => (
   </div>
 );
 
-const DefenseSubCard = ({ title, desc, link, linkLabel }) => (
-  <div style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16 }}>
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-      <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>{title}</div>
-      {link && <a href={link} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: C.accent, textDecoration: "none" }}>{linkLabel || "Link"} ↗</a>}
-    </div>
-    <div style={{ fontSize: 13, color: C.dim, lineHeight: 1.7 }}>{desc}</div>
-  </div>
-);
+const DefenseSubCard = ({ title, desc, link, linkLabel }) => {
+  const [hovered, setHovered] = useState(false);
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <div
+        onClick={() => setOpen(true)}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        style={{ background: C.codeBg, border: `1px solid ${hovered ? C.accent : C.border}`, borderRadius: 8, padding: 16, cursor: "pointer", transition: "border-color 0.2s ease" }}
+      >
+        <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 6 }}>{title}</div>
+        <div style={{ fontSize: 13, color: C.dim, lineHeight: 1.7, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{desc}</div>
+        {link && <a href={link} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} style={{ display: "inline-block", marginTop: 8, fontSize: 12, color: C.accent, textDecoration: "none" }}>{linkLabel || "Link"} ↗</a>}
+      </div>
+      {open && (
+        <Lightbox onClose={() => setOpen(false)}>
+          <div style={{ fontSize: 20, fontWeight: 700, color: C.text, marginBottom: 12 }}>{title}</div>
+          <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.8, marginBottom: link ? 16 : 0 }}>{desc}</div>
+          {link && <a href={link} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, color: C.accent, textDecoration: "none", fontWeight: 600 }}>{linkLabel || "Link"} ↗</a>}
+        </Lightbox>
+      )}
+    </>
+  );
+};
 
 export {
   ArtifactLightbox,

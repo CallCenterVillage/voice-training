@@ -4,7 +4,7 @@ import { SectionDivider } from "./_helpers";
 export default function AttackSurfaceSection() {
   return (
   <div>
-    <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Attack Surface</h2>
+    <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Attack Surface</h1>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>
       Every component of a voice agent can be attacked. Understanding the full attack surface is essential for
       building secure systems — and for red teaming existing ones.

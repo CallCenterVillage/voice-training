@@ -5,13 +5,14 @@ import { SectionDivider, PipelineDiagram, ToolComparison } from './_helpers';
 const TraditionalSection = () => {
   const [activeStep, setActiveStep] = useState(0);
   return (<div>
-    <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Non-AI Voice Modification</h2>
+    <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Non-AI Voice Modification</h1>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 12 }}>Long before AI voice cloning, traditional audio tools could alter pitch, tone, and timbre characteristics. These techniques are well-understood and leave detectable signatures — but they're fast, accessible, widely used, and can still be combined with newer AI tools.</p>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 8 }}>We're representing the voice modification pipeline here as six steps, but real-world chains can be longer or shorter depending on the goal. Only <span style={{ fontStyle: "italic" }}>Input</span> and <span style={{ fontStyle: "italic" }}>Output</span> are required — <span style={{ fontStyle: "italic" }}>EQ/Filter</span>, <span style={{ fontStyle: "italic" }}>Pitch Shift</span>, <span style={{ fontStyle: "italic" }}>Formant</span>, and <span style={{ fontStyle: "italic" }}>FX Chain</span> are all optional stages you can mix and match to manipulate the audio.</p>
-    <div style={{ fontSize: 15, fontWeight: 700, color: C.text, marginTop: 20, marginBottom: 8 }}>The Audiomancer's Creed</div>
+    <h2 id="audiomancers-creed" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginTop: 20, marginBottom: 8, scrollMarginTop: 120 }}>The Audiomancer's Creed</h2>
     <div style={{ borderLeft: `3px solid ${C.secondary}`, paddingLeft: 16, margin: "0 0 8px 0", fontStyle: "italic", color: C.dim, fontSize: 13, lineHeight: 1.7 }}>"This is my audio-toolkit. There are many like it, but this one is mine."<br />"My audio-toolkit is my best friend. It is my life."<br />"I must master it as I must master my life."<br />"Without me, my audio-toolkit is useless."<br />"Without my audio-toolkit, I am useless."</div>
-    <div style={{ fontSize: 12, color: C.dim, marginBottom: 40 }}>— <a href="https://en.wikipedia.org/wiki/Soundwave_(Transformers)" target="_blank" rel="noopener noreferrer" style={{ color: C.dim, textDecoration: "underline" }}>Soundwave</a>, probably</div>
-    <h3 id="example-tool-chains" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>Example Tool Chains</h3>
+    <div style={{ fontSize: 12, color: C.dim }}>— <a href="https://en.wikipedia.org/wiki/Soundwave_(Transformers)" target="_blank" rel="noopener noreferrer" style={{ color: C.dim, textDecoration: "underline" }}>Soundwave</a>, probably</div>
+    <SectionDivider />
+    <h2 id="example-tool-chains" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>Example Tool Chains</h2>
     <p style={{ color: C.secondary, lineHeight: 1.7, marginTop: 0, marginBottom: 10, fontSize: 13 }}>Click each step below to see common tools for that stage. All tools referenced are already preinstalled.</p>
     <PipelineDiagram activeStep={activeStep} onStepClick={i => setActiveStep(i)} steps={[{ icon: "microphone", label: "Input" }, { icon: "chart-bar", label: "EQ/Filter" }, { icon: "arrow-path", label: "Pitch Shift" }, { icon: "scale", label: "Formant" }, { icon: "speaker-wave", label: "FX Chain" }, { icon: "headphones", label: "Output" }]} />
     <p style={{ color: C.accent, fontSize: 14, lineHeight: 1.7, marginBottom: 12 }}>{[
@@ -81,7 +82,7 @@ const TraditionalSection = () => {
       ],
     ][activeStep]} />
     <SectionDivider />
-    <h3 id="voice-disguise-recipes" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>Voice Disguise Recipes</h3>
+    <h2 id="voice-disguise-recipes" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>Voice Disguise Recipes</h2>
     <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 14 }}>Here are a few ready-made effect chains to try. You can also pipe tools together (e.g. FFmpeg into SoX) to chain different tools in a single command. Copy them into your terminal, swap in your own audio file, and experiment — tweak the values, stack them differently, or combine techniques. The best way to learn this stuff is to play around and hear what happens.</p>
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16, color: C.text, fontSize: 15, fontWeight: 600 }}>
@@ -103,11 +104,13 @@ const TraditionalSection = () => {
       </div>
     </div>
     <SectionDivider />
-    <QuizBank questions={[
-      { question: "Which tool shifts pitch while preserving the original duration?", options: ["SoX", "RubberBand", "FFmpeg", "Praat"], correctIndex: 1, explanation: "RubberBand uses time-stretching algorithms to shift pitch independently of duration. The SoX speed effect changes both pitch and duration together." },
-      { question: "Which tool is BEST for batch processing 1000 audio files?", options: ["Audacity", "SoX", "Praat", "RubberBand"], correctIndex: 1, explanation: "SoX is purpose-built for CLI audio processing — blazing fast and scriptable." },
-      { question: "How does a telephone effect help disguise a voice?", options: ["Adds reverb", "Removes frequencies outside 300-3400Hz, destroying identifying harmonics", "Speeds up audio", "Adds masking noise"], correctIndex: 1, explanation: "PSTN bandwidth (300-3400Hz) removes chest resonance and sibilance — key voice identity features." },
-    ]} />
+    <div id="knowledge-check" style={{ scrollMarginTop: 120 }}>
+      <QuizBank questions={[
+        { question: "Which tool shifts pitch while preserving the original duration?", options: ["SoX", "RubberBand", "FFmpeg", "Praat"], correctIndex: 1, explanation: "RubberBand uses time-stretching algorithms to shift pitch independently of duration. The SoX speed effect changes both pitch and duration together." },
+        { question: "Which tool is BEST for batch processing 1000 audio files?", options: ["Audacity", "SoX", "Praat", "RubberBand"], correctIndex: 1, explanation: "SoX is purpose-built for CLI audio processing — blazing fast and scriptable." },
+        { question: "How does a telephone effect help disguise a voice?", options: ["Adds reverb", "Removes frequencies outside 300-3400Hz, destroying identifying harmonics", "Speeds up audio", "Adds masking noise"], correctIndex: 1, explanation: "PSTN bandwidth (300-3400Hz) removes chest resonance and sibilance — key voice identity features." },
+      ]} />
+    </div>
   </div>);
 };
 

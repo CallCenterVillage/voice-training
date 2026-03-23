@@ -3,12 +3,12 @@ import { SectionDivider } from './_helpers';
 
 const AudioSection = () => (
   <div>
-    <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Audio Tips</h2>
+    <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Audio Tips</h1>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>
       Useful audio techniques for working with telephone systems and voice processing.
     </p>
 
-    <div id="dtmf-table" style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4, scrollMarginTop: 120 }}>DTMF Frequency Table</div>
+    <h2 id="dtmf-table" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 4, scrollMarginTop: 120 }}>DTMF Frequency Table</h2>
     <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.7, marginBottom: 12 }}>Each key on a telephone keypad produces a unique pair of frequencies — one from the row and one from the column. This dual-tone multi-frequency (DTMF) system is how phones signal digits to the network.</p>
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12, overflowX: "auto" }}>
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14, textAlign: "center" }}>
@@ -42,7 +42,7 @@ const AudioSection = () => (
 
     <SectionDivider />
 
-    <div id="dtmf" style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4, scrollMarginTop: 120 }}>DTMF Tone Generation</div>
+    <h2 id="dtmf" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 4, scrollMarginTop: 120 }}>DTMF Tone Generation</h2>
     <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.7, marginBottom: 12 }}>Generate clean DTMF (touch-tone) signals — especially helpful when working with telephone systems, IVR menus, and call center testing.</p>
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12 }}>
       <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 8 }}>Using FFmpeg (CLI)</div>
@@ -69,7 +69,7 @@ ffmpeg -f lavfi -i "sine=frequency=770:duration=0.25" \\
 
     <SectionDivider />
 
-    <div id="telephone-tones" style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4, scrollMarginTop: 120 }}>Telephone Tones</div>
+    <h2 id="telephone-tones" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 4, scrollMarginTop: 120 }}>Telephone Tones</h2>
     <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.7, marginBottom: 12 }}>Generate standard telephone signaling tones with SoX — useful for testing IVR systems, simulating call flows, and understanding PSTN audio.</p>
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12 }}>
       <CodeBlock language="bash" code={`# Dial tone (North American)
@@ -121,7 +121,7 @@ sox input.wav -r 8000 -c 1 phoneline.wav \\
 
     <SectionDivider />
 
-    <div id="yt-dlp" style={{ fontSize: 18, fontWeight: 800, color: C.text, marginBottom: 4, scrollMarginTop: 120 }}>Extracting Audio (yt-dlp)</div>
+    <h2 id="yt-dlp" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 4, scrollMarginTop: 120 }}>Extracting Audio (yt-dlp)</h2>
     <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.7, marginBottom: 12 }}>Download audio from YouTube and other video platforms — useful for obtaining voice samples from public recordings like conference talks, interviews, and podcasts.</p>
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12 }}>
       <CodeBlock language="bash" code={`# yt-dlp is pre-installed on Call Center Village laptops\ncd ~/callcentervillage/voice-cloning\n\n# Download audio only from a YouTube video\nyt-dlp -x --audio-format wav -o "downloaded.%(ext)s" "https://www.youtube.com/watch?v=EXAMPLE"\n\n# If the output isn't WAV, convert with FFmpeg\nffmpeg -i downloaded.webm -ar 16000 -ac 1 -c:a pcm_s16le sample.wav && play sample.wav\n\n# Download just a specific clip (e.g., 30 seconds starting at 1:05)\nyt-dlp -x --audio-format wav -o "clip.%(ext)s" \\\n  --download-sections "*1:05-1:35" \\\n  "https://www.youtube.com/watch?v=EXAMPLE"\n\n# Full pipeline: download, convert to 16kHz mono WAV, and play\nyt-dlp -x --audio-format wav -o "raw.%(ext)s" "https://www.youtube.com/watch?v=EXAMPLE" && \\\n  ffmpeg -i raw.wav -ar 16000 -ac 1 -c:a pcm_s16le sample.wav && \\\n  play sample.wav`} />

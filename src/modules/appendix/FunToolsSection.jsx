@@ -43,7 +43,7 @@ sudo snap install moonlight`,
 
 const FunToolsSection = () => (
   <div>
-    <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Other Tools</h2>
+    <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Other Tools</h1>
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>
       Tools that aren't strictly necessary but make the terminal a little more enjoyable.
     </p>

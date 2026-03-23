@@ -15,17 +15,21 @@ const TrainingShell = ({ sections, sectionComponents, moduleTitle, logoUrl = "/i
   useEffect(() => {
     if (!anchors) return;
     const ids = anchors.map(a => a.id);
-    const observer = new IntersectionObserver((entries) => {
-      for (const entry of entries) {
-        if (entry.isIntersecting) {
-          setActiveAnchor(entry.target.id);
-          break;
-        }
+    const onScroll = () => {
+      const cutoff = 140 + topOffset;
+      let best = null;
+      for (const id of ids) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        const top = el.getBoundingClientRect().top;
+        if (top <= cutoff) best = id;
       }
-    }, { rootMargin: "-120px 0px -60% 0px", threshold: 0 });
-    ids.forEach(id => { const el = document.getElementById(id); if (el) observer.observe(el); });
-    return () => observer.disconnect();
-  }, [anchors, currentSection]);
+      setActiveAnchor(best || ids[0]);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [anchors, currentSection, topOffset]);
 
   return (
     <div style={{ minHeight: "100vh", background: C.bg, color: C.text, fontFamily: "'Inter', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
@@ -103,7 +107,7 @@ const TrainingShell = ({ sections, sectionComponents, moduleTitle, logoUrl = "/i
             </div>
           </>}
         </aside>
-        <main className="training-content-area" style={{ flex: 1, maxWidth: 960, padding: "24px 12px 80px 48px", width: "100%" }}><Section /></main>
+        <main className="training-content-area" style={{ flex: 1, maxWidth: 960, padding: "24px 12px 60vh 48px", width: "100%" }}><Section /></main>
       </div>
       <style>{`@media (min-width: 1280px) { .anchor-nav { display: block !important; } .training-content-area { max-width: 1040px !important; } }`}</style>
 

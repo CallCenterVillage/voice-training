@@ -29,7 +29,7 @@ export default function LabSection() {
 
   return (
     <div>
-      <h2 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Interactive Lab</h2>
+      <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Interactive Lab</h1>
       <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>
         Hands-on exercises to build and test a voice agent. Follow these in order for the best experience.
       </p>

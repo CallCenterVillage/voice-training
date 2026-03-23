@@ -14,7 +14,7 @@ export default function ArchitectureSection() {
   ];
   return (
     <div>
-      <h2 id="pipeline-overview" style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>Agent Architecture</h2>
+      <h1 id="pipeline-overview" style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>Agent Architecture</h1>
       <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>
         Most voice agents follow a similar fundamental pipeline. Click each component to learn more.
       </p>
@@ -39,7 +39,7 @@ export default function ArchitectureSection() {
         </div>
       )}
 
-      <div id="latency-budget" style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 12, marginTop: 20, scrollMarginTop: 120 }}>Latency Budget</div>
+      <h2 id="latency-budget" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 12, marginTop: 20, scrollMarginTop: 120 }}>Latency Budget</h2>
       <div style={{ background: C.card, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
         <LatencyMeter label="VAD Processing" ms={20} />
         <LatencyMeter label="STT (Streaming)" ms={200} />
