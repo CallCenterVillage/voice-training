@@ -82,7 +82,7 @@ const TrainingShell = ({ sections, sectionComponents, moduleTitle, logoUrl = "/i
             width: 220,
             flexShrink: 0,
             position: "sticky",
-            top: 100 + topOffset,
+            top: 140 + topOffset,
             alignSelf: "flex-start",
             padding: "24px 0 24px 16px",
             display: "none",
@@ -103,9 +103,9 @@ const TrainingShell = ({ sections, sectionComponents, moduleTitle, logoUrl = "/i
             </div>
           </aside>
         )}
-        <main style={{ flex: 1, maxWidth: 960, padding: "24px 12px 80px", width: "100%" }}><Section /></main>
+        <main className="training-content-area" style={{ flex: 1, maxWidth: 960, padding: "24px 12px 80px 48px", width: "100%" }}><Section /></main>
       </div>
-      <style>{`@media (min-width: 1280px) { .anchor-nav { display: block !important; } }`}</style>
+      <style>{`@media (min-width: 1280px) { .anchor-nav { display: block !important; } .training-content-area { max-width: 1040px !important; } }`}</style>
 
       <div style={{ position: "sticky", bottom: 0, background: `${C.headerBg}ee`, borderTop: `1px solid ${C.border}`, padding: "12px 12px", display: "flex", justifyContent: "space-between", alignItems: "center", backdropFilter: "blur(10px)", zIndex: 160 }}>
         <button onClick={() => currentSection > 0 && onNavigate(currentSection - 1)} disabled={currentSection === 0} aria-disabled={currentSection === 0 ? "true" : undefined}

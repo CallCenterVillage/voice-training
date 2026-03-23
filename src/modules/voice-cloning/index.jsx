@@ -1,0 +1,57 @@
+import { TrainingShell } from "../../components";
+import IntroSection from "./IntroSection";
+import FundamentalsSection from "./FundamentalsSection";
+import TraditionalSection from "./TraditionalSection";
+import AISection from "./AISection";
+import LocalToolsSection from "./LocalToolsSection";
+import CommercialSection from "./CommercialSection";
+import DefenseSection from "./DefenseSection";
+import LabSection from "./LabSection";
+
+const SECTIONS = [
+  { id: "intro", title: "Welcome", icon: "microphone" },
+  { id: "fundamentals", title: "Audio Fundamentals", icon: "chart-bar", anchors: [
+    { id: "waveform-explorer", label: "Interactive Waveform Explorer" },
+    { id: "voice-characteristics", label: "Key Voice Characteristics" },
+    { id: "frequency-spectrum", label: "Frequency Spectrum" },
+    { id: "audio-quality-recommendations", label: "Audio Quality Recommendations" },
+    { id: "why-these-numbers-matter", label: "Why These Numbers Matter" },
+  ] },
+  { id: "traditional", title: "Non-AI Voice Modification", icon: "adjustments", anchors: [
+    { id: "example-tool-chains", label: "Example Tool Chains" },
+    { id: "voice-disguise-recipes", label: "Voice Disguise Recipes" },
+  ] },
+  { id: "ai-cloning", title: "AI Voice Cloning", icon: "cpu", anchors: [
+    { id: "before-there-was-ai", label: "Before There Was AI" },
+    { id: "ai-powered-tts-and-voice-conversion", label: "AI-Powered TTS and Voice Conversion" },
+    { id: "speaker-embeddings", label: "Speaker Embeddings" },
+  ] },
+  { id: "local-tools", title: "Local AI Tools", icon: "computer", anchors: [
+    { id: "voice-cloning-approaches", label: "Voice Cloning Approaches" },
+    { id: "reference-tools", label: "Reference Tools" },
+    { id: "supporting-tools", label: "Supporting Tools" },
+    { id: "whisper-cpp", label: "whisper.cpp" },
+    { id: "llama-cpp", label: "llama.cpp" },
+    { id: "putting-it-all-together", label: "Putting It All Together" },
+  ] },
+  { id: "commercial", title: "Commercial Options", icon: "cloud", anchors: [
+    { id: "service-providers", label: "Service Providers" },
+  ] },
+  { id: "defense", title: "Detection & Defense", icon: "shield", anchors: [
+    { id: "detection-and-defense-tools", label: "Detection & Defense Tools" },
+    { id: "technical-detection", label: "Technical Detection" },
+    { id: "ai-powered-detection", label: "AI-Powered Detection" },
+    { id: "procedural-defense", label: "Procedural Defense" },
+    { id: "organizational", label: "Organizational" },
+    { id: "spectral-artifacts", label: "Spectral Artifacts" },
+  ] },
+  { id: "lab", title: "Interactive Lab", icon: "beaker" },
+];
+
+const COMPS = [IntroSection, FundamentalsSection, TraditionalSection, AISection, LocalToolsSection, CommercialSection, DefenseSection, LabSection];
+
+export { SECTIONS, COMPS };
+
+export default function VoiceCloningTraining() {
+  return <TrainingShell sections={SECTIONS} sectionComponents={COMPS} moduleTitle="Voice Cloning" topOffset={48} />;
+}

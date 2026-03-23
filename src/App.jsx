@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { C } from "./components";
-import { SECTIONS as VC_SECTIONS, COMPS as VC_COMPS } from "../voice-cloning-training.jsx";
-import { SECTIONS as VA_SECTIONS, COMPS as VA_COMPS } from "../voice-agents-training.jsx";
-import { SECTIONS as SE_SECTIONS, COMPS as SE_COMPS } from "../social-engineering-training.jsx";
-import { SECTIONS as AP_SECTIONS, COMPS as AP_COMPS } from "../appendix-training.jsx";
+import { SECTIONS as VC_SECTIONS, COMPS as VC_COMPS } from "./modules/voice-cloning";
+import { SECTIONS as VA_SECTIONS, COMPS as VA_COMPS } from "./modules/voice-agents";
+import { SECTIONS as SE_SECTIONS, COMPS as SE_COMPS } from "./modules/social-engineering";
+import { SECTIONS as AP_SECTIONS, COMPS as AP_COMPS } from "./modules/appendix";
 import TrainingShell from "./components/TrainingShell";
 
 const MODULES = {
