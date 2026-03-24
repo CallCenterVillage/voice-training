@@ -1,6 +1,20 @@
 import { useState } from "react";
 import { C, CodeBlock, Icon, InfoBox, QuizBank, StarRating, WaveformPlayer } from '../../components';
-import { SectionDivider, PipelineDiagram, VocoderViz, AI_FLOW_DETAILS } from './_helpers';
+import { SectionDivider, PipelineDiagram, VocoderViz, AI_FLOW_DETAILS, Lightbox } from './_helpers';
+
+const VcTargetCard = ({ color, children, expandedChildren }) => {
+  const [hovered, setHovered] = useState(false);
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <div onClick={() => setOpen(true)} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
+        style={{ background: `${color}10`, border: `1px solid ${hovered ? color : `${color}33`}`, borderRadius: 8, padding: 14, cursor: "pointer", transition: "border-color 0.2s ease" }}>
+        {children}
+      </div>
+      {open && <Lightbox onClose={() => setOpen(false)}>{expandedChildren || children}</Lightbox>}
+    </>
+  );
+};
 
 const AISection = () => {
   const [archIdx, setArchIdx] = useState(0);
@@ -81,6 +95,168 @@ const AISection = () => {
               <CodeBlock code={'cd ~/callcentervillage/voice-cloning\n\n# Generate a spectrogram from your audio file\n# SoX produces a linear spectrogram\n# similar to a mel spectrogram, but with an evenly spaced frequency axis\nsox input.wav -n spectrogram -o spectrogram.png\n\n# View the spectrogram in the terminal\nimgcat spectrogram.png'} language="bash" />
               <img src="/images/melspec.png" alt="Mel spectrogram of speech" style={{ width: "100%", borderRadius: 4, border: `1px solid ${C.border}`, marginTop: 10 }} />
               {activeDetail.exampleCaption && <div style={{ fontSize: 11, color: C.dim, marginTop: 6, lineHeight: 1.5, textAlign: "center" }}>{activeDetail.exampleCaption}</div>}
+            </div> : activeDetail.exampleComponent === "vc-source" ? <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: "4px 12px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                <div style={{ flex: 1, background: `${C.accent}10`, border: `1px solid ${C.accent}33`, borderRadius: 8, padding: 14 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: C.accent, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Your Voice</div>
+                  <div style={{ fontSize: 15, color: C.text, fontStyle: "italic", lineHeight: 1.6 }}>"I need to verify your account details."</div>
+                  <div style={{ fontSize: 12, color: C.dim, marginTop: 8 }}>Words, pacing, emotion, rhythm — all yours</div>
+                </div>
+                <div style={{ color: C.dim, fontSize: 24, flexShrink: 0 }}>→</div>
+                <div style={{ flex: 1, background: `${C.secondary}10`, border: `1px solid ${C.secondary}33`, borderRadius: 8, padding: 14 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: C.secondary, textTransform: "uppercase", letterSpacing: 1, marginBottom: 6 }}>Their Voice</div>
+                  <div style={{ fontSize: 15, color: C.text, fontStyle: "italic", lineHeight: 1.6 }}>"I need to verify your account details."</div>
+                  <div style={{ fontSize: 12, color: C.dim, marginTop: 8 }}>Same words — but now it sounds like someone else</div>
+                </div>
+              </div>
+              <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.6, borderTop: `1px solid ${C.border}`, paddingTop: 12 }}>Think of it like lip-syncing in reverse: you provide the performance (what to say and how to say it), and the model swaps in a different voice. Unlike TTS, the source audio is never discarded — it's the foundation the entire conversion builds on.</div>
+            </div> : activeDetail.exampleComponent === "vc-features" ? <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: "4px 12px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div style={{ background: `${C.accent}10`, border: `1px solid ${C.accent}33`, borderRadius: 8, padding: 14 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: C.accent, marginBottom: 8 }}>KEPT — Content & Style</div>
+                  {["Pitch contour — the melody of speech", "Phoneme timing — how long each sound lasts", "Energy envelope — louder and softer words", "Speaking rate — pauses, rhythm, speed", "Emotion — anger, excitement, calm"].map((item, i) => (
+                    <div key={i} style={{ fontSize: 13, color: C.muted, lineHeight: 1.8, display: "flex", alignItems: "center", gap: 6 }}><span style={{ color: C.accent }}>✓</span> {item}</div>
+                  ))}
+                </div>
+                <div style={{ background: `${C.tertiary}10`, border: `1px solid ${C.tertiary}33`, borderRadius: 8, padding: 14 }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: C.tertiary, marginBottom: 8 }}>STRIPPED — Speaker Identity</div>
+                  {["Timbre — vocal texture and warmth", "Vocal tract shape — throat and mouth resonance", "Formant positions — F1–F4 resonance peaks", "Breathiness and nasality", "Speaker-specific harmonics"].map((item, i) => (
+                    <div key={i} style={{ fontSize: 13, color: C.muted, lineHeight: 1.8, display: "flex", alignItems: "center", gap: 6 }}><span style={{ color: C.tertiary }}>✕</span> {item}</div>
+                  ))}
+                </div>
+              </div>
+              <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.6, borderTop: `1px solid ${C.border}`, paddingTop: 12 }}>This separation is what makes voice conversion fundamentally different from TTS — the original human performance is preserved, making the result much harder to detect as fake because all the natural micro-variations in speech are still there.</div>
+            </div> : activeDetail.exampleComponent === "vc-embed" ? <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: "4px 12px" }}>
+              <div style={{ background: `${C.secondary}10`, border: `1px solid ${C.secondary}33`, borderRadius: 8, padding: 14 }}>
+                <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 12 }}>Think of a speaker embedding as a voice fingerprint compressed into numbers. A 256-dimension embedding might look like:</div>
+                <div style={{ background: C.codeBg, borderRadius: 6, padding: 12, fontFamily: "'JetBrains Mono', 'Fira Code', monospace", fontSize: 12, color: C.accent, lineHeight: 1.8, overflow: "hidden" }}>
+                  <div style={{ color: C.dim, marginBottom: 4 }}>// 256 dimensions — each a learned vocal feature</div>
+                  [0.82, -0.15, 0.44, 0.91, -0.33, 0.67, 0.12, -0.78, ...]
+                </div>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                {[
+                  { dim: "Pitch range", value: "0.82", desc: "Higher = wider pitch variation" },
+                  { dim: "Breathiness", value: "-0.15", desc: "Lower = cleaner vocal tone" },
+                  { dim: "Nasality", value: "0.44", desc: "Mid = moderate nasal resonance" },
+                  { dim: "Vibrato", value: "0.91", desc: "Higher = more natural tremor" },
+                ].map((d, i) => (
+                  <div key={i} style={{ background: C.codeBg, borderRadius: 6, padding: "10px 12px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div>
+                      <div style={{ fontSize: 13, color: C.text, fontWeight: 600 }}>{d.dim}</div>
+                      <div style={{ fontSize: 11, color: C.dim }}>{d.desc}</div>
+                    </div>
+                    <div style={{ fontSize: 16, fontWeight: 800, color: C.accent, fontFamily: "'JetBrains Mono', monospace" }}>{d.value}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.6, borderTop: `1px solid ${C.border}`, paddingTop: 12 }}>Two voices with similar embeddings sound alike; distant embeddings sound completely different. The conversion model uses this vector to "paint" the target voice's identity onto the extracted source features. See the <strong style={{ color: C.text }}>Speaker Embeddings</strong> section below for a deeper dive into how these vectors are built and compared.</div>
+            </div> : activeDetail.exampleComponent === "vc-convert" ? <div style={{ display: "flex", flexDirection: "column", gap: 20, padding: "4px 12px" }}>
+              {[
+                { name: "Retrieval-Based", color: C.accent, desc: "Searches a database of real voice segments from the target speaker and blends the closest matches together. Because it's working with actual recorded fragments rather than generating from scratch, the output inherits the natural texture and imperfections of real speech — which is why it tends to sound the most convincing.", traits: ["Highest output quality", "Works from real recorded segments", "Real-time capable once trained"] },
+                { name: "VAE + Vocoder", color: C.secondary, desc: "Uses a variational autoencoder to compress voice features into a compact latent space, then reconstructs them with the target voice's characteristics. Originally developed for singing voice conversion, where preserving musical qualities like vibrato and pitch slides is critical.", traits: ["Excels at singing conversion", "Preserves musical expression", "Good pitch accuracy"] },
+                { name: "Text-Free", color: C.tertiary, desc: "Operates entirely on the audio signal without ever transcribing words. It doesn't need to know what language is being spoken or what words are being said — it works directly on acoustic features. This makes it inherently language-agnostic and immune to transcription errors.", traits: ["No transcript required", "Works in any language", "Immune to STT errors"] },
+              ].map((arch, i) => (
+                <div key={i} style={{ background: `${arch.color}08`, border: `1px solid ${arch.color}33`, borderRadius: 8, padding: 14 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: arch.color, marginBottom: 6 }}>{arch.name}</div>
+                  <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.6, marginBottom: 10 }}>{arch.desc}</div>
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    {arch.traits.map((t, j) => <span key={j} style={{ fontSize: 11, color: arch.color, background: `${arch.color}15`, border: `1px solid ${arch.color}22`, borderRadius: 4, padding: "2px 8px" }}>{t}</span>)}
+                  </div>
+                </div>
+              ))}
+            </div> : activeDetail.exampleComponent === "vc-target" ? <div style={{ display: "flex", flexDirection: "column", gap: 16, padding: "4px 12px" }}>
+              {(() => {
+                const w = 280, h = 100, wLg = 500, hLg = 180;
+                const makeWave = (seed) => Array.from({ length: 500 }, (_, x) => {
+                  const t = (x / 500) * Math.PI * 14;
+                  const s = seed;
+                  return Math.sin(t + s) * 0.3 + Math.sin(t * 2.02 + s * 1.3) * 0.2 + Math.sin(t * 3.1 + s * 0.7) * 0.12 + Math.sin(t * 5.03 + s * 2.1) * 0.06 + (Math.sin(t * 0.4 + s) * 0.15);
+                });
+                const wave = makeWave(0);
+                const sourceFormants = [
+                  { freq: 0.15, label: "F1", hz: "520Hz" },
+                  { freq: 0.32, label: "F2", hz: "1580Hz" },
+                  { freq: 0.58, label: "F3", hz: "2650Hz" },
+                  { freq: 0.74, label: "F4", hz: "3600Hz" },
+                ];
+                const targetFormants = [
+                  { freq: 0.12, label: "F1", hz: "440Hz" },
+                  { freq: 0.28, label: "F2", hz: "1320Hz" },
+                  { freq: 0.52, label: "F3", hz: "2400Hz" },
+                  { freq: 0.70, label: "F4", hz: "3300Hz" },
+                ];
+                const wavePath = (data, vw, vh) => {
+                  const step = Math.max(1, Math.floor(data.length / vw));
+                  return Array.from({ length: vw }, (_, x) => {
+                    const v = data[Math.min(x * step, data.length - 1)];
+                    return `${x === 0 ? "M" : "L"}${x},${vh / 2 + v * (vh / 2 - 12)}`;
+                  }).join(" ");
+                };
+                const renderFormants = (formants, color, vw, vh, prevFormants) => formants.map((f, i) => {
+                  const sf = prevFormants?.[i];
+                  return (
+                    <g key={i}>
+                      {sf && <><line x1={sf.freq * vw} y1={8} x2={sf.freq * vw} y2={vh - 8} stroke={C.dim} strokeWidth="0.5" strokeDasharray="2,2" opacity="0.3" /><line x1={sf.freq * vw} y1={vh / 2} x2={f.freq * vw} y2={vh / 2} stroke={C.tertiary} strokeWidth="1.5" opacity="0.6" /></>}
+                      <line x1={f.freq * vw} y1={8} x2={f.freq * vw} y2={vh - 8} stroke={color} strokeWidth="1" strokeDasharray="3,3" opacity="0.5" />
+                      <circle cx={f.freq * vw} cy={vh / 2 + wave[Math.round(f.freq * (wave.length - 1))] * (vh / 2 - 12)} r={vw > 300 ? 6 : 4} fill={color} stroke={C.codeBg} strokeWidth="2" />
+                      <text x={f.freq * vw} y={vh - 2} fill={color} fontSize={vw > 300 ? 11 : 9} fontWeight="700" textAnchor="middle" fontFamily="inherit">{f.label}</text>
+                      <text x={f.freq * vw} y={6} fill={C.dim} fontSize={vw > 300 ? 9 : 7} textAnchor="middle" fontFamily="inherit">{f.hz}</text>
+                    </g>
+                  );
+                });
+                const preserved = ["Words and pronunciation", "Emotional tone and emphasis", "Speaking speed and pauses", "Rhythm and cadence", "Natural micro-variations"];
+                const swapped = ["Voice identity and timbre", "Vocal tract resonance", "Harmonic structure", "Breathiness and texture", "Speaker-specific formants"];
+                return (
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                    <VcTargetCard color={C.accent} expandedChildren={<div>
+                      <div style={{ fontSize: 20, fontWeight: 700, color: C.accent, marginBottom: 12 }}>Preserved From Source</div>
+                      <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.8, marginBottom: 16 }}>These characteristics are carried over directly from the original recording. They're what make the output sound like a natural human performance rather than synthetic speech.</div>
+                      {preserved.map((item, i) => <div key={i} style={{ fontSize: 14, color: C.muted, lineHeight: 2, display: "flex", alignItems: "center", gap: 8 }}><span style={{ color: C.accent, fontSize: 16 }}>●</span> {item}</div>)}
+                    </div>}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: C.accent, marginBottom: 8 }}>PRESERVED FROM SOURCE</div>
+                      {preserved.map((item, i) => <div key={i} style={{ fontSize: 13, color: C.muted, lineHeight: 1.8, display: "flex", alignItems: "center", gap: 6 }}><span style={{ color: C.accent }}>●</span> {item}</div>)}
+                    </VcTargetCard>
+                    <VcTargetCard color={C.secondary} expandedChildren={<div>
+                      <div style={{ fontSize: 20, fontWeight: 700, color: C.secondary, marginBottom: 12 }}>Swapped From Target</div>
+                      <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.8, marginBottom: 16 }}>These are the identity markers that get replaced with the target speaker's characteristics. The conversion model learns these from the speaker embedding.</div>
+                      {swapped.map((item, i) => <div key={i} style={{ fontSize: 14, color: C.muted, lineHeight: 2, display: "flex", alignItems: "center", gap: 8 }}><span style={{ color: C.secondary, fontSize: 16 }}>●</span> {item}</div>)}
+                    </div>}>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: C.secondary, marginBottom: 8 }}>SWAPPED FROM TARGET</div>
+                      {swapped.map((item, i) => <div key={i} style={{ fontSize: 13, color: C.muted, lineHeight: 1.8, display: "flex", alignItems: "center", gap: 6 }}><span style={{ color: C.secondary }}>●</span> {item}</div>)}
+                    </VcTargetCard>
+                    <VcTargetCard color={C.accent} expandedChildren={<div>
+                      <div style={{ fontSize: 20, fontWeight: 700, color: C.accent, marginBottom: 12 }}>Source Voice</div>
+                      <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.7, marginBottom: 16 }}>The original speaker's formant peaks (F1–F4) are shown along the waveform. These resonance positions are unique to this speaker's vocal tract.</div>
+                      <svg width={wLg} height={hLg} viewBox={`0 0 ${wLg} ${hLg}`} style={{ width: "100%", height: hLg }}>
+                        <path d={wavePath(wave, wLg, hLg)} fill="none" stroke={C.accent} strokeWidth="2" opacity="0.6" />
+                        {renderFormants(sourceFormants, C.accent, wLg, hLg)}
+                      </svg>
+                    </div>}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: C.accent, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Source Voice</div>
+                      <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", height: h }}>
+                        <path d={wavePath(wave, w, h)} fill="none" stroke={C.accent} strokeWidth="1.5" opacity="0.6" />
+                        {renderFormants(sourceFormants, C.accent, w, h)}
+                      </svg>
+                    </VcTargetCard>
+                    <VcTargetCard color={C.secondary} expandedChildren={<div>
+                      <div style={{ fontSize: 20, fontWeight: 700, color: C.secondary, marginBottom: 12 }}>Target Voice — Same Words</div>
+                      <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.7, marginBottom: 16 }}>Same waveform shape (the content is preserved), but the formant peaks have shifted to match the target speaker's vocal tract. The <span style={{ color: C.tertiary }}>horizontal lines</span> show how far each formant moved.</div>
+                      <svg width={wLg} height={hLg} viewBox={`0 0 ${wLg} ${hLg}`} style={{ width: "100%", height: hLg }}>
+                        <path d={wavePath(wave, wLg, hLg)} fill="none" stroke={C.secondary} strokeWidth="2" opacity="0.6" />
+                        {renderFormants(targetFormants, C.secondary, wLg, hLg, sourceFormants)}
+                      </svg>
+                    </div>}>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: C.secondary, textTransform: "uppercase", letterSpacing: 1, marginBottom: 8 }}>Target Voice — Same Words</div>
+                      <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ width: "100%", height: h }}>
+                        <path d={wavePath(wave, w, h)} fill="none" stroke={C.secondary} strokeWidth="1.5" opacity="0.6" />
+                        {renderFormants(targetFormants, C.secondary, w, h, sourceFormants)}
+                      </svg>
+                    </VcTargetCard>
+                  </div>
+                );
+              })()}
+              <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.6, borderTop: `1px solid ${C.border}`, paddingTop: 12 }}>The result is convincing because all the natural variations in human speech are preserved — hesitations, emphasis, breathing. Only the "who" has been swapped. This is what makes voice conversion especially dangerous compared to TTS: the output inherits the authenticity of real human speech.</div>
             </div> : <div style={{ fontSize: 13, color: C.text, fontFamily: "'JetBrains Mono', 'Fira Code', monospace", lineHeight: 1.6, whiteSpace: "pre-wrap" }}>{activeDetail.example}</div>}
           </div>
           {activeDetail.footnote && <div style={{ marginTop: 10, fontSize: 12, color: C.dim, lineHeight: 1.6 }}>{activeDetail.footnote}</div>}
@@ -102,7 +278,7 @@ const AISection = () => {
     </div>
     <SectionDivider />
     <h2 id="tool-reference" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 16, scrollMarginTop: 120 }}>TTS and Voice Conversion Tool Reference</h2>
-    <div style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: 14, marginBottom: 16 }}>
+    <div style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: "20px 14px 14px", marginBottom: 16 }}>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
         {[
           { name: "Coqui TTS", url: "https://github.com/coqui-ai/TTS" },
