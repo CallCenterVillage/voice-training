@@ -910,6 +910,772 @@ exit
 
 # Verify
 resemblyzer original.wav clone.wav` },
+    { name: "librosa", path: "/opt/librosa-tools", url: "https://github.com/librosa/librosa", desc: "Python audio analysis library with spectrogram comparison, MFCC similarity scoring, spectral artifact detection, and batch analysis",
+      installCode: `# === Install librosa toolkit to /opt ===
+# Python 3.12
+
+# Switch to root for installation
+sudo su
+
+mkdir -p /opt/librosa-tools/scripts
+cd /opt/librosa-tools
+
+# Initialize uv project (directory name becomes project name, avoids conflict with librosa package)
+uv init --python 3.12
+uv add librosa matplotlib soundfile numpy scipy
+
+# === Script 1: compare_spectrograms.py ===
+cat > /opt/librosa-tools/scripts/compare_spectrograms.py << 'PYEOF'
+# /// script
+# requires-python = ">=3.12"
+# dependencies = ["librosa", "matplotlib", "soundfile", "numpy"]
+# ///
+"""
+Side-by-side mel-spectrogram comparison of two audio files.
+AI-generated audio often shows unnaturally smooth or repeating patterns.
+
+Usage: voice-spectrogram <reference.wav> <suspect.wav> [output.png]
+"""
+import sys
+import librosa
+import librosa.display
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
+import numpy as np
+
+def main():
+    if len(sys.argv) < 3:
+        print("Usage: voice-spectrogram <reference.wav> <suspect.wav> [output.png]")
+        sys.exit(1)
+
+    file_real = sys.argv[1]
+    file_suspect = sys.argv[2]
+    output_path = sys.argv[3] if len(sys.argv) > 3 else "spectrogram_comparison.png"
+
+    print(f"Loading reference: {file_real}")
+    y_real, sr = librosa.load(file_real, sr=16000)
+    print(f"Loading suspect:   {file_suspect}")
+    y_suspect, _ = librosa.load(file_suspect, sr=16000)
+
+    mel_real = librosa.power_to_db(
+        librosa.feature.melspectrogram(y=y_real, sr=sr, n_mels=128), ref=np.max
+    )
+    mel_suspect = librosa.power_to_db(
+        librosa.feature.melspectrogram(y=y_suspect, sr=sr, n_mels=128), ref=np.max
+    )
+
+    fig, axes = plt.subplots(1, 2, figsize=(16, 5))
+    librosa.display.specshow(mel_real, sr=sr, x_axis="time", y_axis="mel", ax=axes[0])
+    axes[0].set_title("Reference (Known Real)")
+    librosa.display.specshow(mel_suspect, sr=sr, x_axis="time", y_axis="mel", ax=axes[1])
+    axes[1].set_title("Suspect Audio")
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=150)
+    plt.close()
+    print(f"Saved: {output_path}")
+
+if __name__ == "__main__":
+    main()
+PYEOF
+
+# === Script 2: similarity_score.py ===
+cat > /opt/librosa-tools/scripts/similarity_score.py << 'PYEOF'
+# /// script
+# requires-python = ">=3.12"
+# dependencies = ["librosa", "soundfile", "numpy", "scipy"]
+# ///
+"""
+MFCC cosine similarity between two audio files.
+Returns a score from 0.0 (completely different) to 1.0 (identical).
+Same-speaker comparisons below ~0.75 are suspicious.
+
+Usage: voice-similarity <file_a.wav> <file_b.wav>
+"""
+import sys
+import librosa
+import numpy as np
+from scipy.spatial.distance import cosine
+
+def main():
+    if len(sys.argv) < 3:
+        print("Usage: voice-similarity <file_a.wav> <file_b.wav>")
+        sys.exit(1)
+
+    file_a, file_b = sys.argv[1], sys.argv[2]
+    n_mfcc = 20
+
+    y_a, sr = librosa.load(file_a, sr=16000)
+    y_b, _ = librosa.load(file_b, sr=16000)
+
+    mfcc_a = librosa.feature.mfcc(y=y_a, sr=sr, n_mfcc=n_mfcc)
+    mfcc_b = librosa.feature.mfcc(y=y_b, sr=sr, n_mfcc=n_mfcc)
+
+    mean_a = np.mean(mfcc_a, axis=1)
+    mean_b = np.mean(mfcc_b, axis=1)
+
+    similarity = 1 - cosine(mean_a, mean_b)
+
+    print(f"File A:      {file_a}")
+    print(f"File B:      {file_b}")
+    print(f"Similarity:  {similarity:.4f}")
+    print()
+    if similarity >= 0.90:
+        print("RESULT: High similarity — likely same speaker, likely authentic")
+    elif similarity >= 0.75:
+        print("RESULT: Moderate similarity — possibly same speaker")
+    else:
+        print("RESULT: Low similarity — SUSPICIOUS, possible voice fake or different speaker")
+
+if __name__ == "__main__":
+    main()
+PYEOF
+
+# === Script 3: artifact_scan.py ===
+cat > /opt/librosa-tools/scripts/artifact_scan.py << 'PYEOF'
+# /// script
+# requires-python = ">=3.12"
+# dependencies = ["librosa", "soundfile", "numpy"]
+# ///
+"""
+Scan a single audio file for spectral anomalies common in AI-generated speech:
+- Unnaturally low spectral variance (too smooth/uniform)
+- Missing or artificial high-frequency content
+- Unusual spectral rolloff or flatness
+
+Usage: voice-artifact-scan <audio_file.wav>
+"""
+import sys
+import librosa
+import numpy as np
+
+def main():
+    if len(sys.argv) < 2:
+        print("Usage: voice-artifact-scan <audio_file.wav>")
+        sys.exit(1)
+
+    audio_file = sys.argv[1]
+    y, sr = librosa.load(audio_file, sr=16000)
+
+    centroid = librosa.feature.spectral_centroid(y=y, sr=sr)[0]
+    rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr, roll_percent=0.85)[0]
+    flatness = librosa.feature.spectral_flatness(y=y)[0]
+    zcr = librosa.feature.zero_crossing_rate(y)[0]
+    bandwidth = librosa.feature.spectral_bandwidth(y=y, sr=sr)[0]
+
+    print(f"File: {audio_file}")
+    print(f"Duration: {len(y)/sr:.2f}s")
+    print()
+    print("--- Spectral Features ---")
+    print(f"  Centroid mean:     {np.mean(centroid):.2f} Hz")
+    print(f"  Centroid std:      {np.std(centroid):.2f}")
+    print(f"  Rolloff mean:      {np.mean(rolloff):.2f} Hz")
+    print(f"  Flatness mean:     {np.mean(flatness):.5f}")
+    print(f"  Flatness std:      {np.std(flatness):.5f}")
+    print(f"  ZCR mean:          {np.mean(zcr):.5f}")
+    print(f"  Bandwidth std:     {np.std(bandwidth):.2f}")
+    print()
+
+    flags = []
+    if np.std(flatness) < 0.02:
+        flags.append("Low spectral flatness variance — signal is unnaturally uniform")
+    if np.std(centroid) < 100:
+        flags.append("Low spectral centroid variance — pitch is unnaturally stable")
+    if np.mean(rolloff) < 2000:
+        flags.append("Low spectral rolloff — missing high-frequency content")
+    if np.std(bandwidth) < 200:
+        flags.append("Low bandwidth variance — spectrum is unusually consistent")
+
+    if flags:
+        print("--- FLAGS ---")
+        for f in flags:
+            print(f"  ⚠  {f}")
+        print()
+        print("VERDICT: SUSPICIOUS — review manually")
+    else:
+        print("VERDICT: No obvious synthetic artifacts detected")
+
+if __name__ == "__main__":
+    main()
+PYEOF
+
+# === Script 4: batch_analyze.py ===
+cat > /opt/librosa-tools/scripts/batch_analyze.py << 'PYEOF'
+# /// script
+# requires-python = ">=3.12"
+# dependencies = ["librosa", "soundfile", "numpy"]
+# ///
+"""
+Batch-analyze a folder of audio files and output a CSV report
+with spectral features and heuristic flags.
+
+Usage: voice-batch-analyze <folder> [output.csv]
+"""
+import sys
+import os
+import csv
+import librosa
+import numpy as np
+from pathlib import Path
+
+AUDIO_EXTS = {".wav", ".mp3", ".flac", ".ogg", ".m4a"}
+
+def main():
+    if len(sys.argv) < 2:
+        print("Usage: voice-batch-analyze <folder> [output.csv]")
+        sys.exit(1)
+
+    input_folder = sys.argv[1]
+    output_csv = sys.argv[2] if len(sys.argv) > 2 else "voice_analysis_report.csv"
+
+    files = sorted(
+        f for f in Path(input_folder).iterdir()
+        if f.suffix.lower() in AUDIO_EXTS
+    )
+
+    if not files:
+        print(f"No audio files found in {input_folder}")
+        sys.exit(1)
+
+    print(f"Analyzing {len(files)} files in {input_folder}...")
+
+    rows = []
+    for i, filepath in enumerate(files, 1):
+        try:
+            y, sr = librosa.load(str(filepath), sr=16000)
+            centroid = librosa.feature.spectral_centroid(y=y, sr=sr)[0]
+            flatness = librosa.feature.spectral_flatness(y=y)[0]
+            rolloff = librosa.feature.spectral_rolloff(y=y, sr=sr)[0]
+
+            suspicious = (np.std(flatness) < 0.02) or (np.std(centroid) < 100)
+
+            row = {
+                "filename": filepath.name,
+                "duration_sec": round(len(y) / sr, 2),
+                "centroid_mean": round(np.mean(centroid), 2),
+                "centroid_std": round(np.std(centroid), 2),
+                "flatness_mean": round(np.mean(flatness), 5),
+                "flatness_std": round(np.std(flatness), 5),
+                "rolloff_mean": round(np.mean(rolloff), 2),
+                "flagged": "YES" if suspicious else "no",
+            }
+            rows.append(row)
+            status = "⚠ FLAGGED" if suspicious else "  ok"
+            print(f"  [{i}/{len(files)}] {status}  {filepath.name}")
+
+        except Exception as e:
+            rows.append({"filename": filepath.name, "flagged": f"ERROR: {e}"})
+            print(f"  [{i}/{len(files)}]  ERROR   {filepath.name}: {e}")
+
+    if rows:
+        fieldnames = list(rows[0].keys())
+        with open(output_csv, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(rows)
+
+    flagged_count = sum(1 for r in rows if r.get("flagged") == "YES")
+    print(f"\\nDone. {flagged_count}/{len(rows)} flagged. Report: {output_csv}")
+
+if __name__ == "__main__":
+    main()
+PYEOF
+
+# === Wrapper 1: voice-spectrogram ===
+tee /usr/local/bin/voice-spectrogram > /dev/null << 'EOF'
+#!/usr/bin/env bash
+exec uv run --project /opt/librosa-tools \\
+    python /opt/librosa-tools/scripts/compare_spectrograms.py "$@"
+EOF
+
+# === Wrapper 2: voice-similarity ===
+tee /usr/local/bin/voice-similarity > /dev/null << 'EOF'
+#!/usr/bin/env bash
+exec uv run --project /opt/librosa-tools \\
+    python /opt/librosa-tools/scripts/similarity_score.py "$@"
+EOF
+
+# === Wrapper 3: voice-artifact-scan ===
+tee /usr/local/bin/voice-artifact-scan > /dev/null << 'EOF'
+#!/usr/bin/env bash
+exec uv run --project /opt/librosa-tools \\
+    python /opt/librosa-tools/scripts/artifact_scan.py "$@"
+EOF
+
+# === Wrapper 4: voice-batch-analyze ===
+tee /usr/local/bin/voice-batch-analyze > /dev/null << 'EOF'
+#!/usr/bin/env bash
+exec uv run --project /opt/librosa-tools \\
+    python /opt/librosa-tools/scripts/batch_analyze.py "$@"
+EOF
+
+chmod +x /usr/local/bin/voice-spectrogram \\
+         /usr/local/bin/voice-similarity \\
+         /usr/local/bin/voice-artifact-scan \\
+         /usr/local/bin/voice-batch-analyze
+
+# Return to normal user
+exit
+
+# Verify
+voice-spectrogram reference.wav suspect.wav output.png
+voice-similarity known_caller.wav incoming_call.wav
+voice-artifact-scan suspect_call.wav
+voice-batch-analyze /path/to/recordings/ results.csv` },
+    { name: "WeDefense", path: "/opt/wedefense", url: "https://github.com/zlin0/wedefense", desc: "Open-source toolkit for fake audio detection and localization — supports training, evaluation, and deployment of anti-spoofing models",
+      installCode: `# === Install WeDefense to /opt ===
+# Python 3.12
+
+# Switch to root for installation
+sudo su
+
+# Clone directly into /opt/wedefense
+git clone https://github.com/zlin0/wedefense.git /opt/wedefense
+cd /opt/wedefense
+
+# Create uv-managed venv
+uv venv --python 3.12
+
+# Install build deps first (visdom needs old setuptools + wheel, hdbscan needs cython)
+uv pip install "setuptools<70" wheel cython
+
+# Install dependencies (skip strict version pins from requirements.txt to avoid conflicts)
+# --no-build-isolation so visdom can find setuptools/wheel in the venv
+uv pip install --no-build-isolation \\
+  fire kaldiio numpy PyYAML scipy tableprint torchnet tqdm \\
+  scikit-learn matplotlib h5py lmdb onnxruntime soundfile \\
+  pypeln silero-vad s3prl hdbscan umap-learn whisper pandas \\
+  wandb ttach opencv-python
+
+# Install the project itself
+uv pip install -e .
+
+# === Data prep script ===
+mkdir -p /opt/wedefense/scripts
+
+cat > /opt/wedefense/scripts/prep_callcenter_data.py << 'PYEOF'
+"""
+Prepare call center audio into WeDefense's expected Kaldi-style format.
+
+Expected input structure:
+    <data_dir>/
+    ├── real/     # Known authentic call recordings
+    └── fake/     # Known AI-generated / cloned recordings
+
+Creates wav.scp and utt2label files for WeDefense.
+
+Usage: voice-wedefense prep <data_dir> <output_dir>
+"""
+import os
+import sys
+from pathlib import Path
+
+AUDIO_EXTS = {".wav", ".flac", ".mp3", ".ogg"}
+
+def prep(data_dir, output_dir):
+    os.makedirs(output_dir, exist_ok=True)
+    scp_path = os.path.join(output_dir, "wav.scp")
+    label_path = os.path.join(output_dir, "utt2label")
+
+    count = 0
+    with open(scp_path, "w") as scp, open(label_path, "w") as labels:
+        for label_dir, label in [("real", "bonafide"), ("fake", "spoof")]:
+            folder = Path(data_dir) / label_dir
+            if not folder.is_dir():
+                print(f"  Skipping {folder} (not found)")
+                continue
+            for f in sorted(folder.iterdir()):
+                if f.suffix.lower() in AUDIO_EXTS:
+                    utt_id = f.stem
+                    scp.write(f"{utt_id} {f.resolve()}\\n")
+                    labels.write(f"{utt_id} {label}\\n")
+                    count += 1
+
+    print(f"Wrote {count} entries to {scp_path} and {label_path}")
+
+if __name__ == "__main__":
+    if len(sys.argv) < 3:
+        print("Usage: voice-wedefense prep <data_dir> <output_dir>")
+        sys.exit(1)
+    prep(sys.argv[1], sys.argv[2])
+PYEOF
+
+# === Call center YAML config ===
+mkdir -p /opt/wedefense/egs/callcenter/conf
+
+cat > /opt/wedefense/egs/callcenter/conf/ssl_aasist_callcenter.yaml << 'YAMLEOF'
+# WeDefense config tuned for telephone-quality recordings (G.711, AMR codecs)
+
+model:
+  name: ssl_aasist
+  ssl_model: wav2vec2-base
+  freeze_ssl: true
+
+data:
+  train_scp: data/train/wav.scp
+  dev_scp: data/dev/wav.scp
+  eval_scp: data/eval/wav.scp
+  sample_rate: 16000
+  max_len: 64000          # 4 seconds at 16kHz
+
+training:
+  batch_size: 16
+  num_epochs: 20
+  lr: 0.0001
+  device: cpu             # Change to cuda for GPU laptops
+
+augmentation:
+  speed_perturb: true
+  codec_augment: true     # Critical for phone call audio
+  rawboost: false
+
+scoring:
+  calibrate: true
+YAMLEOF
+
+# === Create system wrapper ===
+tee /usr/local/bin/voice-wedefense > /dev/null << 'EOF'
+#!/usr/bin/env bash
+#
+# System-wide wrapper for WeDefense fake audio detection toolkit.
+#
+# Usage:
+#   voice-wedefense prep <data_dir> <output_dir>
+#   voice-wedefense train <config.yaml>
+#   voice-wedefense eval <config.yaml>
+#   voice-wedefense demo
+#
+set -euo pipefail
+
+WD_ROOT="/opt/wedefense"
+
+case "\${1:-help}" in
+    prep)
+        shift
+        uv run --project "\${WD_ROOT}" python "\${WD_ROOT}/scripts/prep_callcenter_data.py" "$@"
+        ;;
+    train)
+        shift
+        config="\${1:?Error: provide a YAML config file}"
+        cd "\${WD_ROOT}"
+        if [ -d "egs/callcenter/detection" ]; then
+            cd egs/callcenter/detection
+        elif [ -d "egs/asvspoof2019/detection" ]; then
+            cd egs/asvspoof2019/detection
+        else
+            echo "No recipe directory found under egs/"
+            exit 1
+        fi
+        uv run --project "\${WD_ROOT}" bash run.sh --stage 1 --stop_stage 1 --conf "\${config}"
+        ;;
+    eval)
+        shift
+        config="\${1:?Error: provide a YAML config file}"
+        cd "\${WD_ROOT}"
+        if [ -d "egs/callcenter/detection" ]; then
+            cd egs/callcenter/detection
+        elif [ -d "egs/asvspoof2019/detection" ]; then
+            cd egs/asvspoof2019/detection
+        else
+            echo "No recipe directory found under egs/"
+            exit 1
+        fi
+        uv run --project "\${WD_ROOT}" bash run.sh --stage 2 --stop_stage 3 --conf "\${config}"
+        ;;
+    demo)
+        echo "Starting WeDefense demo UI..."
+        uv run --project "\${WD_ROOT}" pip install gradio 2>/dev/null
+        cd "\${WD_ROOT}"
+        if [ -f "app.py" ]; then
+            uv run --project "\${WD_ROOT}" python app.py
+        else
+            echo "No local app.py found. Use the hosted demo at:"
+            echo "  https://huggingface.co/spaces/wedefense/fake_audio_detection_demo"
+        fi
+        ;;
+    help|--help|-h|"")
+        cat << USAGE
+voice-wedefense — System wrapper for WeDefense fake audio detection toolkit
+
+Commands:
+  prep   <data_dir> <output_dir>   Convert folder of real/fake audio to SCP format
+  train  <config.yaml>             Train a detection model
+  eval   <config.yaml>             Evaluate / score with trained model
+  demo                             Launch local Gradio web UI (if available)
+
+Data prep expects:
+  <data_dir>/real/   — authentic call recordings (.wav/.flac/.mp3)
+  <data_dir>/fake/   — known AI-generated recordings
+
+Examples:
+  voice-wedefense prep ./training_calls ./data/train
+  voice-wedefense train conf/ssl_aasist_callcenter.yaml
+  voice-wedefense eval conf/ssl_aasist_callcenter.yaml
+
+Config: /opt/wedefense/egs/callcenter/conf/ssl_aasist_callcenter.yaml
+Repo:   https://github.com/zlin0/wedefense
+USAGE
+        ;;
+    *)
+        echo "Unknown command: $1 (try: voice-wedefense help)"
+        exit 1
+        ;;
+esac
+EOF
+
+chmod +x /usr/local/bin/voice-wedefense
+
+# Return to normal user
+exit
+
+# Verify installation
+voice-wedefense help
+
+# === Usage ===
+# You provide your own labeled audio samples:
+#   my_samples/
+#   ├── real/    ← known authentic call recordings (.wav/.flac/.mp3)
+#   └── fake/    ← known AI-generated / cloned recordings
+#
+# 1. Prep data into Kaldi-style format
+# voice-wedefense prep ./my_samples ./wedefense_data/train
+#
+# 2. Train a detection model
+# voice-wedefense train /opt/wedefense/egs/callcenter/conf/ssl_aasist_callcenter.yaml
+#
+# 3. Evaluate
+# voice-wedefense eval /opt/wedefense/egs/callcenter/conf/ssl_aasist_callcenter.yaml` },
+    { name: "FakeVoiceFinder", path: "/opt/fakevoicefinder", url: "https://github.com/DEEP-CGPS/FakeVoiceFinder", desc: "Framework for synthetic and deepfake audio detection using spectral transforms (mel, log, DWT, CQT) with real/fake probability scoring",
+      installCode: `# === Install FakeVoiceFinder to /opt ===
+# Python 3.12
+
+# Switch to root for installation
+sudo su
+
+# Clone directly into /opt/fakevoicefinder
+git clone https://github.com/DEEP-CGPS/FakeVoiceFinder.git /opt/fakevoicefinder
+cd /opt/fakevoicefinder
+
+# Create uv-managed venv
+uv venv --python 3.12
+uv pip install -r requirements.txt
+
+# PyTorch — CPU-only for laptops without NVIDIA GPU
+uv pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+
+# If the laptops HAVE NVIDIA GPUs instead:
+# uv pip install torch torchvision --index-url https://download.pytorch.org/whl/cu126
+
+# Install the project
+uv pip install -e .
+
+# === CLI inference script ===
+mkdir -p /opt/fakevoicefinder/scripts
+
+cat > /opt/fakevoicefinder/scripts/cli_inference.py << 'PYEOF'
+"""
+CLI interface for FakeVoiceFinder inference.
+
+Scores one or more audio files and reports real/fake probability.
+
+Usage:
+  voice-fakefinder score <audio_file> --checkpoint <model.pth> [--transform mel]
+  voice-fakefinder batch <folder> --checkpoint <model.pth> [--output results.csv]
+  voice-fakefinder compare-transforms <audio_file>
+"""
+import sys
+import os
+
+# Add project root so we can import fakevoicefinder
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+import argparse
+import csv
+import torch
+import librosa
+import numpy as np
+from pathlib import Path
+
+AUDIO_EXTS = {".wav", ".mp3", ".flac", ".ogg", ".m4a"}
+
+
+def score_single(audio_path, checkpoint_path, model_name="resnet18",
+                 transform_type="mel", sample_rate=16000, duration=4.0):
+    """Score a single audio file. Returns dict with real/fake probabilities."""
+    from fakevoicefinder.transformations import get_transform
+    from fakevoicefinder.models import get_model
+
+    y, sr = librosa.load(audio_path, sr=sample_rate)
+
+    target_len = int(sample_rate * duration)
+    if len(y) < target_len:
+        y = np.pad(y, (0, target_len - len(y)))
+    else:
+        y = y[:target_len]
+
+    transform = get_transform(transform_type)
+    spectrogram = transform(y, sr)
+
+    x = torch.FloatTensor(spectrogram).unsqueeze(0).unsqueeze(0)
+
+    model = get_model(model_name, num_classes=2)
+    checkpoint = torch.load(checkpoint_path, map_location="cpu", weights_only=True)
+    model.load_state_dict(checkpoint.get("model_state_dict", checkpoint))
+    model.eval()
+
+    with torch.no_grad():
+        logits = model(x)
+        probs = torch.softmax(logits, dim=1).numpy()[0]
+
+    return {
+        "real_prob": round(float(probs[0]) * 100, 2),
+        "fake_prob": round(float(probs[1]) * 100, 2),
+        "verdict": "LIKELY REAL" if probs[0] > probs[1] else "LIKELY FAKE",
+    }
+
+
+def compare_transforms(audio_path, sample_rate=16000, duration=4.0):
+    """Generate side-by-side visualizations of all 4 spectral transforms."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    from fakevoicefinder.transformations import get_transform
+
+    y, _ = librosa.load(audio_path, sr=sample_rate)
+    target_len = int(sample_rate * duration)
+    if len(y) < target_len:
+        y = np.pad(y, (0, target_len - len(y)))
+    else:
+        y = y[:target_len]
+
+    transforms = {
+        "Mel Spectrogram": "mel",
+        "Log Spectrogram": "log",
+        "Scalogram (DWT)": "dwt",
+        "Constant-Q Transform": "cqt",
+    }
+
+    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+    for ax, (title, t_type) in zip(axes.flat, transforms.items()):
+        try:
+            transform = get_transform(t_type)
+            spec = transform(y, sample_rate)
+            ax.imshow(spec, aspect="auto", origin="lower", cmap="magma")
+            ax.set_title(title)
+        except Exception as e:
+            ax.set_title(f"{title} (error: {e})")
+
+    output_path = Path(audio_path).stem + "_transforms.png"
+    plt.suptitle(f"Spectral Representations: {Path(audio_path).name}", fontsize=14)
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=150)
+    plt.close()
+    print(f"Saved: {output_path}")
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        prog="voice-fakefinder",
+        description="FakeVoiceFinder — AI voice deepfake detection CLI"
+    )
+    sub = parser.add_subparsers(dest="command")
+
+    # score
+    p_score = sub.add_parser("score", help="Score a single audio file")
+    p_score.add_argument("audio_file")
+    p_score.add_argument("--checkpoint", required=True, help="Path to model .pth checkpoint")
+    p_score.add_argument("--model", default="resnet18", help="Model architecture (default: resnet18)")
+    p_score.add_argument("--transform", default="mel", choices=["mel", "log", "dwt", "cqt"])
+
+    # batch
+    p_batch = sub.add_parser("batch", help="Score all audio files in a folder")
+    p_batch.add_argument("folder")
+    p_batch.add_argument("--checkpoint", required=True)
+    p_batch.add_argument("--model", default="resnet18")
+    p_batch.add_argument("--transform", default="mel", choices=["mel", "log", "dwt", "cqt"])
+    p_batch.add_argument("--output", default="fakefinder_results.csv")
+
+    # compare-transforms
+    p_ct = sub.add_parser("compare-transforms", help="Visualize all 4 spectral transforms")
+    p_ct.add_argument("audio_file")
+
+    args = parser.parse_args()
+
+    if args.command == "score":
+        result = score_single(
+            args.audio_file, args.checkpoint,
+            model_name=args.model, transform_type=args.transform
+        )
+        print(f"File:    {args.audio_file}")
+        print(f"Real:    {result['real_prob']}%")
+        print(f"Fake:    {result['fake_prob']}%")
+        print(f"Verdict: {result['verdict']}")
+
+    elif args.command == "batch":
+        files = sorted(
+            f for f in Path(args.folder).iterdir()
+            if f.suffix.lower() in AUDIO_EXTS
+        )
+        if not files:
+            print(f"No audio files in {args.folder}")
+            sys.exit(1)
+
+        print(f"Scoring {len(files)} files...")
+        results = []
+        for i, fp in enumerate(files, 1):
+            try:
+                r = score_single(
+                    str(fp), args.checkpoint,
+                    model_name=args.model, transform_type=args.transform
+                )
+                r["filename"] = fp.name
+                results.append(r)
+                print(f"  [{i}/{len(files)}] {r['verdict']:12s}  "
+                      f"R={r['real_prob']:5.1f}%  F={r['fake_prob']:5.1f}%  {fp.name}")
+            except Exception as e:
+                results.append({"filename": fp.name, "verdict": f"ERROR: {e}"})
+                print(f"  [{i}/{len(files)}] ERROR  {fp.name}: {e}")
+
+        with open(args.output, "w", newline="") as f:
+            w = csv.DictWriter(f, fieldnames=["filename", "real_prob", "fake_prob", "verdict"])
+            w.writeheader()
+            w.writerows(results)
+        print(f"\\nResults saved: {args.output}")
+
+    elif args.command == "compare-transforms":
+        compare_transforms(args.audio_file)
+
+    else:
+        parser.print_help()
+
+if __name__ == "__main__":
+    main()
+PYEOF
+
+# === Create system wrapper ===
+tee /usr/local/bin/voice-fakefinder > /dev/null << 'EOF'
+#!/usr/bin/env bash
+#
+# System-wide wrapper for FakeVoiceFinder.
+#
+# Usage:
+#   voice-fakefinder score <file.wav> --checkpoint <model.pth>
+#   voice-fakefinder batch <folder/> --checkpoint <model.pth> [--output results.csv]
+#   voice-fakefinder compare-transforms <file.wav>
+#
+set -euo pipefail
+uv run --project /opt/fakevoicefinder \\
+    python /opt/fakevoicefinder/scripts/cli_inference.py "$@"
+EOF
+
+chmod +x /usr/local/bin/voice-fakefinder
+
+# Return to normal user
+exit
+
+# Verify
+voice-fakefinder score suspect_call.wav \\
+    --checkpoint /opt/fakevoicefinder/models/resnet18_mel_best.pth` },
     { name: "pgvector", url: "https://github.com/pgvector/pgvector", desc: "Vector similarity search extension for PostgreSQL",
       installCode: `# === Install pgvector ===
 # PostgreSQL extension — no Python venv needed

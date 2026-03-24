@@ -38,6 +38,35 @@ const DefenseSection = () => (<div>
       <p style={{ fontSize: 13, color: C.dim, marginBottom: 8 }}>Generate spectrograms and inspect them visually for vocoder artifacts, missing room tone, or unnatural frequency patterns. Already installed on the laptops.</p>
       <CodeBlock language="bash" code={'# Generate a spectrogram to visually inspect\nsox suspect.wav -n spectrogram -o suspect_spec.png\n\n# View the spectrogram in the terminal\nimgcat suspect_spec.png\n\n# Compare frequency statistics between original and suspect\nsoxi original.wav && sox original.wav -n stat 2>&1\nsoxi suspect.wav && sox suspect.wav -n stat 2>&1'} />
     </div>
+    <div style={{ background: C.card, border: `1px solid ${C.accent}22`, borderRadius: 12, padding: 20 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+        <div style={{ fontSize: 16, fontWeight: 700, color: C.text }}>librosa Spectral Analysis</div>
+        <a href="https://github.com/librosa/librosa" target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: C.accent, textDecoration: "none" }}>GitHub ↗</a>
+      </div>
+      <p style={{ fontSize: 13, color: C.dim, marginBottom: 16 }}>Four wrapper tools built on <a href="https://github.com/librosa/librosa" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>librosa</a>, Python's standard audio analysis library. These use spectral features (mel-spectrograms, MFCCs, spectral centroid/flatness/rolloff) to compare, score, and flag audio files — no ML model or training data required.</p>
+      <div style={{ display: "grid", gap: 16 }}>
+        <div style={{ background: C.codeBg, borderRadius: 8, padding: 14 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 4 }}>voice-spectrogram</div>
+          <p style={{ fontSize: 13, color: C.dim, marginBottom: 8 }}>Side-by-side mel-spectrogram comparison. AI-generated audio often shows unnaturally smooth or repeating patterns.</p>
+          <CodeBlock language="bash" code={'# Compare spectrograms of a known-real recording vs. suspect\nvoice-spectrogram reference_call.wav suspect_call.wav output.png'} />
+        </div>
+        <div style={{ background: C.codeBg, borderRadius: 8, padding: 14 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 4 }}>voice-similarity</div>
+          <p style={{ fontSize: 13, color: C.dim, marginBottom: 8 }}>MFCC cosine similarity score. Returns 0.0 (completely different) to 1.0 (identical) — same-speaker comparisons below ~0.75 are suspicious.</p>
+          <CodeBlock language="bash" code={'# Score similarity between a known caller and incoming call\nvoice-similarity known_caller.wav incoming_call.wav'} />
+        </div>
+        <div style={{ background: C.codeBg, borderRadius: 8, padding: 14 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 4 }}>voice-artifact-scan</div>
+          <p style={{ fontSize: 13, color: C.dim, marginBottom: 8 }}>Scan for spectral anomalies common in AI speech — low spectral variance, missing high-frequency content, and unusual flatness.</p>
+          <CodeBlock language="bash" code={'# Scan a suspect call for synthetic artifacts\nvoice-artifact-scan suspect_call.wav'} />
+        </div>
+        <div style={{ background: C.codeBg, borderRadius: 8, padding: 14 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 4 }}>voice-batch-analyze</div>
+          <p style={{ fontSize: 13, color: C.dim, marginBottom: 8 }}>Batch-analyze a folder of audio files and output a CSV report with spectral features and flags for each file.</p>
+          <CodeBlock language="bash" code={'# Analyze all recordings in a folder and generate a report\nvoice-batch-analyze /path/to/call_recordings/ results.csv'} />
+        </div>
+      </div>
+    </div>
   </div>
 
   <SectionDivider />
@@ -46,6 +75,8 @@ const DefenseSection = () => (<div>
   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 24 }}>
     <DefenseSubCard title="ASVspoof Challenge Models" desc="International challenge producing open-source anti-spoofing models. Trained on large datasets of real and fake speech — state of the art in detection." link="https://www.asvspoof.org" linkLabel="asvspoof.org" />
     <DefenseSubCard title="awesome-fake-audio-detection" desc="Curated list of papers, datasets, and code for audio deepfake detection. A good starting point for finding models you can test." link="https://github.com/john852517791/awesome-fake-audio-detection" linkLabel="GitHub" />
+    <DefenseSubCard title="WeDefense" desc="Open-source toolkit for fake audio detection and localization. Supports training, evaluation, and deployment of anti-spoofing models with SSL-based architectures." link="https://github.com/zlin0/wedefense" linkLabel="GitHub" />
+    <DefenseSubCard title="FakeVoiceFinder" desc="Framework for synthetic and deepfake audio detection using spectral transforms (mel, log, DWT, CQT) with real/fake probability scoring." link="https://github.com/DEEP-CGPS/FakeVoiceFinder" linkLabel="GitHub" />
   </div>
 
   <SectionDivider />

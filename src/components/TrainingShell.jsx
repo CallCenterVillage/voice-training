@@ -94,7 +94,7 @@ const TrainingShell = ({ sections, sectionComponents, moduleTitle, logoUrl = "/i
         >
           {anchors && <>
             <div style={{ fontSize: 11, fontWeight: 700, color: C.dim, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 10, paddingLeft: 8 }}>On this page</div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 1, maxHeight: `calc(100vh - ${160 + topOffset}px)`, overflowY: "auto" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 1, maxHeight: `calc(100vh - ${220 + topOffset}px)`, overflowY: "auto" }}>
               {anchors.map(a => {
                 const isActive = activeAnchor === a.id;
                 return <a key={a.id} href={`#${a.id}`} onClick={e => { e.preventDefault(); document.getElementById(a.id)?.scrollIntoView({ behavior: "smooth", block: "start" }); }}
