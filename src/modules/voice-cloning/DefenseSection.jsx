@@ -1,4 +1,4 @@
-import { C, CodeBlock, Icon, QuizBank } from '../../components';
+import { C, CodeBlock, Icon, InfoBox, QuizBank } from '../../components';
 import { SectionDivider, ArtifactLightbox, DefenseCard, DefenseSubCard } from './_helpers';
 
 const DefenseSection = () => (<div>
@@ -78,6 +78,7 @@ const DefenseSection = () => (<div>
     <DefenseSubCard title="WeDefense" desc="Open-source toolkit for fake audio detection and localization. Supports training, evaluation, and deployment of anti-spoofing models with SSL-based architectures." link="https://github.com/zlin0/wedefense" linkLabel="GitHub" />
     <DefenseSubCard title="FakeVoiceFinder" desc="Framework for synthetic and deepfake audio detection using spectral transforms (mel, log, DWT, CQT) with real/fake probability scoring." link="https://github.com/DEEP-CGPS/FakeVoiceFinder" linkLabel="GitHub" />
   </div>
+  <InfoBox>Running AI-powered detection models is left as an exercise for the reader. These tools typically require labeled training data (real vs. fake voice samples), significant compute for model training, and/or GPU hardware for reasonable performance. The links above are a starting point for teams ready to invest in building a detection pipeline.</InfoBox>
 
   <SectionDivider />
   <h2 id="procedural-defense" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 8, scrollMarginTop: 120 }}>Procedural Defense</h2>
