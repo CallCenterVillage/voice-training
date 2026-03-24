@@ -10,6 +10,7 @@ export const builtWithItems = [
   { name: "ESLint", url: "https://eslint.org", note: "Code linting" },
   { name: "Node.js", url: "https://nodejs.org", note: "JavaScript runtime" },
   { name: "wavesurfer.js", url: "https://wavesurfer.xyz", note: "Audio waveform player" },
+  { name: "Handy", url: "https://handy.computer", note: "Free and open-source speech-to-text" },
 ].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
 
 const BuiltWithSection = () => (
