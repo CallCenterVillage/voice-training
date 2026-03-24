@@ -1,5 +1,30 @@
+import { useState } from 'react';
 import { C, CodeBlock, Icon, InfoBox, QuizBank } from '../../components';
-import { SectionDivider, ArtifactLightbox, DefenseCard, DefenseSubCard } from './_helpers';
+import { SectionDivider, ArtifactLightbox, DefenseCard, DefenseSubCard, Lightbox } from './_helpers';
+
+const WeDefenseArchitecture = () => {
+  const [open, setOpen] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  return (<>
+    <div onClick={() => setOpen(true)} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} style={{ background: C.card, border: `1px solid ${hovered ? C.accent : C.border}`, borderRadius: 12, padding: 20, marginBottom: 24, cursor: "zoom-in", transition: "border-color 0.2s ease" }}>
+      <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 12 }}>WeDefense Architecture</div>
+      <div style={{ background: `linear-gradient(135deg, ${C.primary}, ${C.accent})`, borderRadius: 8, padding: 16 }}>
+        <img src="/images/wedefense-architecture.png" alt="WeDefense toolkit architecture diagram" style={{ width: "100%", borderRadius: 4, display: "block" }} />
+      </div>
+      <div style={{ fontSize: 11, color: C.dim, marginTop: 10, lineHeight: 1.5, textAlign: "center" }}>
+        WeDefense — fake audio detection and localization pipeline.{" "}
+        <a href="https://github.com/zlin0/wedefense" target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} style={{ color: C.accent, textDecoration: "none" }}>Source: zlin0/wedefense ↗</a>
+      </div>
+    </div>
+    {open && (
+      <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.9)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "zoom-out", padding: 32 }}>
+        <div onClick={e => e.stopPropagation()} style={{ background: `linear-gradient(135deg, ${C.primary}, ${C.accent})`, borderRadius: 12, padding: 20, maxWidth: "90vw", maxHeight: "90vh", cursor: "default" }}>
+          <img src="/images/wedefense-architecture.png" alt="WeDefense toolkit architecture diagram" style={{ width: "100%", maxHeight: "80vh", objectFit: "contain", borderRadius: 4, display: "block" }} />
+        </div>
+      </div>
+    )}
+  </>);
+};
 
 const DefenseSection = () => (<div>
   <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Detection & Defense</h1>
@@ -78,6 +103,7 @@ const DefenseSection = () => (<div>
     <DefenseSubCard title="WeDefense" desc="Open-source toolkit for fake audio detection and localization. Supports training, evaluation, and deployment of anti-spoofing models with SSL-based architectures." link="https://github.com/zlin0/wedefense" linkLabel="GitHub" />
     <DefenseSubCard title="FakeVoiceFinder" desc="Framework for synthetic and deepfake audio detection using spectral transforms (mel, log, DWT, CQT) with real/fake probability scoring." link="https://github.com/DEEP-CGPS/FakeVoiceFinder" linkLabel="GitHub" />
   </div>
+  <WeDefenseArchitecture />
   <InfoBox>Running AI-powered detection models is left as an exercise for the reader. These tools typically require labeled training data (real vs. fake voice samples), significant compute for model training, and/or GPU hardware for reasonable performance. The links above are a starting point for teams ready to invest in building a detection pipeline.</InfoBox>
 
   <SectionDivider />
