@@ -13,12 +13,15 @@ const SECTIONS = [
   { id: "intro", title: "Welcome", icon: "command-line" },
   { id: "architecture", title: "Agent Architecture", icon: "cube", anchors: [
     { id: "pipeline-overview", label: "Pipeline Overview" },
+    { id: "beyond-the-pipeline", label: "Beyond the Pipeline" },
     { id: "latency-budget", label: "Latency Budget" },
-    { id: "turn-taking", label: "Turn-Taking" },
+    { id: "turn-taking", label: "Turn-Taking & Call Control" },
+    { id: "knowledge-check", label: "Knowledge Check" },
   ] },
   { id: "stt", title: "Speech-to-Text (STT)", icon: "signal", anchors: [
     { id: "local-stt-tools", label: "Local / Open-Source Tools" },
     { id: "commercial-stt", label: "Commercial Cloud Alternatives" },
+    { id: "knowledge-check", label: "Knowledge Check" },
   ] },
   { id: "brain", title: "The LLM Brain", icon: "cpu", anchors: [
     { id: "local-llms", label: "Local LLMs with llama.cpp" },

@@ -119,40 +119,62 @@ export const SystemPromptExplainer = () => {
 };
 
 export const AnimatedFlow = ({ nodes, activeNode = -1, onNodeClick }) => (
-  <div style={{ display: "flex", alignItems: "center", gap: 0, overflowX: "auto", padding: "16px 0" }}>
-    {nodes.map((node, i) => (
-      <div key={i} style={{ display: "flex", alignItems: "center" }}>
-        <div
-          onClick={() => onNodeClick && onNodeClick(i)}
-          {...(onNodeClick ? {
-            role: "button",
-            tabIndex: 0,
-            onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onNodeClick(i); } },
-          } : {})}
-          style={{
-            background: i === activeNode ? `${C.secondary}15` : C.card,
-            border: `1.5px solid ${i === activeNode ? C.secondary : C.border}`,
-            borderRadius: 12,
-            padding: "14px 18px",
-            minWidth: 100,
-            textAlign: "center",
-            cursor: onNodeClick ? "pointer" : "default",
-            transition: "all 0.3s ease",
-            boxShadow: i === activeNode ? `0 0 24px ${C.secondary}22` : "none",
-          }}
-        >
-          <div style={{ fontSize: 24, marginBottom: 4 }}><Icon name={node.icon} size={24} /></div>
-          <div style={{ fontSize: 14, color: i === activeNode ? C.secondary : C.muted, fontWeight: 600 }}>{node.label}</div>
-          {node.latency && <div style={{ fontSize: 14, color: node.latencyColor || C.dim, fontWeight: 600, marginTop: 2 }}>{node.latency}</div>}
-        </div>
-        {i < nodes.length - 1 && (
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "0 6px" }}>
-            <ArrowRightIcon style={{ width: 16, height: 16, color: C.border }} aria-hidden="true" />
-            {node.wire && <div style={{ fontSize: 14, color: C.dim }}>{node.wire}</div>}
+  <div style={{ overflowX: "auto", padding: "16px 0" }}>
+    {/* Node row */}
+    <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
+      {nodes.map((node, i) => (
+        <div key={i} style={{ display: "flex", alignItems: "center", flex: i < nodes.length - 1 ? 1 : undefined }}>
+          <div
+            onClick={() => onNodeClick && onNodeClick(i)}
+            {...(onNodeClick ? {
+              role: "button",
+              tabIndex: 0,
+              onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onNodeClick(i); } },
+            } : {})}
+            style={{
+              background: i === activeNode ? `${C.secondary}15` : C.card,
+              border: `1.5px solid ${i === activeNode ? C.secondary : C.border}`,
+              borderRadius: 12,
+              padding: "14px 18px",
+              minWidth: 100,
+              textAlign: "center",
+              cursor: onNodeClick ? "pointer" : "default",
+              transition: "all 0.3s ease",
+              boxShadow: i === activeNode ? `0 0 24px ${C.secondary}22` : "none",
+            }}
+          >
+            <div style={{ fontSize: 24, marginBottom: 4 }}><Icon name={node.icon} size={24} /></div>
+            <div style={{ fontSize: 14, color: i === activeNode ? C.secondary : C.muted, fontWeight: 600 }}>{node.label}</div>
+            {node.latency && <div style={{ fontSize: 14, color: node.latencyColor || C.dim, fontWeight: 600, marginTop: 2 }}>{node.latency}</div>}
           </div>
-        )}
+          {i < nodes.length - 1 && (
+            <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: "0 4px" }}>
+              <ArrowRightIcon style={{ width: 16, height: 16, color: C.border }} aria-hidden="true" />
+            </div>
+          )}
+        </div>
+      ))}
+    </div>
+    {/* Wire labels row */}
+    <div style={{ position: "relative", marginTop: 12 }}>
+      {/* Dashed line spanning full width */}
+      <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 0, borderTop: `1px dashed ${C.border}` }} />
+      {/* "Data Format" label pinned to left */}
+      <div style={{ position: "absolute", top: "50%", left: 0, transform: "translateY(-50%)", fontSize: 10, color: C.dim, textTransform: "uppercase", letterSpacing: "0.06em", fontWeight: 700, whiteSpace: "nowrap", background: C.bg, padding: "0 6px", zIndex: 1 }}>Data Format</div>
+      {/* Labels positioned over the line */}
+      <div style={{ display: "flex", alignItems: "center", gap: 0, position: "relative" }}>
+        {nodes.map((node, i) => (
+          <div key={i} style={{ display: "flex", alignItems: "center", flex: i < nodes.length - 1 ? 1 : undefined }}>
+            <div style={{ minWidth: 100, padding: "0 18px" }} />
+            {i < nodes.length - 1 && (
+              <div style={{ flex: 1, display: "flex", justifyContent: "center" }}>
+                {node.wire && <div style={{ fontSize: 11, color: C.dim, fontWeight: 600, background: C.codeBg, padding: "2px 8px", borderRadius: 4, border: `1px solid ${C.border}`, whiteSpace: "nowrap" }}>{node.wire}</div>}
+              </div>
+            )}
+          </div>
+        ))}
       </div>
-    ))}
+    </div>
   </div>
 );
 

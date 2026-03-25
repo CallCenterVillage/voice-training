@@ -826,6 +826,11 @@ exit
 ddsp-svc --input source.wav --output converted.wav && play converted.wav` },
   ],
   "Frameworks": [
+    { name: "GPT-4o Voice Mode", url: "https://platform.openai.com/docs/guides/audio", desc: "OpenAI's speech-native multimodal model — processes audio directly without separate STT/TTS steps" },
+    { name: "Moshi", url: "https://github.com/kyutai-labs/moshi", desc: "Open-source speech-native model from Kyutai — trained on audio tokens alongside text for real-time spoken dialogue" },
+    { name: "Seamless", url: "https://github.com/facebookresearch/seamless_communication", desc: "Meta's family of speech-to-speech models for multilingual translation and communication" },
+    { name: "Pipecat", url: "https://github.com/pipecat-ai/pipecat", desc: "Open-source framework from Daily.co for building real-time voice AI pipelines — WebRTC native with clean STT/LLM/TTS abstractions" },
+    { name: "Vocode", url: "https://github.com/vocodedev/vocode-core", desc: "Open-source library for building voice agents with multiple STT/LLM/TTS backends and telephony support (Twilio, Vonage)" },
     { name: "LiveKit", url: "https://github.com/livekit/livekit", desc: "Open-source real-time audio/video infrastructure",
       installCode: `# === Install LiveKit server ===
 
