@@ -67,7 +67,7 @@ export default function AttackSurfaceSection() {
     </div>
 
     <SectionDivider />
-    <QuizBank questions={[{ question: `Which attack is unique to voice agents and doesn\'t exist in text-based chatbots?`, options: ["Prompt injection", "Context manipulation", "Adversarial audio that humans and STT hear differently", "Tool abuse via function calling"], correctIndex: 2, explanation: `Adversarial audio is unique to the voice modality. While prompt injection, context manipulation, and tool abuse all exist in text chatbots too, adversarial audio exploits the gap between human and machine perception of sound — something impossible in text-only systems.` }]} />
+    <div id="knowledge-check" style={{ scrollMarginTop: 120 }}><QuizBank questions={[{ question: `Which attack is unique to voice agents and doesn\'t exist in text-based chatbots?`, options: ["Prompt injection", "Context manipulation", "Adversarial audio that humans and STT hear differently", "Tool abuse via function calling"], correctIndex: 2, explanation: `Adversarial audio is unique to the voice modality. While prompt injection, context manipulation, and tool abuse all exist in text chatbots too, adversarial audio exploits the gap between human and machine perception of sound — something impossible in text-only systems.` }]} /></div>
   </div>
   );
 }

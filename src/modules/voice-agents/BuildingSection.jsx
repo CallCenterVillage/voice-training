@@ -1,4 +1,4 @@
-import { C, CodeBlock, SectionDivider } from "../../components";
+import { C, CodeBlock, QuizBank, SectionDivider } from "../../components";
 
 export default function BuildingSection() {
   return (
@@ -13,6 +13,7 @@ export default function BuildingSection() {
     <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.7, marginBottom: 12 }}>Everything runs on your machine. No API calls, no data leaving your network.</p>
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12 }}>
       <CodeBlock language="bash" code={`# === FULLY LOCAL VOICE AGENT ===\n\n# 1. Start local LLM server (llama.cpp)\n./llama-server -m models/llama-3.1-8b-instruct.gguf \\\n  --host 0.0.0.0 --port 8080 -c 4096 -ngl 35\n\n# 2. Python agent script:\npip install faster-whisper piper-tts pyaudio numpy\n\n# agent_local.py — see full code in lab exercises`} />
+      <div style={{ marginTop: 16 }} />
       <CodeBlock language="python" code={`# agent_local.py — Minimal local voice agent skeleton\nimport pyaudio, numpy as np, requests, subprocess, io, wave\nfrom faster_whisper import WhisperModel\n\n# Init STT\nstt_model = WhisperModel("/opt/faster-whisper/models/base.en", device="cpu", compute_type="int8")\n\n# Audio settings\nRATE, CHUNK = 16000, 1024\naudio = pyaudio.PyAudio()\nstream = audio.open(format=pyaudio.paInt16, channels=1, rate=RATE,\n                    input=True, frames_per_buffer=CHUNK)\n\ndef transcribe(audio_data):\n    """Local STT with faster-whisper"""\n    segments, _ = stt_model.transcribe(audio_data, beam_size=5, vad_filter=True)\n    return " ".join([s.text for s in segments])\n\ndef think(text, history):\n    """Local LLM via llama.cpp server (OpenAI-compatible)"""\n    messages = history + [{"role": "user", "content": text}]\n    resp = requests.post("http://localhost:8080/v1/chat/completions", json={\n        "messages": messages, "max_tokens": 150, "stream": False\n    })\n    return resp.json()["choices"][0]["message"]["content"]\n\ndef speak(text):\n    """Local TTS with Piper"""\n    proc = subprocess.run(\n        ["piper", "--model", "en_US-lessac-medium.onnx", "--output_raw"],\n        input=text.encode(), capture_output=True\n    )\n    # Play proc.stdout as raw audio...\n\nprint("Agent ready. Speak into microphone...")\n# Main loop: listen → transcribe → think → speak`} />
     </div>
 
@@ -56,6 +57,9 @@ export default function BuildingSection() {
         </table>
       </div>
     </div>
+
+    <SectionDivider />
+    <div id="knowledge-check" style={{ scrollMarginTop: 120 }}><QuizBank questions={[{ question: `In the fully local agent stack, how does the Python agent communicate with the LLM?`, options: ["It loads the model directly into Python", "It sends requests to a local llama.cpp server running an OpenAI-compatible API", "It calls the OpenAI cloud API", "It uses LiveKit's built-in LLM plugin"], correctIndex: 1, explanation: `The local agent runs llama.cpp as a separate server process on localhost:8080, which exposes an OpenAI-compatible API. The Python script sends HTTP requests to this local endpoint — no cloud calls involved.` }, { question: `What does the @function_tool decorator do in the LiveKit cloud-hybrid agent example?`, options: ["It defines a new API endpoint", "It registers a function that the LLM can choose to call during a conversation", "It creates a webhook for incoming calls", "It schedules a background task"], correctIndex: 1, explanation: `The @function_tool decorator registers a Python function as a tool the LLM can invoke. When the LLM decides it needs to look up an account or transfer a call, it calls the corresponding function — this is how voice agents take real actions beyond just talking.` }, { question: `According to the architecture decision matrix, which approach offers complete data privacy?`, options: ["Cloud hybrid — data is encrypted in transit", "Both approaches offer the same level of privacy", "Fully local — nothing leaves your machine", "Neither — both send data to external services"], correctIndex: 2, explanation: `The fully local stack keeps everything on your machine — STT, LLM, and TTS all run locally. No audio or text is sent to any cloud provider. The cloud-hybrid approach sends audio and text to external services like Deepgram, OpenAI, and Cartesia.` }]} /></div>
   </div>
   );
 }

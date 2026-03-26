@@ -48,12 +48,14 @@ const SECTIONS = [
     { id: "fully-local-agent", label: "Fully Local Agent Stack" },
     { id: "cloud-hybrid-livekit", label: "Cloud-Hybrid with LiveKit" },
     { id: "architecture-decision-matrix", label: "Architecture Decision Matrix" },
+    { id: "knowledge-check", label: "Knowledge Check" },
   ] },
   { id: "attack-surface", title: "Attack Surface", icon: "magnifying-glass", anchors: [
     { id: "stt-attacks", label: "STT Attacks" },
     { id: "llm-attacks", label: "LLM Attacks" },
     { id: "tts-output-attacks", label: "TTS / Output Attacks" },
     { id: "infrastructure-attacks", label: "Infrastructure Attacks" },
+    { id: "knowledge-check", label: "Knowledge Check" },
   ] },
   { id: "lab", title: "Interactive Lab", icon: "beaker" },
 ];
