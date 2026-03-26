@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { C, QuizBank, Icon } from "../../components";
-import { AnimatedFlow, LatencyMeter, StaticCard, SectionDivider } from "./_helpers";
+import { C, QuizBank, Icon, StaticCard, SectionDivider } from "../../components";
+import { AnimatedFlow, LatencyMeter } from "./_helpers";
 
 export default function ArchitectureSection() {
   const [activeNode, setActiveNode] = useState(0);

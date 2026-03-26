@@ -9,3 +9,8 @@ export { default as InfoBox } from "./InfoBox";
 export { default as NextModuleLink } from "./NextModuleLink";
 export { default as StarRating } from "./StarRating";
 export { default as WaveformPlayer } from "./WaveformPlayer";
+export { default as SectionDivider } from "./SectionDivider";
+export { default as Lightbox } from "./Lightbox";
+export { default as StaticCard } from "./StaticCard";
+export { default as LightboxCardGrid } from "./LightboxCardGrid";
+export { default as ServiceCardGrid } from "./ServiceCardGrid";

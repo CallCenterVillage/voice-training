@@ -1,5 +1,4 @@
-import { C, CodeBlock, InfoBox } from '../../components';
-import { SectionDivider } from './_helpers';
+import { C, CodeBlock, InfoBox, SectionDivider } from '../../components';
 
 const AudioSection = () => (
   <div>

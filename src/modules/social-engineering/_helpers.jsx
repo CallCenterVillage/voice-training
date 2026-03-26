@@ -1,15 +1,8 @@
 import { useState } from "react";
-import { C, Icon } from "../../components";
+import { C, Icon, StaticCard, SectionDivider } from "../../components";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
 
-export const StaticCard = ({ title, children, color = C.secondary }) => (
-  <div style={{ background: C.card, border: `1px solid ${color}`, borderRadius: 12, marginBottom: 12, overflow: "hidden" }}>
-    <div style={{ padding: "16px 20px", fontSize: 15, fontWeight: 600, color: C.text }}>{title}</div>
-    <div style={{ padding: "0 20px 20px", color: C.muted, fontSize: 14, lineHeight: 1.8 }}>{children}</div>
-  </div>
-);
-
-export const SectionDivider = () => <hr style={{ border: "none", borderTop: "1px solid #040208", margin: "48px 0" }} />;
+export { StaticCard, SectionDivider };
 
 export const ScenarioSim = ({ title, setup, turns, lesson }) => {
   const [currentTurn, setCurrentTurn] = useState(0);

@@ -1,15 +1,8 @@
 import { useState } from "react";
-import { C, Icon } from "../../components";
+import { C, Icon, SectionDivider, StaticCard } from "../../components";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 
-export const StaticCard = ({ title, children, color = C.secondary }) => (
-  <div style={{ background: C.card, border: `1px solid ${color}`, borderRadius: 12, marginBottom: 12, overflow: "hidden" }}>
-    <div style={{ padding: "16px 20px", fontSize: 15, fontWeight: 600, color: C.text }}>{title}</div>
-    <div style={{ padding: "0 20px 20px", color: C.muted, fontSize: 14, lineHeight: 1.8 }}>{children}</div>
-  </div>
-);
-
-export const SectionDivider = () => <hr style={{ border: "none", borderTop: "1px solid #040208", margin: "48px 0" }} />;
+export { SectionDivider, StaticCard };
 
 export const SystemPromptExplainer = () => {
   const [hoveredSection, setHoveredSection] = useState(null);
@@ -49,7 +42,7 @@ export const SystemPromptExplainer = () => {
     {
       color: C.tertiary,
       title: "GUARDRAILS",
-      tooltip: "List all non-negotiable rules in a dedicated guardrails section. Models are tuned to pay extra attention to this heading. Centralize compliance rules here for easier auditing. Include handling instructions for edge cases like abusive callers or unknown answers.",
+      tooltip: "List all non-negotiable rules in a dedicated guardrails section. Some models are tuned to pay extra attention to this heading. Centralize compliance rules here for easier auditing. Include handling instructions for edge cases like abusive callers or unknown answers.",
       lines: [
         "- Never guess or make up information. If unsure, say so.",
         "- Verify caller identity before sharing any account details. This step is important.",

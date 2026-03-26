@@ -28,16 +28,21 @@ const SECTIONS = [
     { id: "cloud-llm-providers", label: "Cloud LLM Providers" },
     { id: "system-prompts", label: "System Prompts" },
     { id: "streaming-latency", label: "Streaming & Latency" },
+    { id: "knowledge-check", label: "Knowledge Check" },
   ] },
   { id: "tts", title: "Text-to-Speech (TTS)", icon: "speaker-wave", anchors: [
     { id: "local-tts-tools", label: "Local / Open-Source Tools" },
     { id: "commercial-tts", label: "Commercial Cloud Alternatives" },
     { id: "choosing-tts", label: "Choosing TTS for Your Agent" },
+    { id: "knowledge-check", label: "Knowledge Check" },
   ] },
   { id: "livekit", title: "LiveKit & Frameworks", icon: "globe", anchors: [
     { id: "livekit-agents", label: "LiveKit Agents" },
-    { id: "other-frameworks", label: "Other Frameworks" },
-    { id: "telephony", label: "Telephony" },
+    { id: "other-frameworks", label: "Other Open-Source Frameworks" },
+    { id: "commercial-platforms", label: "Commercial Platforms" },
+    { id: "telephony", label: "Open-Source Telephony" },
+    { id: "telephony-providers", label: "Telephony API Providers" },
+    { id: "knowledge-check", label: "Knowledge Check" },
   ] },
   { id: "building", title: "Building an Agent", icon: "wrench", anchors: [
     { id: "fully-local-agent", label: "Fully Local Agent Stack" },

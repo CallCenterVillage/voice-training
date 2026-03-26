@@ -1,5 +1,4 @@
-import { C, InfoBox, QuizBank } from '../../components';
-import { SectionDivider } from './_helpers';
+import { C, InfoBox, QuizBank, SectionDivider } from '../../components';
 
 const CommercialSection = () => (<div>
   <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Commercial Voice Cloning</h1>

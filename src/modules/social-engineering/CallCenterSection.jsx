@@ -1,5 +1,5 @@
-import { C, Icon } from "../../components";
-import { StaticCard, SectionDivider, ScenarioSim } from "./_helpers";
+import { C, Icon, StaticCard, SectionDivider } from "../../components";
+import { ScenarioSim } from "./_helpers";
 
 const CallCenterSection = () => (
   <div>

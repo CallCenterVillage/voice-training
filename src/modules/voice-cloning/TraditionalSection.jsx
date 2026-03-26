@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { C, CodeBlock, Icon, QuizBank } from '../../components';
-import { SectionDivider, PipelineDiagram, ToolComparison } from './_helpers';
+import { C, CodeBlock, Icon, QuizBank, SectionDivider } from '../../components';
+import { PipelineDiagram, ToolComparison } from './_helpers';
 
 const TraditionalSection = () => {
   const [activeStep, setActiveStep] = useState(0);

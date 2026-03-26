@@ -1,5 +1,4 @@
-import { C, QuizBank, Icon } from "../../components";
-import { SectionDivider } from "./_helpers";
+import { C, QuizBank, Icon, SectionDivider } from "../../components";
 
 export default function AttackSurfaceSection() {
   return (

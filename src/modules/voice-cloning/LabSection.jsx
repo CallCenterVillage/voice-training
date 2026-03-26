@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { C, CodeBlock, InfoBox, NextModuleLink } from '../../components';
-import { SectionDivider } from './_helpers';
+import { C, CodeBlock, InfoBox, NextModuleLink, SectionDivider } from '../../components';
 
 const LabSection = () => {
   const [step, setStep] = useState(0);

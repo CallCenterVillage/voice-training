@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { C, CodeBlock, NextModuleLink } from "../../components";
-import { SectionDivider } from "./_helpers";
+import { C, CodeBlock, NextModuleLink, SectionDivider } from "../../components";
 
 export default function LabSection() {
   const [exercise, setExercise] = useState(0);

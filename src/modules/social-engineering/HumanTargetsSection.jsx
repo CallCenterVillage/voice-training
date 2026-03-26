@@ -1,5 +1,5 @@
-import { C, Icon, QuizBank } from "../../components";
-import { StaticCard, SectionDivider, ScenarioSim, ThreatMeter } from "./_helpers";
+import { C, Icon, QuizBank, StaticCard, SectionDivider } from "../../components";
+import { ScenarioSim, ThreatMeter } from "./_helpers";
 
 const HumanTargetsSection = () => (
   <div>

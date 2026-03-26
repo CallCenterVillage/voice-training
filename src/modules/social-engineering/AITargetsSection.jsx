@@ -1,5 +1,5 @@
-import { C, Icon, QuizBank } from "../../components";
-import { ScenarioSim, SectionDivider } from "./_helpers";
+import { C, Icon, QuizBank, SectionDivider } from "../../components";
+import { ScenarioSim } from "./_helpers";
 
 const AITargetsSection = () => (
   <div>

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { C, CodeBlock, Icon, InfoBox, QuizBank, StarRating, WaveformPlayer } from '../../components';
-import { SectionDivider, PipelineDiagram, VocoderViz, AI_FLOW_DETAILS, Lightbox } from './_helpers';
+import { C, CodeBlock, Icon, InfoBox, QuizBank, StarRating, WaveformPlayer, SectionDivider, Lightbox } from '../../components';
+import { PipelineDiagram, VocoderViz, AI_FLOW_DETAILS } from './_helpers';
 
 const VcTargetCard = ({ color, children, expandedChildren }) => {
   const [hovered, setHovered] = useState(false);

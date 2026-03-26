@@ -1,5 +1,5 @@
-import { C, CodeBlock, Icon, InfoBox, QuizBank, StarRating } from '../../components';
-import { SectionDivider, ToolComparison } from './_helpers';
+import { C, CodeBlock, Icon, InfoBox, QuizBank, StarRating, SectionDivider } from '../../components';
+import { ToolComparison } from './_helpers';
 
 const LocalToolsSection = () => (<div>
   <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Local AI Tools</h1>

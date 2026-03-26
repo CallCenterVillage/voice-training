@@ -1,5 +1,4 @@
-import { C, Icon, QuizBank } from "../../components";
-import { StaticCard, SectionDivider } from "./_helpers";
+import { C, Icon, QuizBank, StaticCard, SectionDivider } from "../../components";
 
 const PsychologySection = () => (
   <div>

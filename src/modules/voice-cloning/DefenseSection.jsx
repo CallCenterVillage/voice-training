@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { C, CodeBlock, Icon, InfoBox, QuizBank } from '../../components';
-import { SectionDivider, ArtifactLightbox, DefenseCard, DefenseSubCard, Lightbox } from './_helpers';
+import { C, CodeBlock, Icon, InfoBox, QuizBank, SectionDivider, Lightbox } from '../../components';
+import { ArtifactLightbox, DefenseCard, DefenseSubCard } from './_helpers';
 
 const WeDefenseArchitecture = () => {
   const [open, setOpen] = useState(false);

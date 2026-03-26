@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
-import { C, QuizBank, Icon } from '../../components';
-import { SectionDivider, WaveformViz, VoiceCharacteristicCard, PitchDiagram, FormantDiagram, TimbreDiagram, ProsodyDiagram, SpectrumViz, RecommendationCard, AudioQualityCard } from './_helpers';
+import { C, QuizBank, Icon, SectionDivider } from '../../components';
+import { WaveformViz, VoiceCharacteristicCard, PitchDiagram, FormantDiagram, TimbreDiagram, ProsodyDiagram, SpectrumViz, RecommendationCard, AudioQualityCard } from './_helpers';
 
 const FundamentalsSection = () => {
   const [waveType, setWaveType] = useState("sine");
