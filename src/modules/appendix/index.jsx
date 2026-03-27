@@ -6,6 +6,7 @@ import VoiceGlossarySection, { voiceTools } from "./VoiceGlossarySection";
 import ProjectGlossarySection, { allProjectTools } from "./ProjectGlossarySection";
 import FunToolsSection, { funTools } from "./FunToolsSection";
 import AudioSection from "./AudioSection";
+import SocialEngineeringResourcesSection, { seResources } from "./SocialEngineeringResourcesSection";
 import ResourcesSection, { resources } from "./ResourcesSection";
 import BuiltWithSection, { builtWithItems } from "./BuiltWithSection";
 import ThankYouSection from "./ThankYouSection";
@@ -24,6 +25,7 @@ const SECTIONS = [
     { id: "telephone-tones", label: "Telephone Tones" },
     { id: "yt-dlp", label: "Extracting Audio (yt-dlp)" },
   ] },
+  { id: "se-resources", title: "Social Engineering", icon: "magnifying-glass" },
   { id: "resources", title: "Additional Resources", icon: "book" },
   { id: "project-credits", title: "Project Credits", icon: "code-bracket" },
   { id: "thank-you", title: "Thank You", icon: "heart", anchors: [
@@ -40,14 +42,15 @@ SECTIONS[2].anchors = voiceTools.map(t => ({ id: `voice-${toAnchorId(t.name)}`, 
 SECTIONS[3].anchors = allProjectTools.map(t => ({ id: `tool-${toAnchorId(t.name)}`, label: t.name })).sort(sortByLabel);
 SECTIONS[4].anchors = funTools.map(t => ({ id: `fun-${toAnchorId(t.name)}`, label: t.name }));
 // SECTIONS[5] = Audio Tips — anchors defined inline
-SECTIONS[6].anchors = resources.flatMap(g => g.items.map(r => ({ id: `res-${toAnchorId(r.name)}`, label: r.name }))).sort(sortByLabel);
-SECTIONS[7].anchors = [
+SECTIONS[6].anchors = seResources.map(r => ({ id: `se-${toAnchorId(r.name)}`, label: r.name })).sort(sortByLabel);
+SECTIONS[7].anchors = resources.flatMap(g => g.items.map(r => ({ id: `res-${toAnchorId(r.name)}`, label: r.name }))).sort(sortByLabel);
+SECTIONS[8].anchors = [
   { id: "bw-ai-disclosure", label: "AI Disclosure" },
   { id: "bw-getting-started", label: "Getting Started" },
   ...builtWithItems.map(t => ({ id: `bw-${toAnchorId(t.name)}`, label: t.name })),
 ];
 
-const COMPS = [IntroSection, CLIGlossarySection, VoiceGlossarySection, ProjectGlossarySection, FunToolsSection, AudioSection, ResourcesSection, BuiltWithSection, ThankYouSection];
+const COMPS = [IntroSection, CLIGlossarySection, VoiceGlossarySection, ProjectGlossarySection, FunToolsSection, AudioSection, SocialEngineeringResourcesSection, ResourcesSection, BuiltWithSection, ThankYouSection];
 
 export { SECTIONS, COMPS };
 
