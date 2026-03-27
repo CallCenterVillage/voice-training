@@ -22,13 +22,13 @@ export default function STTSection() {
 
     <h2 id="faster-whisper" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 4, scrollMarginTop: 120 }}>Faster Whisper</h2>
     <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.7, marginBottom: 12 }}>CTranslate2-based Whisper reimplementation. 4x faster than original with same accuracy. Great for real-time with VAD.</p>
-    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 24 }}>
-      <div style={{ marginBottom: 12 }}><InfoBox>
-        <strong style={{ color: C.text }}>Privacy Notice</strong>
-        <br /><br />The first run normally downloads models from Hugging Face. Pre-downloaded models are available at <code style={{ background: C.codeBg, padding: "2px 6px", borderRadius: 4, fontSize: 12 }}>/opt/faster-whisper/models/</code>
-        <br /><br />Use <code style={{ background: C.codeBg, padding: "2px 6px", borderRadius: 4, fontSize: 12 }}>--model</code> with a local path to skip Hugging Face entirely:
-        <br /><code style={{ background: C.codeBg, padding: "4px 8px", borderRadius: 4, fontSize: 12, display: "inline-block", marginTop: 4 }}>faster-whisper audio.wav --model /opt/faster-whisper/models/base.en</code>
-      </InfoBox></div>
+    <InfoBox>
+      <strong style={{ color: C.text }}>Privacy Notice</strong>
+      <br /><br />The first run normally downloads models from Hugging Face. Pre-downloaded models are available at <code style={{ background: C.codeBg, padding: "2px 6px", borderRadius: 4, fontSize: 12 }}>/opt/faster-whisper/models/</code>
+      <br /><br />Use <code style={{ background: C.codeBg, padding: "2px 6px", borderRadius: 4, fontSize: 12 }}>--model</code> with a local path to skip Hugging Face entirely:
+      <br /><code style={{ background: C.codeBg, padding: "4px 8px", borderRadius: 4, fontSize: 12, display: "inline-block", marginTop: 4 }}>faster-whisper audio.wav --model /opt/faster-whisper/models/base.en</code>
+    </InfoBox>
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 24, marginTop: 12 }}>
       <CodeBlock language="bash" code={`# Faster Whisper is pre-installed and available system-wide\n# Wrapper at /usr/local/bin/faster-whisper → /opt/faster-whisper/transcribe.py\n# Managed via uv venv at /opt/faster-whisper\n\n# Basic transcription (using local model)\nfaster-whisper audio.wav \\\n  --model /opt/faster-whisper/models/base.en\n\n# Specify device and language\nfaster-whisper audio.wav \\\n  --model /opt/faster-whisper/models/base.en \\\n  --device cpu \\\n  --language en\n\n# Use a different model\nfaster-whisper audio.wav \\\n  --model /opt/faster-whisper/models/small.en \\\n  --device cpu \\\n  --language en\n\n# Compare speed between models using time\ntime faster-whisper audio.wav \\\n  --model /opt/faster-whisper/models/tiny.en\n\ntime faster-whisper audio.wav \\\n  --model /opt/faster-whisper/models/base.en\n\ntime faster-whisper audio.wav \\\n  --model /opt/faster-whisper/models/small.en`} />
     </div>
 

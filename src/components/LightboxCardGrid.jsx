@@ -13,7 +13,7 @@ const LightboxCardGrid = ({ items }) => {
             onClick={() => setOpenIdx(i)}
             onMouseEnter={e => e.currentTarget.style.borderColor = item.color}
             onMouseLeave={e => e.currentTarget.style.borderColor = "transparent"}
-            style={{ background: C.card, border: "1px solid transparent", borderRadius: 12, padding: 14, cursor: "pointer", transition: "border-color 0.2s ease" }}
+            style={{ background: C.card, border: "1px solid transparent", borderRadius: 12, padding: 16, cursor: "pointer", transition: "border-color 0.2s ease" }}
           >
             <div style={{ color: item.color, fontWeight: 700, fontSize: 14, marginBottom: 6 }}>{item.name}</div>
             <div style={{ fontSize: 13, color: C.dim }}>Click to learn more</div>

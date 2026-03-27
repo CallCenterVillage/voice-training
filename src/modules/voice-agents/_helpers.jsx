@@ -149,7 +149,7 @@ export const AnimatedFlow = ({ nodes, activeNode = -1, onNodeClick }) => (
       ))}
     </div>
     {/* Wire labels row */}
-    <div style={{ position: "relative", marginTop: 12 }}>
+    {nodes.some(n => n.wire) && <div style={{ position: "relative", marginTop: 12 }}>
       {/* Dashed line spanning full width */}
       <div style={{ position: "absolute", top: "50%", left: 0, right: 0, height: 0, borderTop: `1px dashed ${C.border}` }} />
       {/* "Data Format" label pinned to left */}
@@ -167,7 +167,7 @@ export const AnimatedFlow = ({ nodes, activeNode = -1, onNodeClick }) => (
           </div>
         ))}
       </div>
-    </div>
+    </div>}
   </div>
 );
 

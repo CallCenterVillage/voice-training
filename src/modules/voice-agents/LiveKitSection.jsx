@@ -30,11 +30,11 @@ export default function LiveKitSection() {
     </p>
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 20 }}>
       <AnimatedFlow nodes={[
-        { icon: "phone", label: "SIP/Phone", wire: "SIP trunk" },
-        { icon: "globe", label: "LiveKit Server", wire: "WebRTC" },
-        { icon: "command-line", label: "Agent Worker", wire: "plugin" },
-        { icon: "signal", label: "STT Plugin", wire: "text" },
-        { icon: "cpu", label: "LLM Plugin", wire: "text" },
+        { icon: "phone", label: "SIP/Phone" },
+        { icon: "globe", label: "LiveKit Server" },
+        { icon: "command-line", label: "Agent Worker" },
+        { icon: "signal", label: "STT Plugin" },
+        { icon: "cpu", label: "LLM Plugin" },
         { icon: "speaker-wave", label: "TTS Plugin" },
       ]} />
       <CodeBlock language="python" code={`# Install LiveKit Agents SDK\npip install livekit-agents livekit-plugins-openai livekit-plugins-silero\n\n# Minimal voice agent with LiveKit (Agents 1.0+ API)\nfrom livekit import agents\nfrom livekit.agents import AgentServer, AgentSession, Agent, room_io\nfrom livekit.plugins import silero\n\nclass Assistant(Agent):\n    def __init__(self):\n        super().__init__(\n            instructions="You are a helpful voice AI assistant. Keep responses concise."\n        )\n\nserver = AgentServer()\n\n@server.rtc_session(agent_name="my-agent")\nasync def my_agent(ctx: agents.JobContext):\n    session = AgentSession(\n        stt="deepgram/nova-3",           # Speech-to-text\n        llm="openai/gpt-4.1-mini",       # Brain\n        tts="cartesia/sonic-3",          # Text-to-speech\n        vad=silero.VAD.load(),           # Voice activity detection\n    )\n    await session.start(room=ctx.room, agent=Assistant())\n    await session.generate_reply(\n        instructions="Greet the user and offer your assistance."\n    )\n\nif __name__ == "__main__":\n    agents.cli.run_app(server)`} />
@@ -66,7 +66,7 @@ export default function LiveKitSection() {
           { name: "RTPEngine", desc: "Open-source media proxy for RTP traffic. Often paired with Kamailio to handle audio/video relay, transcoding, and NAT traversal." },
           { name: "OpenSIPS", desc: "Open-source SIP server focused on speed and flexibility. Used for large-scale VoIP routing, load balancing, and fraud detection." },
         ].map((p, i) => (
-          <div key={i} style={{ background: C.codeBg, padding: 10, borderRadius: 8 }}>
+          <div key={i} style={{ background: C.codeBg, padding: 16, borderRadius: 8 }}>
             <div style={{ color: C.secondary, fontWeight: 700, fontSize: 14 }}>{p.name}</div>
             <div style={{ fontSize: 14, marginTop: 4 }}>{p.desc}</div>
           </div>
@@ -89,7 +89,7 @@ export default function LiveKitSection() {
           { name: "Bandwidth", desc: "Direct carrier with APIs. Owns its own network infrastructure, which can mean lower latency and better pricing at scale." },
           { name: "SignalWire", desc: "Founded by the creators of FreeSWITCH. Cloud telephony with a developer-friendly API and strong open-source roots." },
         ].map((p, i) => (
-          <div key={i} style={{ background: C.codeBg, padding: 10, borderRadius: 8 }}>
+          <div key={i} style={{ background: C.codeBg, padding: 16, borderRadius: 8 }}>
             <div style={{ color: C.secondary, fontWeight: 700, fontSize: 14 }}>{p.name}</div>
             <div style={{ fontSize: 14, marginTop: 4 }}>{p.desc}</div>
           </div>
