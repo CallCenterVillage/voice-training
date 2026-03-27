@@ -1,5 +1,5 @@
-import { C, Icon, QuizBank, StaticCard, SectionDivider } from "../../components";
-import { ScenarioSim, ThreatMeter } from "./_helpers";
+import { C, QuizBank, SectionDivider, LightboxCardGrid } from "../../components";
+import { ScenarioSim } from "./_helpers";
 
 const HumanTargetsSection = () => (
   <div>
@@ -9,18 +9,19 @@ const HumanTargetsSection = () => (
       call center agents, customer service reps, and support staff.
     </p>
 
-    <h2 id="threat-assessment" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 12, scrollMarginTop: 120 }}>Threat Assessment by Attack Type</h2>
-    <div style={{ background: C.card, borderRadius: 12, padding: 16, border: `1px solid ${C.border}`, marginBottom: 20 }}>
-      <ThreatMeter label="Pretexting / Impersonation" level={4} description="Impersonating customers, executives, vendors, or IT staff to gain account access or sensitive information." />
-      <ThreatMeter label="Vishing with Voice Cloning" level={4} description="Using AI-cloned voices of known individuals (CEO, family members) to add credibility to social engineering." />
-      <ThreatMeter label="Authority Exploitation" level={3} description="Claiming to be from management, legal, compliance, or law enforcement to bypass security procedures." />
-      <ThreatMeter label="Emotional Manipulation" level={3} description="Using anger, tears, panic, or sympathy to pressure agents into skipping verification steps." />
-      <ThreatMeter label="Multi-Channel Coordination" level={4} description="Combining phone, email, and chat attacks simultaneously to create a convincing narrative." />
-    </div>
+    <h2 id="threat-assessment" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 4, scrollMarginTop: 120 }}>Attack Types</h2>
+    <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.7, marginBottom: 12 }}>The most common social engineering techniques used against call center agents. Each exploits different psychological pressure points — and they&apos;re often combined in a single attack.</p>
+    <LightboxCardGrid items={[
+      { name: "Pretexting / Impersonation", color: C.secondary, desc: "Impersonating customers, executives, vendors, or IT staff to gain account access or sensitive information. The attacker builds a complete false identity — name, role, backstory — and uses it to establish credibility before making their real request. Effective pretexts are researched in advance using LinkedIn, company websites, and data breaches to make the story airtight." },
+      { name: "Vishing with Voice Cloning", color: C.tertiary, desc: "Using AI-cloned voices of known individuals (CEO, family members, coworkers) to add credibility to social engineering calls. With as little as 3-5 seconds of audio from a voicemail, YouTube video, or social media, an attacker can generate a convincing voice clone. When the target hears a familiar voice, they bypass their normal skepticism entirely." },
+      { name: "Authority Exploitation", color: C.accent, desc: "Claiming to be from management, legal, compliance, or law enforcement to bypass security procedures. The attacker leverages the target's instinct to defer to authority figures. Phrases like \"I'm calling from the CEO's office\" or \"This is a compliance audit\" trigger a deference response that overrides training — especially when combined with urgency." },
+      { name: "Emotional Manipulation", color: C.highlight, desc: "Using anger, tears, panic, or sympathy to pressure agents into skipping verification steps. Angry callers make agents want to de-escalate quickly. Crying callers trigger empathy that overrides procedure. Panicked callers create urgency. The emotional state becomes the attack vector — the agent's desire to help or resolve conflict becomes the vulnerability." },
+      { name: "Multi-Channel Coordination", color: C.secondary, desc: "Combining phone, email, and chat attacks simultaneously to create a convincing narrative. An attacker sends a spoofed email \"from the CFO\" requesting a wire transfer, then calls the target pretending to be the CFO's assistant to follow up. Each channel reinforces the others — the phone call validates the email, and the email validates the phone call." },
+    ]} />
     <SectionDivider />
-    <div id="the-angry-executive" style={{ scrollMarginTop: 120 }}><ScenarioSim
-      title="Scenario: The Angry Executive"
-      setup="An attacker calls a bank's call center pretending to be a high-value client's executive assistant."
+    <h2 id="the-angry-executive" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 4, scrollMarginTop: 120 }}>Scenario: The Angry Executive</h2>
+    <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.7, marginBottom: 12 }}>An attacker calls a bank&apos;s call center pretending to be a high-value client&apos;s executive assistant.</p>
+    <ScenarioSim
       turns={[
         { role: "attacker", text: "Hi, I'm calling on behalf of Robert Chen, your premier client. He's in a board meeting right now and is absolutely furious.", annotation: "Establishing authority + creating urgency" },
         { role: "target", text: "I'd be happy to help. Can I get the account number and verify some information?" },
@@ -29,11 +30,12 @@ const HumanTargetsSection = () => (
         { role: "attacker", text: "I completely understand you're following procedure, and I respect that. But you know Robert — he's been a client for 15 years, transferred over $2 million last quarter alone. I can give you his SSN, date of birth, and mother's maiden name. Will that work?", annotation: "Showing 'respect' for procedure while offering pre-researched PII" },
       ]}
       lesson="This attack combines authority (executive client), urgency (time pressure), social proof (mentioning account history), and the attacker provides real PII obtained from data breaches. Defense: Always use callback verification to the number on file, regardless of urgency claims."
-    /></div>
+    />
 
-    <div id="the-sympathetic-caller" style={{ scrollMarginTop: 120 }}><ScenarioSim
-      title="Scenario: The Sympathetic Caller"
-      setup="An attacker calls a telecom company pretending to be a domestic abuse victim trying to separate their account."
+    <SectionDivider />
+    <h2 id="the-sympathetic-caller" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 4, scrollMarginTop: 120 }}>Scenario: The Sympathetic Caller</h2>
+    <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.7, marginBottom: 12 }}>An attacker calls a telecom company pretending to be a domestic abuse victim trying to separate their account.</p>
+    <ScenarioSim
       turns={[
         { role: "attacker", text: "(speaking softly, emotional) Hi... I need help. I'm trying to separate my phone account from my husband's. I had to leave suddenly and I... I don't have the account PIN because he controlled everything.", annotation: "Creating sympathy + plausible scenario that explains lack of credentials" },
         { role: "target", text: "I'm so sorry to hear that. Let me see how I can help. I do need some verification..." },
@@ -42,26 +44,18 @@ const HumanTargetsSection = () => (
         { role: "attacker", text: "Thank you so much. You're the first person who's actually listened to me. I just need my own number transferred to a new account. That's all I need. Then I can start rebuilding my life.", annotation: "Reciprocity (gratitude) + making the ask seem small and reasonable" },
       ]}
       lesson="This is one of the most difficult attacks to defend against because it weaponizes empathy. The agent wants to help a person in distress. Defense: Have a dedicated, trained team for sensitive situations with special verification procedures. Never skip security because of emotional pressure — have an escalation path that's both secure AND compassionate."
-    /></div>
+    />
     <SectionDivider />
-    <div id="pretexting-personas" style={{ scrollMarginTop: 120 }}><StaticCard title={<><Icon name="clipboard" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />Common Pretexting Personas</>}>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-        {[
-          { persona: "IT Support / Helpdesk", goal: "Get credentials, install remote access", tells: "Asks for passwords, wants to install software" },
-          { persona: "New Employee", goal: "Get internal information, processes", tells: "Asks overly specific questions about systems" },
-          { persona: "Vendor / Contractor", goal: "Access systems, physical entry", tells: "Name-drops but can't verify contract details" },
-          { persona: "Law Enforcement", goal: "Get customer data without warrant", tells: "Demands urgency, avoids formal channels" },
-          { persona: "Executive Assistant", goal: "Wire transfers, account changes", tells: "Always urgent, executive is 'unavailable'" },
-          { persona: "Fellow Employee (spoofed)", goal: "Internal transfers, policy overrides", tells: "Spoofed caller ID, unusual requests" },
-        ].map((p, i) => (
-          <div key={i} style={{ background: C.codeBg, padding: 12, borderRadius: 8 }}>
-            <div style={{ color: C.secondary, fontWeight: 700, fontSize: 14, marginBottom: 4 }}>{p.persona}</div>
-            <div style={{ fontSize: 14, marginBottom: 4 }}><strong style={{ color: C.text }}>Goal:</strong> {p.goal}</div>
-            <div style={{ fontSize: 14 }}><strong style={{ color: C.accent }}>Red Flags:</strong> {p.tells}</div>
-          </div>
-        ))}
-      </div>
-    </StaticCard></div>
+    <h2 id="pretexting-personas" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 4, scrollMarginTop: 120 }}>Common Pretexting Personas</h2>
+    <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.7, marginBottom: 12 }}>Pretexting is the art of creating a fabricated scenario to extract information. These are the most common identities attackers assume when targeting call centers — each designed to exploit a different trust relationship.</p>
+    <LightboxCardGrid items={[
+      { name: "IT Support / Helpdesk", color: C.secondary, desc: "Goal: Get credentials, install remote access.\n\nThe attacker poses as internal IT, often claiming there's an urgent security issue or system update. They ask for passwords, request remote desktop access, or direct the target to install software. This works because employees are conditioned to cooperate with IT and rarely verify that the caller is actually from the department.\n\nRed Flags: Asks for passwords (real IT never does), wants to install software remotely, creates urgency around a \"security incident\" you haven't heard about." },
+      { name: "New Employee", color: C.secondary, desc: "Goal: Get internal information and processes.\n\nThe attacker pretends to be recently hired and \"still learning the ropes.\" They ask seemingly innocent questions about internal systems, procedures, org structure, and tools — information that helps them plan a more targeted attack later. People naturally want to help new colleagues.\n\nRed Flags: Asks overly specific questions about systems they wouldn't need access to, can't provide employee ID or manager name when pressed, contacts multiple departments with similar questions." },
+      { name: "Vendor / Contractor", color: C.accent, desc: "Goal: Access systems or gain physical entry.\n\nThe attacker claims to be from a known vendor or contracted service provider. They name-drop real employees or reference real projects to build credibility, then request access to systems, data, or facilities. Companies work with so many vendors that it's hard to verify every one.\n\nRed Flags: Name-drops but can't verify contract details, doesn't have a valid purchase order or ticket number, pushes back when asked to go through procurement." },
+      { name: "Law Enforcement", color: C.accent, desc: "Goal: Get customer data without a warrant.\n\nThe attacker impersonates a police officer, FBI agent, or other authority figure demanding immediate access to customer records for an \"active investigation.\" They rely on the target's instinct to defer to law enforcement and fear of obstructing justice.\n\nRed Flags: Demands urgency and avoids formal legal channels, won't provide a case number or subpoena, threatens consequences for non-compliance, calls directly instead of going through the legal department." },
+      { name: "Executive Assistant", color: C.highlight, desc: "Goal: Wire transfers or account changes.\n\nThe attacker claims to be calling on behalf of a C-level executive who is \"in a meeting\" or \"traveling\" and can't call themselves. The request is always urgent — a wire transfer, an account update, or access to sensitive data. The executive's unavailability conveniently prevents verification.\n\nRed Flags: The executive is always unavailable for callback, extreme time pressure on financial transactions, requests bypass normal approval workflows, provides partial account details obtained from breaches." },
+      { name: "Fellow Employee (spoofed)", color: C.highlight, desc: "Goal: Internal transfers or policy overrides.\n\nThe attacker spoofs the caller ID to show an internal extension or a known employee's number, then requests internal transfers, policy exceptions, or sensitive information. The spoofed number provides instant false credibility.\n\nRed Flags: Caller ID shows internal number but voice is unfamiliar, unusual requests that don't match the supposed caller's role, can't answer personal questions a real colleague would know, requests that bypass normal approval chains." },
+    ]} />
     <SectionDivider />
     <QuizBank questions={[{ question: `A caller claims to be from law enforcement and demands immediate access to a customer's records 'before they flee the country.' What should the agent do?`, options: [
         "Comply immediately — law enforcement requests are urgent",

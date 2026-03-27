@@ -75,6 +75,7 @@ import {
   ArrowDownTrayIcon,
   CircleStackIcon,
   HeartIcon,
+  EyeSlashIcon,
 } from "@heroicons/react/24/outline";
 
 const iconMap = {
@@ -156,6 +157,7 @@ const iconMap = {
   download: ArrowDownTrayIcon,
   database: CircleStackIcon,
   heart: HeartIcon,
+  "eye-slash": EyeSlashIcon,
 };
 
 const Icon = ({ name, size = 20, className, style, ...props }) => {

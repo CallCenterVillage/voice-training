@@ -8,9 +8,9 @@ export const ScenarioSim = ({ title, setup, turns, lesson }) => {
   const [currentTurn, setCurrentTurn] = useState(0);
   const [showLesson, setShowLesson] = useState(false);
   return (
-    <div style={{ background: C.card, border: `1px solid ${C.secondary}33`, borderRadius: 12, padding: 20, marginBottom: 16 }}>
-      <div style={{ fontSize: 14, fontWeight: 700, color: C.secondary, marginBottom: 8 }}><Icon name="user-group" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />{title}</div>
-      <div style={{ fontSize: 14, color: C.muted, marginBottom: 16, lineHeight: 1.6, fontStyle: "italic" }}>{setup}</div>
+    <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 16 }}>
+      {title && <div style={{ fontSize: 14, fontWeight: 700, color: C.secondary, marginBottom: 8 }}><Icon name="shield-exclamation" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />{title}</div>}
+      {setup && <div style={{ fontSize: 14, color: C.muted, marginBottom: 16, lineHeight: 1.6, fontStyle: "italic" }}>{setup}</div>}
       <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
         {turns.slice(0, currentTurn + 1).map((turn, i) => (
           <div key={i} style={{
@@ -21,10 +21,10 @@ export const ScenarioSim = ({ title, setup, turns, lesson }) => {
               width: 32, height: 32, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, flexShrink: 0,
               background: turn.role === "attacker" ? `${C.secondary}20` : turn.role === "agent" ? `${C.highlight}20` : `${C.accent}20`,
             }}>
-              {turn.role === "attacker" ? <Icon name="user-group" size={16} /> : turn.role === "agent" ? <Icon name="command-line" size={16} /> : <Icon name="user" size={16} />}
+              {turn.role === "attacker" ? <Icon name="shield-exclamation" size={16} /> : turn.role === "agent" ? <Icon name="command-line" size={16} /> : <Icon name="user" size={16} />}
             </div>
             <div style={{
-              background: C.codeBg, borderRadius: 10, padding: "10px 14px", maxWidth: "75%",
+              background: C.codeBg, borderRadius: 10, padding: "18px 22px", maxWidth: "75%",
               border: `1px solid ${turn.role === "attacker" ? `${C.secondary}22` : turn.role === "agent" ? `${C.highlight}22` : `${C.accent}22`}`,
             }}>
               <div style={{ fontSize: 12, color: turn.role === "attacker" ? C.secondary : turn.role === "agent" ? C.highlight : C.accent, fontWeight: 700, marginBottom: 4, textTransform: "uppercase" }}>
@@ -32,7 +32,7 @@ export const ScenarioSim = ({ title, setup, turns, lesson }) => {
               </div>
               <div style={{ fontSize: 14, color: C.text, lineHeight: 1.6 }}>{turn.text}</div>
               {turn.annotation && (
-                <div style={{ fontSize: 14, color: C.secondary, marginTop: 6, fontStyle: "italic", borderTop: `1px solid ${C.border}`, paddingTop: 6 }}>
+                <div style={{ fontSize: 14, color: C.accent, fontWeight: 600, marginTop: 6, fontStyle: "italic", borderTop: `1px solid ${C.border}`, paddingTop: 6 }}>
                   <Icon name="bolt" size={14} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 4 }} />{turn.annotation}
                 </div>
               )}
@@ -57,8 +57,14 @@ export const ScenarioSim = ({ title, setup, turns, lesson }) => {
         )}
       </div>
       {showLesson && (
-        <div style={{ marginTop: 12, padding: 12, background: `${C.accent}08`, border: `1px solid ${C.accent}33`, borderRadius: 8, fontSize: 14, color: C.muted, lineHeight: 1.6 }}>
-          <Icon name="academic" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />{lesson}
+        <div style={{ marginTop: 12, padding: 16, background: `${C.accent}18`, border: `1px solid ${C.accent}55`, borderRadius: 8, fontSize: 14, color: C.text, lineHeight: 1.6 }}>
+          {(() => {
+            const parts = typeof lesson === "string" ? lesson.split(/Defense:\s*/) : [lesson];
+            return (<>
+              <div><Icon name="academic" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />{parts[0]}</div>
+              {parts[1] && (<div style={{ marginTop: 12, paddingTop: 12, borderTop: `1px solid ${C.accent}33` }}><strong style={{ color: C.accent }}>Defense:</strong> {parts[1]}</div>)}
+            </>);
+          })()}
         </div>
       )}
     </div>
