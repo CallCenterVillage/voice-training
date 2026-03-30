@@ -9,7 +9,7 @@ export const C = {
   border: "#1c1830",
   text: "#d4d0e8",
   muted: "#9e97c0",
-  dim: "#7a72a0",
+  dim: "#9a91be",
   headerBg: "#0c0a14",
   codeBg: "#06040c",
 };

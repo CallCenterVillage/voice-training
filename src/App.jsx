@@ -68,6 +68,7 @@ export default function App() {
 
   return (
     <div style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
+      <style>{`*:focus-visible { outline: 2px solid #38b6ff; outline-offset: 2px; }`}</style>
       <nav aria-label="Module switcher" style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 9999,
         background: `${C.bg}ee`, borderBottom: `1px solid ${C.border}`,

@@ -8,7 +8,9 @@ const ArtifactLightbox = ({ sign, desc, renderViz }) => {
   return (
     <>
       <div
+        role="button" tabIndex={0} aria-label={sign}
         onClick={() => setOpen(true)}
+        onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(true); } }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         style={{ background: "#06040c", padding: 14, borderRadius: 8, cursor: "pointer", border: `1px solid ${hovered ? C.tertiary : "transparent"}`, transition: "border-color 0.2s ease" }}
@@ -34,7 +36,9 @@ const AudioQualityCard = ({ title, children }) => {
   return (
     <>
       <div
+        role="button" tabIndex={0} aria-label={title}
         onClick={() => setOpen(true)}
+        onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(true); } }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         style={{
@@ -63,7 +67,9 @@ const RecommendationCard = ({ label, value, ideal, detail }) => {
   return (
     <>
       <div
+        role="button" tabIndex={0} aria-label={label}
         onClick={() => setOpen(true)}
+        onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(true); } }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         style={{ background: "#06040c", padding: "28px 10px", borderRadius: 8, textAlign: "center", border: `1px solid ${hovered ? C.accent : C.border}`, cursor: "pointer", transition: "border-color 0.2s ease" }}
@@ -90,7 +96,9 @@ const VoiceCharacteristicCard = ({ name, desc, diagram }) => {
   return (
     <>
       <div
+        role="button" tabIndex={0} aria-label={name}
         onClick={() => setOpen(true)}
+        onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(true); } }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         style={{ background: "#06040c", padding: 14, borderRadius: 8, border: `1px solid ${hovered ? C.accent : C.border}`, cursor: "pointer", transition: "border-color 0.2s ease" }}

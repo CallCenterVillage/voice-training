@@ -53,7 +53,11 @@ const LightboxCardGrid = ({ items }) => {
         {items.map((item, i) => (
           <div
             key={i}
+            role="button"
+            tabIndex={0}
+            aria-label={item.name}
             onClick={() => setOpenIdx(i)}
+            onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpenIdx(i); } }}
             onMouseEnter={e => e.currentTarget.style.borderColor = item.color}
             onMouseLeave={e => e.currentTarget.style.borderColor = "transparent"}
             style={{ background: C.card, border: "1px solid transparent", borderRadius: 12, padding: 16, cursor: "pointer", transition: "border-color 0.2s ease" }}
@@ -64,8 +68,8 @@ const LightboxCardGrid = ({ items }) => {
         ))}
       </div>
       {openIdx !== null && (
-        <Lightbox onClose={() => setOpenIdx(null)}>
-          <div style={{ fontSize: 24, color: items[openIdx].color, fontWeight: 700, marginBottom: 16 }}>{items[openIdx].name}</div>
+        <Lightbox onClose={() => setOpenIdx(null)} ariaLabelledBy="lightbox-card-title">
+          <div id="lightbox-card-title" style={{ fontSize: 24, color: items[openIdx].color, fontWeight: 700, marginBottom: 16 }}>{items[openIdx].name}</div>
           {renderDesc(items[openIdx].desc, items[openIdx].color, "large")}
         </Lightbox>
       )}

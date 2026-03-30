@@ -31,8 +31,11 @@ const TrainingShell = ({ sections, sectionComponents, moduleTitle, logoUrl = "/i
     return () => window.removeEventListener("scroll", onScroll);
   }, [anchors, currentSection, topOffset]);
 
+  const [skipFocused, setSkipFocused] = useState(false);
+
   return (
     <div style={{ minHeight: "100vh", background: C.bg, color: C.text, fontFamily: "'Inter', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
+      <a href="#main-content" onFocus={() => setSkipFocused(true)} onBlur={() => setSkipFocused(false)} style={{ position: "absolute", top: skipFocused ? topOffset + 52 : -40, left: 16, background: C.accent, color: "#000", padding: "8px 16px", borderRadius: 6, fontSize: 14, fontWeight: 700, zIndex: 10000, textDecoration: "none", transition: "top 0.2s ease" }}>Skip to main content</a>
 
       <header style={{ background: C.headerBg, borderBottom: `1px solid ${C.border}`, padding: "10px 12px", display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: topOffset, zIndex: 160 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -107,7 +110,7 @@ const TrainingShell = ({ sections, sectionComponents, moduleTitle, logoUrl = "/i
             </div>
           </>}
         </aside>
-        <main className="training-content-area" style={{ flex: 1, maxWidth: 960, padding: "24px 12px 60vh 48px", width: "100%" }}><Section /></main>
+        <main id="main-content" tabIndex={-1} className="training-content-area" style={{ flex: 1, maxWidth: 960, padding: "24px 12px 60vh 48px", width: "100%" }}><Section /></main>
       </div>
       <style>{`@media (min-width: 1280px) { .anchor-nav { display: block !important; } .training-content-area { max-width: 1040px !important; } }`}</style>
 

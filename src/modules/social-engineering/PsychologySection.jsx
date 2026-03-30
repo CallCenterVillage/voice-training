@@ -32,12 +32,12 @@ const PsychologySection = () => {
       Robert Cialdini&apos;s six principles of influence are the foundation of persuasion psychology — and they map directly to social engineering tactics. What makes them powerful in a call center context is that the same principles work against both human agents and AI agents, just with different delivery. Toggle between the two to see how each principle is weaponized differently depending on the target.
     </p>
     {(() => { const activeColor = targetMode === "human" ? C.secondary : C.highlight; return (<>
-    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0 }}>
+    <div role="tablist" aria-label="Target type" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 0 }}>
       {[
         { key: "human", label: "vs Humans", color: C.secondary },
         { key: "ai", label: "vs AI Agents", color: C.highlight },
       ].map(t => (
-        <button key={t.key} onClick={() => setTargetMode(t.key)} style={{
+        <button key={t.key} role="tab" aria-selected={targetMode === t.key} onClick={() => setTargetMode(t.key)} style={{
           background: targetMode === t.key ? `${t.color}15` : C.card,
           border: `1px solid ${targetMode === t.key ? `${t.color}55` : C.border}`,
           borderBottom: targetMode === t.key ? `1px solid ${t.color}15` : `1px solid ${C.border}`,
@@ -51,10 +51,12 @@ const PsychologySection = () => {
         </button>
       ))}
     </div>
-    <div style={{ background: `${activeColor}15`, border: `1px solid ${activeColor}55`, borderTop: "none", borderRadius: "0 0 12px 12px", padding: 16, marginBottom: 24, transition: "background 0.3s ease" }}>
+    <div role="tabpanel" style={{ background: `${activeColor}15`, border: `1px solid ${activeColor}55`, borderTop: "none", borderRadius: "0 0 12px 12px", padding: 16, marginBottom: 24, transition: "background 0.3s ease" }}>
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
         {CIALDINI.map((p, i) => (
-          <div key={i} onClick={() => setOpenPrinciple(i)}
+          <div key={i} role="button" tabIndex={0} aria-label={p.name}
+            onClick={() => setOpenPrinciple(i)}
+            onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpenPrinciple(i); } }}
             onMouseEnter={e => e.currentTarget.style.borderColor = p.color}
             onMouseLeave={e => e.currentTarget.style.borderColor = C.border}
             style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, cursor: "pointer", transition: "border-color 0.2s ease" }}>
@@ -70,8 +72,8 @@ const PsychologySection = () => {
       </div>
     </div>
     {openPrinciple !== null && (
-      <Lightbox onClose={() => setOpenPrinciple(null)}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+      <Lightbox onClose={() => setOpenPrinciple(null)} ariaLabelledBy="principle-lightbox-title">
+        <div id="principle-lightbox-title" style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
           <Icon name={CIALDINI[openPrinciple].icon} size={28} />
           <span style={{ fontSize: 22, fontWeight: 700, color: CIALDINI[openPrinciple].color }}>{CIALDINI[openPrinciple].name}</span>
         </div>

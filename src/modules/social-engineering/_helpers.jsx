@@ -56,7 +56,7 @@ export const ScenarioSim = ({ title, setup, turns, lesson }) => {
           </button>
         )}
       </div>
-      {showLesson && (
+      <div aria-live="polite">{showLesson && (
         <div style={{ marginTop: 12, padding: 16, background: `${C.accent}18`, border: `1px solid ${C.accent}55`, borderRadius: 8, fontSize: 14, color: C.text, lineHeight: 1.6 }}>
           {(() => {
             const parts = typeof lesson === "string" ? lesson.split(/Defense:\s*/) : [lesson];
@@ -66,7 +66,7 @@ export const ScenarioSim = ({ title, setup, turns, lesson }) => {
             </>);
           })()}
         </div>
-      )}
+      )}</div>
     </div>
   );
 };

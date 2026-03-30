@@ -126,7 +126,7 @@ const QuizBank = ({ questions }) => {
           <button onClick={reset} aria-label="Reset quiz" style={{ background: "none", border: `1px solid ${C.border}`, borderRadius: 6, padding: "8px 12px", color: C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 14, display: "flex", alignItems: "center", gap: 4 }}><ArrowPathIcon style={{ width: 14, height: 14 }} aria-hidden="true" /> Reset</button>
         </div>
       </div>
-      <div style={{ fontSize: 14, color: C.text, marginBottom: 14, lineHeight: 1.6 }}>{q.question}</div>
+      <div aria-live="polite" aria-atomic="true" style={{ fontSize: 14, color: C.text, marginBottom: 14, lineHeight: 1.6 }}>{q.question}</div>
       <div role="group" aria-label="Answer options" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
         {q.options.map((opt, i) => {
           const isCorrect = i === q.correctIndex, isSelected = i === selected;

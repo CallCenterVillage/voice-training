@@ -1,7 +1,7 @@
 import { C, QuizBank, SectionDivider } from "../../components";
 
 const AttackDiagram = ({ nodes, attackLabel, attackColor, attackFrom, attackTo }) => (
-  <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "24px 20px", marginBottom: 16, position: "relative", overflow: "hidden" }}>
+  <figure role="figure" aria-label={attackLabel} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "24px 20px", marginBottom: 16, position: "relative", overflow: "hidden", margin: 0 }}>
     {/* Pipeline row */}
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0 }}>
       {nodes.map((node, i) => (
@@ -32,7 +32,7 @@ const AttackDiagram = ({ nodes, attackLabel, attackColor, attackFrom, attackTo }
         <div style={{ fontSize: 12, fontWeight: 600, color: attackColor }}>{attackLabel}</div>
       </div>
     </div>
-  </div>
+  </figure>
 );
 
 export default function AttackSurfaceSection() {
