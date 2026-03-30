@@ -33,6 +33,13 @@ const TrainingShell = ({ sections, sectionComponents, moduleTitle, logoUrl = "/i
 
   const [skipFocused, setSkipFocused] = useState(false);
 
+  useEffect(() => {
+    if (!navOpen) return;
+    const handleEscape = (e) => { if (e.key === "Escape") setNavOpen(false); };
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, [navOpen]);
+
   return (
     <div style={{ minHeight: "100vh", background: C.bg, color: C.text, fontFamily: "'Inter', 'Segoe UI', sans-serif", display: "flex", flexDirection: "column" }}>
       <a href="#main-content" onFocus={() => setSkipFocused(true)} onBlur={() => setSkipFocused(false)} style={{ position: "absolute", top: skipFocused ? topOffset + 52 : -40, left: 16, background: C.accent, color: "#000", padding: "8px 16px", borderRadius: 6, fontSize: 14, fontWeight: 700, zIndex: 10000, textDecoration: "none", transition: "top 0.2s ease" }}>Skip to main content</a>

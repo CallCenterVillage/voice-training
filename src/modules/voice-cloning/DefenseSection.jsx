@@ -6,7 +6,7 @@ const WeDefenseArchitecture = () => {
   const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
   return (<>
-    <div onClick={() => setOpen(true)} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} style={{ background: C.card, border: `1px solid ${hovered ? C.accent : C.border}`, borderRadius: 12, padding: 20, marginBottom: 24, cursor: "zoom-in", transition: "border-color 0.2s ease" }}>
+    <div role="button" tabIndex={0} aria-label="WeDefense Architecture — click to enlarge" onClick={() => setOpen(true)} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(true); } }} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} style={{ background: C.card, border: `1px solid ${hovered ? C.accent : C.border}`, borderRadius: 12, padding: 20, marginBottom: 24, cursor: "zoom-in", transition: "border-color 0.2s ease" }}>
       <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 12 }}>WeDefense Architecture</div>
       <div style={{ background: `linear-gradient(135deg, ${C.primary}, ${C.accent})`, borderRadius: 8, padding: 16 }}>
         <img src="/images/wedefense-architecture.png" alt="WeDefense toolkit architecture diagram" style={{ width: "100%", borderRadius: 4, display: "block" }} />

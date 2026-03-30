@@ -7,7 +7,9 @@ const VcTargetCard = ({ color, children, expandedChildren }) => {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <div onClick={() => setOpen(true)} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
+      <div role="button" tabIndex={0} onClick={() => setOpen(true)}
+        onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(true); } }}
+        onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
         style={{ background: `${color}10`, border: `1px solid ${hovered ? color : `${color}33`}`, borderRadius: 8, padding: 14, cursor: "pointer", transition: "border-color 0.2s ease" }}>
         {children}
       </div>

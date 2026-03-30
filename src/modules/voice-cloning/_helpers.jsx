@@ -933,7 +933,9 @@ const DefenseSubCard = ({ title, desc, link, linkLabel }) => {
   return (
     <>
       <div
+        role="button" tabIndex={0} aria-label={title}
         onClick={() => setOpen(true)}
+        onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(true); } }}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
         style={{ background: C.codeBg, border: `1px solid ${hovered ? C.accent : C.border}`, borderRadius: 8, padding: 16, cursor: "pointer", transition: "border-color 0.2s ease" }}

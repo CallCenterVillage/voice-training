@@ -1,9 +1,9 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { C } from "./colors";
 import { BeakerIcon, ArrowPathIcon, CheckCircleIcon, XCircleIcon, ArrowRightIcon, TrophyIcon } from "@heroicons/react/24/outline";
 
-const shuffleQuestions = (questions) =>
-  questions.map(q => {
+const shuffleQuestions = (questions) => {
+  const mapped = questions.map((q, origIdx) => {
     const indices = q.options.map((_, i) => i);
     for (let i = indices.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
@@ -11,10 +11,17 @@ const shuffleQuestions = (questions) =>
     }
     return {
       ...q,
+      _id: origIdx,
       options: indices.map(i => q.options[i]),
       correctIndex: indices.indexOf(q.correctIndex),
     };
   });
+  for (let i = mapped.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [mapped[i], mapped[j]] = [mapped[j], mapped[i]];
+  }
+  return mapped;
+};
 
 const quizWrapStyle = {
   background: `radial-gradient(ellipse at 20% 50%, #1a1145 0%, transparent 70%),
@@ -88,7 +95,7 @@ const QuizBank = ({ questions }) => {
             const answer = answers[qi];
             const wasCorrect = answer?.correct;
             return (
-              <div key={qi} style={{ background: C.codeBg, borderRadius: 8, padding: 14, border: `1px solid ${wasCorrect ? `${C.secondary}44` : "#ef444444"}` }}>
+              <div key={question._id} style={{ background: C.codeBg, borderRadius: 8, padding: 14, border: `1px solid ${wasCorrect ? `${C.secondary}44` : "#ef444444"}` }}>
                 <div style={{ display: "flex", alignItems: "flex-start", gap: 8, marginBottom: 8 }}>
                   {wasCorrect
                     ? <CheckCircleIcon style={{ width: 18, height: 18, color: "#22c55e", flexShrink: 0, marginTop: 1 }} aria-hidden="true" />
