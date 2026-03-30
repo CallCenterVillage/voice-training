@@ -129,9 +129,15 @@ const QuizBank = ({ questions }) => {
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
         <div style={{ fontSize: 14, fontWeight: 600, color: C.text, display: "flex", alignItems: "center", gap: 6 }}><BeakerIcon style={{ width: 16, height: 16 }} aria-hidden="true" /> Question {qIdx + 1} / {shuffled.length}</div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-          {answers.length > 0 && <span style={{ fontSize: 14, color: C.accent, fontWeight: 700, background: `${C.accent}15`, padding: "6px 10px", borderRadius: 4 }}>Score: {score}/{answers.length}</span>}
+          {answers.length > 0 && <>
+            <span style={{ fontSize: 14, color: C.accent, fontWeight: 700, background: `${C.accent}15`, padding: "6px 10px", borderRadius: 4 }}>{Math.round((score / answers.length) * 100)}%</span>
+            <span style={{ fontSize: 14, color: C.muted, fontWeight: 600, background: `${C.border}`, padding: "6px 10px", borderRadius: 4 }}>{score}/{answers.length} correct</span>
+          </>}
           <button onClick={reset} aria-label="Reset quiz" style={{ background: "none", border: `1px solid ${C.border}`, borderRadius: 6, padding: "8px 12px", color: C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 14, display: "flex", alignItems: "center", gap: 4 }}><ArrowPathIcon style={{ width: 14, height: 14 }} aria-hidden="true" /> Reset</button>
         </div>
+      </div>
+      <div style={{ height: 3, borderRadius: 2, background: C.codeBg, marginBottom: 14 }}>
+        <div style={{ height: "100%", borderRadius: 2, background: C.accent, width: `${((qIdx + 1) / shuffled.length) * 100}%`, transition: "width 0.3s ease" }} />
       </div>
       <div aria-live="polite" aria-atomic="true" style={{ fontSize: 14, color: C.text, marginBottom: 14, lineHeight: 1.6 }}>{q.question}</div>
       <div role="group" aria-label="Answer options" style={{ display: "flex", flexDirection: "column", gap: 8 }}>
