@@ -6,7 +6,7 @@ const Lightbox = ({ children, onClose, ariaLabelledBy }) => {
   const previousFocus = useRef(null);
 
   const handleKeyDown = useCallback((e) => {
-    if (e.key === "Escape") { onClose(); return; }
+    if (e.key === "Escape") { e.stopPropagation(); onClose(); return; }
     if (e.key !== "Tab") return;
     const dialog = dialogRef.current;
     if (!dialog) return;

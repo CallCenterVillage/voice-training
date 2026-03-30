@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { C, QuizBank, Icon, StaticCard, SectionDivider } from "../../components";
+import { C, QuizBank, SectionDivider } from "../../components";
 import { AnimatedFlow, LatencyMeter } from "./_helpers";
 
 export default function ArchitectureSection() {

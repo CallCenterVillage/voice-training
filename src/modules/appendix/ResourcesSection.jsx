@@ -52,13 +52,6 @@ export const resources = [
 const allResources = resources.flatMap(g => g.items.map(r => ({ ...r, category: g.category })))
   .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: "base" }));
 
-const resourceTagColors = {
-  "Hugging Face": C.accent,
-  "Legal & Regulatory": C.tertiary,
-  "Security Frameworks": C.secondary,
-  "Reference": C.highlight,
-};
-
 const ResourcesSection = () => (
   <div>
     <h1 style={{ fontSize: 28, fontWeight: 800, color: C.text, marginBottom: 8 }}>Additional Resources</h1>

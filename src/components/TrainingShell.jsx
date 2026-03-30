@@ -35,7 +35,7 @@ const TrainingShell = ({ sections, sectionComponents, moduleTitle, logoUrl = "/i
 
   useEffect(() => {
     if (!navOpen) return;
-    const handleEscape = (e) => { if (e.key === "Escape") setNavOpen(false); };
+    const handleEscape = (e) => { if (e.key === "Escape" && !document.querySelector('[role="dialog"]')) setNavOpen(false); };
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
   }, [navOpen]);

@@ -160,7 +160,7 @@ const iconMap = {
   "eye-slash": EyeSlashIcon,
 };
 
-const Icon = ({ name, size = 20, className, style, ...props }) => {
+const Icon = ({ name, size = 20, _className, style, ...props }) => {
   const IconComponent = iconMap[name];
   if (!IconComponent) return null;
   return (

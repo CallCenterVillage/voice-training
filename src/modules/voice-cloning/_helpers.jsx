@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from "react";
-import { C, CodeBlock, Icon, InfoBox, Lightbox } from '../../components';
+import { C, CodeBlock, Icon, Lightbox } from '../../components';
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 
 const ArtifactLightbox = ({ sign, desc, renderViz }) => {
@@ -245,24 +245,32 @@ const WaveformViz = forwardRef(({ type = "sine", onPlayingChange }, ref) => {
 
   useEffect(() => { onPlayingChange?.(playing); }, [playing, onPlayingChange]);
 
-  const stopAudio = useCallback(() => {
+  const stopAudioHardware = useCallback(() => {
     const a = audioRef.current;
     if (a.source) {
-      try { a.source.stop?.(); } catch (e) { /* already stopped */ }
-      try { a.source.disconnect(); } catch (e) { /* already disconnected */ }
+      try { a.source.stop?.(); } catch { /* already stopped */ }
+      try { a.source.disconnect(); } catch { /* already disconnected */ }
       a.source = null;
     }
     playingRef.current = false;
-    setPlaying(false);
   }, []);
 
+  const stopAudio = useCallback(() => {
+    stopAudioHardware();
+    setPlaying(false);
+  }, [stopAudioHardware]);
+
   // Stop audio when waveform type changes
-  useEffect(() => { stopAudio(); }, [type, stopAudio]);
+  useEffect(() => {
+    stopAudioHardware();
+    // Defer state update to avoid synchronous setState in effect body
+    queueMicrotask(() => setPlaying(false));
+  }, [type, stopAudioHardware]);
 
   // Cleanup on unmount
   useEffect(() => () => {
     const a = audioRef.current;
-    if (a.source) { try { a.source.stop?.(); } catch (e) {} try { a.source.disconnect(); } catch (e) {} }
+    if (a.source) { try { a.source.stop?.(); } catch {} try { a.source.disconnect(); } catch {} }
     if (a.ctx && a.ctx.state !== "closed") { a.ctx.close(); }
   }, []);
 
@@ -281,7 +289,7 @@ const WaveformViz = forwardRef(({ type = "sine", onPlayingChange }, ref) => {
     return audioRef.current;
   };
 
-  const playOscillator = async (oscType) => {
+  const playOscillator = useCallback(async (oscType) => {
     const { ctx, analyser } = ensureAudioCtx();
     if (ctx.state === "suspended") await ctx.resume();
     const osc = ctx.createOscillator();
@@ -299,7 +307,7 @@ const WaveformViz = forwardRef(({ type = "sine", onPlayingChange }, ref) => {
     audioRef.current.source = osc;
     playingRef.current = true;
     setPlaying(true);
-  };
+  }, []);
 
   const synthesizeVowel = (ctx) => {
     // Create a formant-synthesized "ahh" vowel — demonstrates voice complexity without needing an audio file
@@ -337,7 +345,7 @@ const WaveformViz = forwardRef(({ type = "sine", onPlayingChange }, ref) => {
     return buffer;
   };
 
-  const playVoice = async () => {
+  const playVoice = useCallback(async () => {
     const { ctx, analyser } = ensureAudioCtx();
     if (ctx.state === "suspended") await ctx.resume();
     // Voice is quieter than oscillators — boost it
@@ -362,7 +370,7 @@ const WaveformViz = forwardRef(({ type = "sine", onPlayingChange }, ref) => {
         setVoiceMode("file");
         return;
       }
-    } catch (e) { /* file not available, use synthesis fallback */ }
+    } catch { /* file not available, use synthesis fallback */ }
 
     // Fallback: formant-synthesized vowel
     const buffer = synthesizeVowel(ctx);
@@ -375,15 +383,16 @@ const WaveformViz = forwardRef(({ type = "sine", onPlayingChange }, ref) => {
     playingRef.current = true;
     setPlaying(true);
     setVoiceMode("synth");
-  };
+  }, []);
 
-  const togglePlay = () => {
-    if (playing) { stopAudio(); return; }
-    if (type === "sine" || type === "square") playOscillator(type);
-    else playVoice();
-  };
-
-  useImperativeHandle(ref, () => ({ togglePlay, playing }), [playing, type]);
+  useImperativeHandle(ref, () => ({
+    togglePlay: () => {
+      if (playing) { stopAudio(); return; }
+      if (type === "sine" || type === "square") playOscillator(type);
+      else playVoice();
+    },
+    playing,
+  }), [playing, stopAudio, type, playOscillator, playVoice]);
 
   // Canvas rendering — shows real AnalyserNode data when playing, mathematical approximation when idle
   useEffect(() => {
@@ -619,7 +628,6 @@ const SpectrumViz = () => {
         <div style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 140, position: "relative" }}>
           {Array.from({ length: bands }).map((_, i) => {
             const activeProfiles = selected.map(k => VOICE_PROFILES[k]);
-            const maxH = Math.max(...activeProfiles.map(p => getJitteredHeight(p.spectrum[i], i)));
             return (
               <div key={i} style={{ flex: 1, height: "100%", position: "relative", display: "flex", alignItems: "flex-end" }}>
                 {activeProfiles.length === 1 ? (
@@ -727,105 +735,6 @@ const ToolComparison = ({ tools }) => {
         </div>}
         {t.image && <div style={{ marginTop: 12 }}><img src={t.image} alt={`${t.name} screenshot`} style={{ width: "100%", borderRadius: 8, border: `1px solid ${C.border}` }} /></div>}
         {t.note && <div style={{ marginTop: 12, fontSize: 12, color: C.dim, fontStyle: "italic", lineHeight: 1.7 }}>{t.note}</div>}
-      </div>
-    </div>
-  );
-};
-
-const MelSpectrogramViz = () => {
-  const bands = 48;
-  const frames = 80;
-  // Magma-inspired colormap: black → deep purple → red-orange → yellow-white
-  const colormap = (v) => {
-    const clamp = Math.max(0, Math.min(1, v));
-    const stops = [
-      [0, 2, 4, 12], [12, 7, 40], [52, 10, 80], [110, 20, 100],
-      [160, 40, 90], [200, 60, 70], [230, 100, 50], [250, 170, 40],
-      [252, 230, 100], [252, 252, 200],
-    ];
-    const idx = clamp * (stops.length - 1);
-    const lo = Math.floor(idx), hi = Math.min(lo + 1, stops.length - 1);
-    const t = idx - lo;
-    const r = Math.round(stops[lo][0] + (stops[hi][0] - stops[lo][0]) * t);
-    const g = Math.round(stops[lo][1] + (stops[hi][1] - stops[lo][1]) * t);
-    const b = Math.round(stops[lo][2] + (stops[hi][2] - stops[lo][2]) * t);
-    return `rgb(${r},${g},${b})`;
-  };
-  // Seed a deterministic pseudo-random for consistent rendering
-  const seed = (x) => { let s = Math.sin(x * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); };
-  // Simulate speech: "Hello, this is your bank calling"
-  // Word boundaries (in frame positions): He-llo | this | is | your | bank | call-ing
-  const wordRegions = [[2,12],[14,22],[24,28],[30,38],[40,50],[52,62],[64,74]];
-  const isVoiced = (col) => wordRegions.some(([s, e]) => col >= s && col <= e);
-  const data = Array.from({ length: bands }, (_, row) =>
-    Array.from({ length: frames }, (_, col) => {
-      const freq = 1 - row / bands; // 0=top(high freq), 1=bottom(low freq)
-      if (!isVoiced(col)) return 0.02 + seed(row * 80 + col) * 0.04;
-      // Fundamental frequency and harmonics
-      const f0 = 0.85 + Math.sin(col * 0.15) * 0.03;
-      const harmonicSpacing = 0.08;
-      let energy = 0;
-      // Create harmonic bands (horizontal lines characteristic of voiced speech)
-      for (let h = 0; h < 8; h++) {
-        const hFreq = f0 - h * harmonicSpacing;
-        const dist = Math.abs(freq - hFreq);
-        const harmonicStrength = Math.exp(-h * 0.4) * Math.exp(-dist * dist * 800);
-        energy += harmonicStrength;
-      }
-      // Formant envelope: F1 (~500Hz), F2 (~1500Hz), F3 (~2500Hz)
-      const f1Center = 0.75 + Math.sin(col * 0.2) * 0.05;
-      const f2Center = 0.55 + Math.sin(col * 0.25 + 1) * 0.08;
-      const f3Center = 0.35 + Math.sin(col * 0.18 + 2) * 0.04;
-      const formantEnv =
-        0.9 * Math.exp(-((freq - f1Center) ** 2) * 30) +
-        0.6 * Math.exp(-((freq - f2Center) ** 2) * 40) +
-        0.3 * Math.exp(-((freq - f3Center) ** 2) * 50);
-      energy *= (0.3 + formantEnv * 0.7);
-      // High frequencies roll off
-      energy *= Math.exp(-Math.max(0, (1 - freq) - 0.5) * 3);
-      // Add slight noise texture
-      energy += seed(row * 80 + col) * 0.06;
-      // Onset/offset fade
-      const wordRegion = wordRegions.find(([s, e]) => col >= s && col <= e);
-      if (wordRegion) {
-        const [s, e] = wordRegion;
-        const onset = Math.min(1, (col - s) / 2);
-        const offset = Math.min(1, (e - col) / 2);
-        energy *= onset * offset;
-      }
-      return Math.min(1, energy * 1.2);
-    })
-  );
-  const cellW = 100 / frames;
-  const cellH = 100 / bands;
-  return (
-    <div>
-      <div style={{ display: "flex", gap: 8 }}>
-        <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", fontSize: 10, color: C.dim, paddingBottom: 18, textAlign: "right", minWidth: 36 }}>
-          <span>8 kHz</span><span>4 kHz</span><span>1 kHz</span><span>0 Hz</span>
-        </div>
-        <div style={{ flex: 1 }}>
-          <svg viewBox={`0 0 ${frames} ${bands}`} preserveAspectRatio="none" style={{ width: "100%", height: 180, display: "block", borderRadius: 4, border: `1px solid ${C.border}` }}>
-            {data.map((row, ri) => row.map((val, ci) => (
-              <rect key={`${ri}-${ci}`} x={ci} y={ri} width={1.1} height={1.1} fill={colormap(val)} />
-            )))}
-          </svg>
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 10, color: C.dim, marginTop: 2 }}>
-            <span>0s</span>
-            <div style={{ display: "flex", gap: 16, color: C.dim, fontSize: 9 }}>
-              <span>He-llo</span><span>this</span><span>is</span><span>your</span><span>bank</span><span>call-ing</span>
-            </div>
-            <span>~2s</span>
-          </div>
-        </div>
-      </div>
-      <div style={{ display: "flex", alignItems: "center", gap: 4, marginTop: 10, justifyContent: "center" }}>
-        <span style={{ fontSize: 10, color: C.dim }}>Quiet</span>
-        <div style={{ width: 120, height: 8, borderRadius: 2, background: `linear-gradient(to right, ${colormap(0)}, ${colormap(0.2)}, ${colormap(0.4)}, ${colormap(0.6)}, ${colormap(0.8)}, ${colormap(1)})` }} />
-        <span style={{ fontSize: 10, color: C.dim }}>Loud</span>
-      </div>
-      <div style={{ fontSize: 11, color: C.dim, marginTop: 6, lineHeight: 1.5, textAlign: "center" }}>
-        Simulated mel spectrogram for "Hello, this is your bank calling" — horizontal bands are harmonics, bright regions are formants
       </div>
     </div>
   );

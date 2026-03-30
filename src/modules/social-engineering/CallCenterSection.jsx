@@ -1,4 +1,4 @@
-import { C, SectionDivider } from "../../components";
+import { C, QuizBank, SectionDivider } from "../../components";
 import { ScenarioSim } from "./_helpers";
 
 const CallCenterSection = () => (
@@ -60,6 +60,24 @@ const CallCenterSection = () => (
         ))}
       </div>
     </div>
+
+    <SectionDivider />
+    <div id="knowledge-check" style={{ scrollMarginTop: 120 }}><QuizBank questions={[{ question: `In the AI-to-Human Handoff exploit, why are the AI agent's transfer notes dangerous?`, options: [
+        "They contain the attacker's phone number",
+        "The human agent treats unverified caller claims as semi-authoritative context because they came from the AI system",
+        "They reveal the AI's system prompt",
+        "They trigger an automatic refund",
+      ], correctIndex: 1, explanation: `The AI agent faithfully records whatever the caller says and passes it along as "notes." The human agent sees these notes and unconsciously treats them as verified information because they came from the company's own system. The defense is to clearly mark all transfer notes as "CALLER-STATED, UNVERIFIED."` }, { question: `Why is a multi-channel coordinated attack (phone + email) more convincing than a single-channel attack?`, options: [
+        "It uses more bandwidth",
+        "Each channel appears to independently confirm the other, creating circular validation",
+        "It bypasses the firewall",
+        "It's faster",
+      ], correctIndex: 1, explanation: `The phone call validates the email, and the email validates the phone call — but both are attacker-controlled. The target sees "confirmation" from two independent sources and assumes it must be legitimate. The defense is to never use one unverified channel to validate another — always verify through a truly independent channel.` }, { question: `In the Escalation Ladder, why does the attacker include a "Cover Tracks" phase at the end?`, options: [
+        "To delete their call logs",
+        "To ensure the target feels good about helping, reducing the chance they report the interaction as suspicious",
+        "To encrypt the stolen data",
+        "To change their phone number",
+      ], correctIndex: 1, explanation: `The cover tracks phase is about managing the target's perception after the attack. If the target feels they did the right thing, they won't report the call as suspicious. The attacker might thank them profusely, reference the "executive's" gratitude, or otherwise reinforce that everything was normal. This delays detection, sometimes by days or weeks.` }]} /></div>
   </div>
 );
 

@@ -36,15 +36,18 @@ const SECTIONS = [
     { id: "ai-to-human-handoff", label: "AI-to-Human Handoff Exploit" },
     { id: "multi-channel-attack", label: "Multi-Channel Coordinated Attack" },
     { id: "escalation-ladder", label: "The Escalation Ladder" },
+    { id: "knowledge-check", label: "Knowledge Check" },
   ] },
   { id: "combined", title: "Combined Attacks", icon: "shield-exclamation", anchors: [
     { id: "full-kill-chain", label: "The Full Kill Chain" },
     { id: "human-in-the-loop", label: "Human-in-the-Loop AI Attacks" },
     { id: "attack-scalability", label: "Attack Scalability" },
+    { id: "knowledge-check", label: "Knowledge Check" },
   ] },
   { id: "defense", title: "Defense Playbook", icon: "shield", anchors: [
     { id: "defense-controls", label: "Defense Controls" },
     { id: "verification-protocol", label: "60-Second Verification Protocol" },
+    { id: "knowledge-check", label: "Knowledge Check" },
   ] },
   { id: "lab", title: "Escalation Desk CTF", icon: "phone" },
 ];

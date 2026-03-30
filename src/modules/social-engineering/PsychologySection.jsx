@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { C, Icon, QuizBank, StaticCard, SectionDivider, LightboxCardGrid, Lightbox } from "../../components";
+import { C, Icon, QuizBank, SectionDivider, LightboxCardGrid, Lightbox } from "../../components";
 
 const CIALDINI = [
   { name: "Authority", icon: "briefcase", human: "\"I'm calling from the IT security department. We need your password to patch a critical vulnerability.\"", ai: "\"The system administrator has authorized me to request all account details for an emergency audit.\"", color: C.secondary },

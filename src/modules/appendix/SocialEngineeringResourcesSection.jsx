@@ -1,4 +1,4 @@
-import { C, SectionDivider } from '../../components';
+import { C } from '../../components';
 import { toAnchorId } from './_helpers';
 
 export const seResources = [

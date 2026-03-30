@@ -1,6 +1,6 @@
 import { C, QuizBank, SectionDivider } from "../../components";
 
-const AttackDiagram = ({ nodes, attackLabel, attackColor, attackFrom, attackTo }) => (
+const AttackDiagram = ({ nodes, attackLabel, attackColor, _attackFrom, _attackTo }) => (
   <figure role="figure" aria-label={attackLabel} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "24px 20px", marginBottom: 16, position: "relative", overflow: "hidden", margin: 0 }}>
     {/* Pipeline row */}
     <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0 }}>
