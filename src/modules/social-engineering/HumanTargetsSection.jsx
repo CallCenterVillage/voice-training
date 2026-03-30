@@ -57,12 +57,27 @@ const HumanTargetsSection = () => (
       { name: "Fellow Employee (spoofed)", color: C.highlight, desc: "Goal: Internal transfers or policy overrides.\n\nThe attacker spoofs the caller ID to show an internal extension or a known employee's number, then requests internal transfers, policy exceptions, or sensitive information. The spoofed number provides instant false credibility.\n\nRed Flags: Caller ID shows internal number but voice is unfamiliar, unusual requests that don't match the supposed caller's role, can't answer personal questions a real colleague would know, requests that bypass normal approval chains." },
     ]} />
     <SectionDivider />
-    <QuizBank questions={[{ question: `A caller claims to be from law enforcement and demands immediate access to a customer's records 'before they flee the country.' What should the agent do?`, options: [
+    <div id="knowledge-check" style={{ scrollMarginTop: 120 }}><QuizBank questions={[{ question: `A caller claims to be from law enforcement and demands immediate access to a customer's records 'before they flee the country.' What should the agent do?`, options: [
         "Comply immediately — law enforcement requests are urgent",
         "Ask for their badge number and provide the information",
         "Explain that all law enforcement requests must go through the legal/compliance department via formal channels",
         "Hang up and call the local police department",
-      ], correctIndex: 2, explanation: `Legitimate law enforcement understands (and expects) proper legal channels — subpoenas, warrants, and working with compliance departments. Urgency pressure combined with authority claims is a classic SE pattern. Real officers won't be offended by proper procedure.` }]} />
+      ], correctIndex: 2, explanation: `Legitimate law enforcement understands (and expects) proper legal channels — subpoenas, warrants, and working with compliance departments. Urgency pressure combined with authority claims is a classic SE pattern. Real officers won't be offended by proper procedure.` }, { question: `In "The Sympathetic Caller" scenario, why is emotional manipulation one of the hardest attacks to defend against?`, options: [
+        "Because the agent doesn't have proper training",
+        "Because it weaponizes the agent's natural empathy — their desire to help someone in distress overrides security procedures",
+        "Because the attacker uses technical exploits",
+        "Because the attacker has insider knowledge",
+      ], correctIndex: 1, explanation: `Emotional manipulation is uniquely dangerous because it turns the agent's best quality — empathy — into a vulnerability. The agent genuinely wants to help someone who sounds distressed, which creates internal pressure to skip verification. The defense isn't to eliminate empathy, but to have compassionate escalation paths that are both secure and supportive.` }, { question: `An attacker provides a real SSN, date of birth, and mother's maiden name to verify their identity on a call. Why should this still raise red flags?`, options: [
+        "Those are never used for verification",
+        "The information is probably outdated",
+        "Personal data from breaches is widely available — possessing PII doesn't prove identity",
+        "Only passwords should be used for verification",
+      ], correctIndex: 2, explanation: `Billions of records containing SSNs, dates of birth, and other PII have been exposed in data breaches. An attacker can purchase this information cheaply on the dark web. Possessing knowledge-based authentication answers no longer proves someone is who they claim to be — this is why callback verification to numbers on file is critical.` }, { question: `What makes multi-channel coordination attacks particularly effective?`, options: [
+        "They use more bandwidth",
+        "Each channel reinforces the others — a spoofed email validates a phone call, and vice versa",
+        "They bypass firewalls",
+        "They only work against AI agents",
+      ], correctIndex: 1, explanation: `Multi-channel attacks create a self-reinforcing narrative. When an agent receives a phone call about a wire transfer AND sees an email from the "CFO" about the same request, each piece of evidence validates the other. The attack exploits the assumption that if something is confirmed through multiple channels, it must be legitimate.` }]} /></div>
   </div>
 );
 

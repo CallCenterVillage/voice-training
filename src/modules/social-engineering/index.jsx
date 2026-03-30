@@ -16,14 +16,21 @@ const SECTIONS = [
     { id: "psychology-quiz", label: "Knowledge Check" },
   ] },
   { id: "human-targets", title: "SE Against Humans", icon: "user", anchors: [
-    { id: "threat-assessment", label: "Threat Assessment" },
+    { id: "threat-assessment", label: "Attack Types" },
     { id: "the-angry-executive", label: "The Angry Executive" },
     { id: "the-sympathetic-caller", label: "The Sympathetic Caller" },
     { id: "pretexting-personas", label: "Common Pretexting Personas" },
+    { id: "knowledge-check", label: "Knowledge Check" },
   ] },
   { id: "ai-targets", title: "SE Against AI", icon: "command-line", anchors: [
-    { id: "ai-attack-types", label: "AI Attack Types" },
+    { id: "direct-prompt-injection", label: "Direct Prompt Injection" },
+    { id: "indirect-contextual-injection", label: "Indirect / Contextual Injection" },
+    { id: "tool-function-abuse", label: "Tool / Function Abuse" },
+    { id: "persona-hijacking", label: "Persona Hijacking" },
+    { id: "information-extraction", label: "Information Extraction" },
+    { id: "conversational-dos", label: "Conversational DoS" },
     { id: "jailbreaking-scenario", label: "Jailbreaking a Banking AI" },
+    { id: "knowledge-check", label: "Knowledge Check" },
   ] },
   { id: "call-center", title: "Call Center Scenarios", icon: "phone", anchors: [
     { id: "ai-to-human-handoff", label: "AI-to-Human Handoff Exploit" },
