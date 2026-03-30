@@ -69,7 +69,7 @@ const LocalToolsSection = () => (<div>
           ["base / base.en", "142 MB", "~500 MB", 4, 3],
           ["small / small.en", "466 MB", "~1.0 GB", 3, 4],
           ["medium / medium.en", "1.5 GB", "~2.6 GB", 2, 4],
-          ["large-v3", "2.9 GB", "~4.7 GB", 1, 5],
+          ["large-v3", "3.1 GB", "~4.7 GB", 1, 5],
         ].map((row, i) => <tr key={i} onMouseEnter={e => e.currentTarget.style.background = `${C.primary}10`} onMouseLeave={e => e.currentTarget.style.background = "transparent"} style={{ borderBottom: "1px solid #06040c", transition: "background 0.15s ease" }}>
           {row.map((cell, j) => <td key={j} style={{ padding: 8, color: j === 0 ? C.text : C.muted, fontSize: j >= 3 ? 16 : 13 }}>
             {j >= 3 ? <StarRating rating={cell} /> : cell}
