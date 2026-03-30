@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from "react";
-import { C, CodeBlock, Icon, InfoBox, Lightbox, SectionDivider } from '../../components';
+import { C, CodeBlock, Icon, InfoBox, Lightbox } from '../../components';
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 
 const ArtifactLightbox = ({ sign, desc, renderViz }) => {
@@ -957,8 +957,6 @@ const DefenseSubCard = ({ title, desc, link, linkLabel }) => {
 
 export {
   ArtifactLightbox,
-  SectionDivider,
-  Lightbox,
   AudioQualityCard,
   RecommendationCard,
   VoiceCharacteristicCard,
@@ -967,15 +965,9 @@ export {
   TimbreDiagram,
   ProsodyDiagram,
   WaveformViz,
-  VOICE_SOURCE,
-  computeSpectrum,
-  VOICE_PROFILES,
-  FREQ_LABELS,
   SpectrumViz,
   PipelineDiagram,
-  inlineCode,
   ToolComparison,
-  MelSpectrogramViz,
   VocoderViz,
   AI_FLOW_DETAILS,
   DefenseCard,

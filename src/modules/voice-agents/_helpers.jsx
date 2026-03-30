@@ -1,8 +1,6 @@
 import { useState } from "react";
-import { C, Icon, SectionDivider, StaticCard } from "../../components";
+import { C, Icon } from "../../components";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
-
-export { SectionDivider, StaticCard };
 
 export const SystemPromptExplainer = () => {
   const [hoveredSection, setHoveredSection] = useState(null);

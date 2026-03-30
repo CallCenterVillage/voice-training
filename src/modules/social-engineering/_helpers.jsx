@@ -1,8 +1,6 @@
 import { useState } from "react";
-import { C, Icon, StaticCard, SectionDivider } from "../../components";
+import { C, Icon } from "../../components";
 import { ArrowPathIcon } from "@heroicons/react/24/outline";
-
-export { StaticCard, SectionDivider };
 
 export const ScenarioSim = ({ title, setup, turns, lesson }) => {
   const [currentTurn, setCurrentTurn] = useState(0);
