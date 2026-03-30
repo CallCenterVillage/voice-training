@@ -6,6 +6,8 @@ import { SECTIONS as SE_SECTIONS, COMPS as SE_COMPS } from "./modules/social-eng
 import { SECTIONS as AP_SECTIONS, COMPS as AP_COMPS } from "./modules/appendix";
 import TrainingShell from "./components/TrainingShell";
 import QuizPage from "./modules/quiz/QuizPage";
+import SearchModal from "./components/SearchModal";
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 
 const MODULES = {
   "voice-cloning": { sections: VC_SECTIONS, comps: VC_COMPS, title: "Voice Cloning", name: "Voice Cloning" },
@@ -76,6 +78,7 @@ export default function App() {
     return () => window.removeEventListener("popstate", onPopState);
   }, [getState]);
 
+  const [searchOpen, setSearchOpen] = useState(false);
   const isQuiz = route.moduleSlug === "quiz";
   const mod = isQuiz ? null : MODULES[route.moduleSlug];
 
@@ -114,10 +117,27 @@ export default function App() {
           {MAIN_MODULES.map(slug => renderNavButton(slug, MODULES[slug].name, slug === route.moduleSlug))}
           {renderNavButton("quiz", "Knowledge Test", isQuiz)}
         </div>
-        <div style={{ position: "absolute", right: 16 }}>
+        <div style={{ position: "absolute", right: 16, display: "flex", gap: 8, alignItems: "center" }}>
+          <button
+            onClick={() => setSearchOpen(true)}
+            aria-label="Search"
+            style={{
+              background: "none", border: `1px solid ${C.border}`, borderRadius: 6,
+              padding: "7px 16px", color: C.muted, cursor: "pointer", minWidth: 160,
+              display: "flex", alignItems: "center", gap: 6,
+              fontFamily: "'Inter', 'Segoe UI', sans-serif", fontSize: 13,
+              transition: "all 0.2s ease",
+            }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = C.accent; e.currentTarget.style.color = C.text; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.color = C.muted; }}
+          >
+            <MagnifyingGlassIcon style={{ width: 14, height: 14 }} aria-hidden="true" />
+            Search
+          </button>
           {renderNavButton("appendix", "Appendix", route.moduleSlug === "appendix")}
         </div>
       </nav>
+      {searchOpen && <SearchModal onClose={() => setSearchOpen(false)} onNavigate={navigate} />}
       {isQuiz ? (
         <main style={{ paddingTop: 48 }}>
           <QuizPage onBack={() => navigate("voice-cloning", 0)} />
