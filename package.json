@@ -15,12 +15,13 @@
     "@heroicons/react": "^2.2.0",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
-    "wavesurfer.js": "^7.12.4"
+    "wavesurfer.js": "^7.12.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
+    "@types/deno": "^2.5.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.2.0",
@@ -29,7 +30,7 @@
     "eslint-plugin-react-refresh": "^0.4.26",
     "globals": "^16.5.0",
     "jsdom": "^29.0.1",
-    "vite": "^7.3.1",
+    "vite": "^7.3.2",
     "vitest": "^4.1.2"
   }
 }

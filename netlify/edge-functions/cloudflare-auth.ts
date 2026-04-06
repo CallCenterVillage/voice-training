@@ -1,12 +1,10 @@
 export default async (request: Request) => {
-    const secret = request.headers.get("X-Netlify-Shared-Secret");
+    const secret = request.headers.get("x-netlify-shared-secret");
+    const expected = Deno.env.get("CLOUDFLARE_SHARED_SECRET");
 
-    if (secret !== Deno.env.get("CLOUDFLARE_SHARED_SECRET")) {
-        return new Response("Forbidden", { status: 403 });
+    console.log("Got:", secret, "Expected:", expected);
+
+    if (secret !== expected) {
+        return new Response(`Forbidden - got: ${secret}`, { status: 403 });
     }
-    // Header matches — let the request through
-};
-
-export const config = {
-    path: "/*",
 };
