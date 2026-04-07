@@ -47,7 +47,7 @@ const TrainingShell = ({ sections, sectionComponents, moduleTitle, logoUrl = "/i
       <header style={{ background: C.headerBg, borderBottom: `1px solid ${C.border}`, padding: "10px 12px", display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: topOffset, zIndex: 160 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <img src={logoUrl} alt="CCV" style={{ width: 28, height: 28, borderRadius: 6 }} />
-          <div style={{ fontSize: 14, fontWeight: 800, background: `linear-gradient(135deg, ${C.primary}, ${C.accent})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>Call Center Village</div>
+          <div style={{ fontSize: 14, fontWeight: 800, background: `linear-gradient(135deg, ${C.primary}, ${C.accent})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>CALL CENTER VILLAGE</div>
           <div style={{ fontSize: 14, color: C.dim }}>{moduleTitle}</div>
         </div>
         <button onClick={() => setNavOpen(!navOpen)} aria-label={navOpen ? "Close navigation" : "Open sections navigation"}
