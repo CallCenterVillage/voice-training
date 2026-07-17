@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useMemo, useRef, useCallback } from "react";
 import { C } from "./colors";
 import { SEARCH_INDEX } from "../searchIndex";
 import Icon from "./Icon";
@@ -16,17 +16,13 @@ const SearchModal = ({ onClose, onNavigate }) => {
   const inputRef = useRef(null);
   const listRef = useRef(null);
 
-  const results = query.length < 2 ? [] : SEARCH_INDEX.filter(entry =>
+  const results = useMemo(() => query.length < 2 ? [] : SEARCH_INDEX.filter(entry =>
     entry.text.includes(query.toLowerCase())
-  ).slice(0, 20);
+  ).slice(0, 20), [query]);
 
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
-
-  useEffect(() => {
-    setSelectedIdx(0);
-  }, [query]);
 
   const handleSelect = useCallback((result) => {
     onNavigate(result.route.moduleSlug, result.route.sectionIndex);
@@ -62,7 +58,7 @@ const SearchModal = ({ onClose, onNavigate }) => {
             ref={inputRef}
             type="text"
             value={query}
-            onChange={e => setQuery(e.target.value)}
+            onChange={e => { setQuery(e.target.value); setSelectedIdx(0); }}
             onKeyDown={handleKeyDown}
             placeholder="Search sections, tools, resources, quiz questions..."
             style={{

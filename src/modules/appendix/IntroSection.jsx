@@ -50,7 +50,7 @@ const IntroSection = () => (
           {[
             ["llama.cpp", "/opt/llama.cpp", "http://localhost:8080", "LLM API server"],
             ["Kokoro-FastAPI", "/opt/kokoro-fastapi", "http://localhost:8880", "Fast TTS API"],
-            ["Qwen3-TTS", "/opt/qwen3-tts", "http://localhost:8001", "LLM-based TTS"],
+            ["Qwen3-TTS", "/opt/qwen3-tts", "http://localhost:8000", "Voice cloning + design web UI"],
             ["OpenVoice", "/opt/openvoice", "http://localhost:7866", "Tone color conversion"],
             ["RVC", "/opt/rvc", "http://localhost:7865", "Voice conversion training"],
           ].map((row, i) => (

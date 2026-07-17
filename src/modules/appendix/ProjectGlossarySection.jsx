@@ -517,7 +517,7 @@ exit
 
 # Verify — starts the TTS server
 metavoice --port 58003` },
-    { name: "Qwen3-TTS", path: "/opt/qwen3-tts", url: "https://github.com/QwenLM/Qwen3-TTS", desc: "LLM-based text-to-speech from Alibaba",
+    { name: "Qwen3-TTS", path: "/opt/qwen3-tts", url: "https://github.com/QwenLM/Qwen3-TTS", desc: "LLM-based TTS with 3-second voice cloning",
       installCode: `# === Install Qwen3-TTS to /opt ===
 # Python 3.12 · CUDA 12.1 PyTorch
 
@@ -536,6 +536,7 @@ uv pip install --python .venv/bin/python3 \\
   --extra-index-url https://download.pytorch.org/whl/cu121
 
 # Install qwen-tts and dependencies
+# gradio powers the qwen-tts-demo web UI
 uv pip install --python .venv/bin/python3 \\
   qwen-tts==0.1.1 \\
   transformers==4.57.3 \\
@@ -547,19 +548,42 @@ uv pip install --python .venv/bin/python3 \\
 # Models download from Hugging Face on first use
 
 # === Create system wrapper ===
+# Upstream ships ONE console script: qwen-tts-demo (the Gradio web UI).
+# There is no command-line synthesis entrypoint — "python -m qwen_tts"
+# is a help stub that ignores arguments. For one-shot synthesis, use
+# the Python API (see Voice Cloning → Local Tools).
 tee /usr/local/bin/qwen3-tts << 'EOF'
 #!/bin/bash
 cd /opt/qwen3-tts
 source .venv/bin/activate
-exec python3 -m qwen_tts "$@"
+exec qwen-tts-demo "$@"
 EOF
 chmod +x /usr/local/bin/qwen3-tts
+
+# === Create systemd service for background operation ===
+tee /etc/systemd/system/qwen3-tts.service << 'EOF'
+[Unit]
+Description=Qwen3-TTS Web Demo
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/qwen3-tts
+ExecStart=/opt/qwen3-tts/.venv/bin/qwen-tts-demo Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice --ip 0.0.0.0 --port 8000
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
+EOF
+systemctl daemon-reload
+systemctl enable --now qwen3-tts
 
 # Return to normal user
 exit
 
-# Verify
-qwen3-tts --text "Hello from Qwen TTS" --output test.wav && play test.wav` },
+# Verify — open http://localhost:8000 in your browser
+# Or launch it manually:
+qwen3-tts Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice --ip 0.0.0.0 --port 8000` },
     { name: "F5-TTS", url: "https://github.com/SWivid/F5-TTS", desc: "Flow-matching based zero-shot TTS",
       installCode: `# === Install F5-TTS to /opt ===
 # Python 3.12 · CUDA PyTorch recommended

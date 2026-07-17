@@ -1,4 +1,5 @@
 import { C } from "./colors";
+import { useIsMobile } from "./useMediaQuery";
 
 const highlightBash = (code) => {
   return code.split("\n").map((line, i) => {
@@ -149,11 +150,19 @@ const highlightCode = (code, language) => {
   return code;
 };
 
-const CodeBlock = ({ code, language = "bash" }) => (
-  <div role="region" aria-label={`Code block: ${language}`} style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: "16px 20px", paddingRight: 60, fontFamily: "'JetBrains Mono', 'Fira Code', monospace", fontSize: 14, lineHeight: 1.7, overflowX: "auto", position: "relative" }}>
-    <div style={{ position: "absolute", top: 8, right: 12, fontSize: 12, color: C.dim, textTransform: "uppercase", letterSpacing: 1, pointerEvents: "none" }}>{language}</div>
-    <pre style={{ margin: 0, color: C.text, whiteSpace: "pre-wrap" }}>{highlightCode(code, language)}</pre>
-  </div>
-);
+const CodeBlock = ({ code, language = "bash" }) => {
+  const isMobile = useIsMobile();
+  return (
+    // The language label only occupies the top-right corner, but paddingRight indents every
+    // line to clear it — 60px of a phone's width. Drop the label on mobile and reclaim it;
+    // the region's aria-label still announces the language.
+    <div role="region" aria-label={`Code block: ${language}`} style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: isMobile ? "16px 12px" : "16px 20px", paddingRight: isMobile ? 12 : 60, fontFamily: "'JetBrains Mono', 'Fira Code', monospace", fontSize: isMobile ? 12 : 14, lineHeight: 1.7, overflowX: "auto", position: "relative" }}>
+      {!isMobile && <div style={{ position: "absolute", top: 8, right: 12, fontSize: 12, color: C.dim, textTransform: "uppercase", letterSpacing: 1, pointerEvents: "none" }}>{language}</div>}
+      {/* pre-wrap alone only breaks at whitespace, so long paths and URLs still overflow.
+          On mobile, break them rather than hide them behind a scroll nobody notices. */}
+      <pre style={{ margin: 0, color: C.text, whiteSpace: "pre-wrap", overflowWrap: isMobile ? "anywhere" : "normal" }}>{highlightCode(code, language)}</pre>
+    </div>
+  );
+};
 
 export default CodeBlock;

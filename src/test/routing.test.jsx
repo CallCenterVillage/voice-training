@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import App from '../App';
+import { allQuizQuestions } from '../quizData';
 
 describe('App Routing & Navigation', () => {
   beforeEach(() => {
@@ -40,6 +41,7 @@ describe('App Routing & Navigation', () => {
   it('renders quiz page at /quiz route', () => {
     window.history.replaceState(null, '', '/quiz');
     render(<App />);
-    expect(screen.getByText(/62 questions from across the training/)).toBeTruthy();
+    const re = new RegExp(`${allQuizQuestions.length} questions from across the training`);
+    expect(screen.getByText(re)).toBeTruthy();
   });
 });

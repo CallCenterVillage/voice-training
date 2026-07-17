@@ -2,12 +2,15 @@ import { useState, useEffect } from "react";
 import { C } from "./colors";
 import ProgressBar from "./ProgressBar";
 import Icon from "./Icon";
+import { useIsMobile } from "./useMediaQuery";
 import { Bars3Icon, ChevronDoubleRightIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline";
 
 const DRAWER_WIDTH = 260;
 
 const TrainingShell = ({ sections, sectionComponents, moduleTitle, logoUrl = "/images/ccv-logo.png", topOffset = 0, currentSection, onNavigate }) => {
-  const [navOpen, setNavOpen] = useState(true);
+  const isMobile = useIsMobile();
+  // On a phone the drawer overlays the whole column, so it starts closed.
+  const [navOpen, setNavOpen] = useState(!isMobile);
   const [activeAnchor, setActiveAnchor] = useState(null);
   const Section = sectionComponents[currentSection];
   const anchors = sections[currentSection].anchors;
@@ -45,30 +48,39 @@ const TrainingShell = ({ sections, sectionComponents, moduleTitle, logoUrl = "/i
       <a href="#main-content" onFocus={() => setSkipFocused(true)} onBlur={() => setSkipFocused(false)} style={{ position: "absolute", top: skipFocused ? topOffset + 52 : -40, left: 16, background: C.accent, color: "#000", padding: "8px 16px", borderRadius: 6, fontSize: 14, fontWeight: 700, zIndex: 10000, textDecoration: "none", transition: "top 0.2s ease" }}>Skip to main content</a>
 
       <header style={{ background: C.headerBg, borderBottom: `1px solid ${C.border}`, padding: "10px 12px", display: "flex", justifyContent: "space-between", alignItems: "center", position: "sticky", top: topOffset, zIndex: 160 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          <img src={logoUrl} alt="CCV" style={{ width: 28, height: 28, borderRadius: 6 }} />
-          <div style={{ fontSize: 14, fontWeight: 800, background: `linear-gradient(135deg, ${C.primary}, ${C.accent})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>CALL CENTER VILLAGE</div>
-          <div style={{ fontSize: 14, color: C.dim }}>{moduleTitle}</div>
+        <div style={{ display: "flex", alignItems: "center", gap: 12, minWidth: 0 }}>
+          <img src={logoUrl} alt="CCV" style={{ width: 28, height: 28, borderRadius: 6, flexShrink: 0 }} />
+          {/* The wordmark is the first thing to go — the logo already carries the brand. */}
+          {!isMobile && <div style={{ fontSize: 14, fontWeight: 800, background: `linear-gradient(135deg, ${C.primary}, ${C.accent})`, WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", whiteSpace: "nowrap" }}>CALL CENTER VILLAGE</div>}
+          <div style={{ fontSize: 14, color: C.dim, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{moduleTitle}</div>
         </div>
         <button onClick={() => setNavOpen(!navOpen)} aria-label={navOpen ? "Close navigation" : "Open sections navigation"}
           onMouseEnter={e => { e.currentTarget.style.borderColor = C.accent; e.currentTarget.style.color = C.text; e.currentTarget.style.background = `${C.accent}15`; }}
           onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.color = C.muted; e.currentTarget.style.background = "none"; }}
-          style={{ background: "none", border: `1px solid ${C.border}`, borderRadius: 6, padding: "8px 12px", color: C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 14, display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s ease" }}>
+          style={{ background: "none", border: `1px solid ${C.border}`, borderRadius: 6, padding: "8px 12px", color: C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 14, display: "flex", alignItems: "center", gap: 6, transition: "all 0.2s ease", flexShrink: 0, whiteSpace: "nowrap" }}>
           {navOpen ? <><ChevronDoubleRightIcon style={{ width: 16, height: 16 }} aria-hidden="true" /> Hide</> : <><Bars3Icon style={{ width: 16, height: 16 }} aria-hidden="true" /> Sections</>}
         </button>
       </header>
 
-      {/* Drawer nav — slides in from right, overlays content */}
+      {/* Scrim — mobile only, where the drawer overlays content instead of pushing it */}
+      {isMobile && navOpen && (
+        <div onClick={() => setNavOpen(false)} aria-hidden="true" style={{
+          position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", zIndex: 149,
+        }} />
+      )}
+
+      {/* Drawer nav — slides in from right. Pushes content on desktop, overlays on mobile. */}
       <nav aria-label="Sections navigation" style={{
         position: "fixed",
         top: 0,
         right: 0,
         bottom: 0,
-        width: DRAWER_WIDTH,
+        width: isMobile ? "min(280px, 85vw)" : DRAWER_WIDTH,
         background: C.headerBg,
         borderLeft: `1px solid ${C.border}`,
         zIndex: 150,
-        transform: navOpen ? "translateX(0)" : `translateX(${DRAWER_WIDTH}px)`,
+        // Percentage keeps this correct whatever the width resolves to.
+        transform: navOpen ? "translateX(0)" : "translateX(100%)",
         transition: "transform 0.25s ease",
         display: "flex",
         flexDirection: "column",
@@ -79,7 +91,7 @@ const TrainingShell = ({ sections, sectionComponents, moduleTitle, logoUrl = "/i
         </div>
         <div style={{ flex: 1, overflowY: "auto", padding: "0 8px 16px" }}>
           {sections.map((s, i) => (
-            <button key={s.id} onClick={() => onNavigate(i)}
+            <button key={s.id} onClick={() => { onNavigate(i); if (isMobile) setNavOpen(false); }}
               onMouseEnter={e => { if (i !== currentSection) { e.currentTarget.style.background = `${C.accent}10`; e.currentTarget.style.color = C.text; } }}
               onMouseLeave={e => { if (i !== currentSection) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = C.muted; } }}
               style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", textAlign: "left", background: i === currentSection ? `${C.accent}10` : "transparent", border: "none", borderRadius: 6, padding: "8px 12px", color: i === currentSection ? C.accent : C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: i === currentSection ? 700 : 400, marginBottom: 2, transition: "all 0.2s ease" }}>
@@ -89,8 +101,8 @@ const TrainingShell = ({ sections, sectionComponents, moduleTitle, logoUrl = "/i
         </div>
       </nav>
 
-      <div style={{ padding: "0 12px", marginRight: navOpen ? DRAWER_WIDTH : 0, transition: "margin-right 0.25s ease" }}><ProgressBar current={currentSection} total={sections.length} onNavigate={onNavigate} /></div>
-      <div style={{ display: "flex", flex: 1, justifyContent: "center", marginRight: navOpen ? DRAWER_WIDTH : 0, transition: "margin-right 0.25s ease" }}>
+      <div style={{ padding: "0 12px", marginRight: navOpen && !isMobile ? DRAWER_WIDTH : 0, transition: "margin-right 0.25s ease" }}><ProgressBar current={currentSection} total={sections.length} onNavigate={onNavigate} /></div>
+      <div style={{ display: "flex", flex: 1, justifyContent: "center", marginRight: navOpen && !isMobile ? DRAWER_WIDTH : 0, transition: "margin-right 0.25s ease" }}>
         <aside aria-label={anchors ? "Page index" : undefined} style={{
             width: 220,
             flexShrink: 0,
@@ -117,9 +129,18 @@ const TrainingShell = ({ sections, sectionComponents, moduleTitle, logoUrl = "/i
             </div>
           </>}
         </aside>
-        <main id="main-content" tabIndex={-1} className="training-content-area" style={{ flex: 1, maxWidth: 960, padding: "24px 12px 60vh 48px", width: "100%" }}><Section /></main>
+        <main id="main-content" tabIndex={-1} className="training-content-area" style={{ flex: 1, maxWidth: 960, padding: isMobile ? "24px 12px 60vh 12px" : "24px 12px 60vh 48px", width: "100%", minWidth: 0 }}><Section /></main>
       </div>
-      <style>{`@media (min-width: 1280px) { .anchor-nav { display: block !important; } .training-content-area { max-width: 1040px !important; } }`}</style>
+      <style>{`
+        @media (min-width: 1280px) { .anchor-nav { display: block !important; } .training-content-area { max-width: 1040px !important; } }
+        /* Content sections hardcode 2- and 3-column grids inline. Inline styles outrank
+           stylesheet rules, so collapsing them to a single column on narrow screens needs
+           !important. Scoped to the content area so app chrome is unaffected. Grids already
+           using auto-fit/minmax resolve to one column at this width anyway — no-op for them. */
+        @media (max-width: 768px) {
+          .training-content-area [style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
 
       <div style={{ position: "sticky", bottom: 0, background: `${C.headerBg}ee`, borderTop: `1px solid ${C.border}`, padding: "12px 12px", display: "flex", justifyContent: "space-between", alignItems: "center", backdropFilter: "blur(10px)", zIndex: 160 }}>
         <button onClick={() => currentSection > 0 && onNavigate(currentSection - 1)} disabled={currentSection === 0} aria-disabled={currentSection === 0 ? "true" : undefined}

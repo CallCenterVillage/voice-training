@@ -303,10 +303,12 @@ const AISection = () => {
       </div>
       <hr style={{ border: "none", borderTop: `1px solid ${C.border}`, margin: "24px 0" }} />
       <div style={{ fontSize: 12, color: C.dim, textTransform: "uppercase", letterSpacing: 1, marginBottom: 10 }}>Quality vs. Effort</div>
+      <div style={{ overflowX: "auto" }}>
       <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
         <thead><tr style={{ borderBottom: `1px solid ${C.border}` }}>{["Method", "Audio", "Compute", "Quality", "Real-Time"].map(h => <th key={h} style={{ padding: 8, textAlign: "left", color: C.accent, fontWeight: 700 }}>{h}</th>)}</tr></thead>
         <tbody>{[["eSpeak NG / Festival", "None", "None", 1, "Yes"], ["TTS (zero-shot)", "3-10s", "Medium", 3, "Sometimes"], ["TTS (fine-tuned)", "5-30min", "High", 4, "No"], ["VC (zero-shot)", "3-10s", "Medium", 3, "Yes"], ["VC (fine-tuned / RVC)", "10-30min", "High", 5, "Yes*"], ["Commercial API", "10-30s", "None", 4, "Yes"]].map((row, i) => <tr key={i} onMouseEnter={e => e.currentTarget.style.background = `${C.primary}10`} onMouseLeave={e => e.currentTarget.style.background = "transparent"} style={{ borderBottom: "1px solid #06040c", transition: "background 0.15s ease", cursor: "default" }}>{row.map((cell, j) => <td key={j} style={{ padding: 8, color: j === 0 ? C.text : C.muted }}>{j === 3 ? <StarRating rating={cell} size={14} /> : cell}</td>)}</tr>)}</tbody>
       </table>
+      </div>
     </div>
     <SectionDivider />
     <h2 id="speaker-embeddings" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 4, scrollMarginTop: 120 }}>Speaker Embeddings</h2>

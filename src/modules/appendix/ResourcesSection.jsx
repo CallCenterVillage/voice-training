@@ -5,6 +5,13 @@ export const resources = [
   { category: "Hugging Face", items: [
     { name: "Whisper.cpp Models", url: "https://huggingface.co/ggerganov/whisper.cpp", desc: "Pre-converted GGML models for whisper.cpp", archiveUrl: "https://web.archive.org/web/20260321191955/https://huggingface.co/ggerganov/whisper.cpp" },
     { name: "Hugging Face Audio Course", url: "https://huggingface.co/learn/audio-course", desc: "Comprehensive introduction to training and fine-tuning audio models", archiveUrl: "https://web.archive.org/web/20260321190820/https://huggingface.co/learn/audio-course/chapter0/introduction" },
+    { name: "Qwen3-TTS Demo Space", url: "https://huggingface.co/spaces/Qwen/Qwen3-TTS", desc: "Official hosted demo of Qwen3-TTS voice cloning and voice design", archiveUrl: "https://web.archive.org/web/20260715214019/https://huggingface.co/spaces/Qwen/Qwen3-TTS" },
+    { name: "Qwen3-TTS Model Collection", url: "https://huggingface.co/collections/Qwen/qwen3-tts", desc: "All Qwen3-TTS checkpoints — 0.6B/1.7B Base, CustomVoice, and VoiceDesign variants" },
+    { name: "Open ASR Leaderboard", url: "https://huggingface.co/blog/open-asr-leaderboard", desc: "Community benchmark ranking open speech recognition models by word error rate", archiveUrl: "https://web.archive.org/web/20260624192452/https://huggingface.co/blog/open-asr-leaderboard" },
+    { name: "Whisper large-v3-turbo", url: "https://huggingface.co/openai/whisper-large-v3-turbo", desc: "The newest Whisper weight (October 2024) — still the most recent release" },
+    { name: "NVIDIA Parakeet TDT 0.6B v3", url: "https://huggingface.co/nvidia/parakeet-tdt-0.6b-v3", desc: "High-throughput open ASR model covering 25 languages" },
+    { name: "IBM Granite Speech 4.1", url: "https://huggingface.co/ibm-granite/granite-speech-4.1-2b", desc: "Apache-2.0 LLM-decoder ASR model leading open English word error rate", archiveUrl: "https://web.archive.org/web/20260624072911/https://huggingface.co/ibm-granite/granite-speech-4.1-2b" },
+    { name: "Pipecat Smart Turn v3", url: "https://huggingface.co/pipecat-ai/smart-turn-v3", desc: "Fully open (BSD-2) audio-native turn detection model — 8MB, roughly 12ms on CPU", archiveUrl: "https://web.archive.org/web/20260322230046/https://huggingface.co/pipecat-ai/smart-turn-v3" },
   ] },
   { category: "Legal & Regulatory", items: [
     { name: "FTC — AI-Enabled Voice Cloning", url: "https://www.ftc.gov/policy/advocacy-research/tech-at-ftc/2023/11/preventing-harms-ai-enabled-voice-cloning", desc: "FTC guidance on preventing harms from voice cloning", archiveUrl: "https://web.archive.org/web/20260321191107/https://www.ftc.gov/policy/advocacy-research/tech-at-ftc/2023/11/preventing-harms-ai-enabled-voice-cloning" },
@@ -32,6 +39,10 @@ export const resources = [
     { name: "Wire Transfer Best Practices", url: "https://www.fourscorelaw.com/resources/wire-transfers-best-practices", desc: "Fraud prevention best practices for wire transfers including dual control and voice verification procedures", archiveUrl: "https://web.archive.org/web/20260323072444/https://www.fourscorelaw.com/resources/wire-transfers-best-practices" },
     { name: "NIST SP 800-63B — Digital Identity Guidelines", url: "https://pages.nist.gov/800-63-4/sp800-63b.html", desc: "NIST guidelines on authentication including why voice biometrics alone are no longer sufficient", archiveUrl: "https://web.archive.org/web/20260323072457/https://pages.nist.gov/800-63-4/sp800-63b.html" },
     { name: "CISA — Avoiding Social Engineering Attacks", url: "https://www.cisa.gov/news-events/news/avoiding-social-engineering-and-phishing-attacks", desc: "CISA guidance on recognizing and defending against social engineering and phishing attacks", archiveUrl: "https://web.archive.org/web/20260323072503/https://www.cisa.gov/news-events/news/avoiding-social-engineering-and-phishing-attacks" },
+    { name: "AudioHijack", url: "https://arxiv.org/abs/2604.14604", desc: "Reusable, imperceptible audio perturbations that hijack deployed voice agents into taking actions (IEEE S&P 2026)", archiveUrl: "https://web.archive.org/web/20260622060230/https://arxiv.org/abs/2604.14604" },
+    { name: "Sirens' Whisper", url: "https://arxiv.org/abs/2603.13847", desc: "Inaudible near-ultrasonic jailbreak prompts delivered through microphone nonlinearity (USENIX Security 2026)" },
+    { name: "GAP — Tool-Call Safety Gap", url: "https://arxiv.org/abs/2602.16943", desc: "Models verbally refuse while the tool call still executes — a blind spot unique to voice, where users only hear the refusal", archiveUrl: "https://web.archive.org/web/20260607035026/https://arxiv.org/abs/2602.16943" },
+    { name: "Deepfake Detector Generalization Collapse", url: "https://arxiv.org/abs/2601.02914", desc: "Detector error rising roughly 30x on synthesis models it hasn't seen before (arXiv)", archiveUrl: "https://web.archive.org/web/20260304095554/https://arxiv.org/abs/2601.02914" },
   ] },
   { category: "Reference", items: [
     { name: "FFmpeg/Libav Tutorial", url: "https://github.com/leandromoreira/ffmpeg-libav-tutorial", desc: "Learn FFmpeg libav the hard way — from zero to hero", archiveUrl: "https://web.archive.org/web/20260321190600/https://github.com/leandromoreira/ffmpeg-libav-tutorial" },
@@ -46,6 +57,14 @@ export const resources = [
     { name: "Privacy Guides — Email Aliasing", url: "https://www.privacyguides.org/en/email-aliasing/", desc: "Guide to email aliasing for privacy", archiveUrl: "https://web.archive.org/web/20260321195812/https://www.privacyguides.org/en/email-aliasing/" },
     { name: "Nyquist–Shannon Sampling Theorem", url: "https://en.wikipedia.org/wiki/Nyquist%E2%80%93Shannon_sampling_theorem", desc: "The fundamental limit on digital audio sampling rates" },
     { name: "Vector Databases", url: "https://en.wikipedia.org/wiki/Vector_database", desc: "How vector similarity search works" },
+    { name: "Qwen3-TTS", url: "https://github.com/QwenLM/Qwen3-TTS", desc: "Alibaba's open TTS suite (Apache-2.0) — 3-second voice cloning, VoiceDesign, and CustomVoice", archiveUrl: "https://web.archive.org/web/20260628194021/https://github.com/QwenLM/Qwen3-TTS" },
+    { name: "Qwen3-TTS Technical Report", url: "https://arxiv.org/abs/2601.15621", desc: "The Qwen3-TTS paper — architecture and 3-second voice cloning results (arXiv)", archiveUrl: "https://web.archive.org/web/20260624133746/https://arxiv.org/abs/2601.15621" },
+    { name: "Qwen3-Omni", url: "https://github.com/QwenLM/Qwen3-Omni", desc: "Apache-2.0 speech-in/speech-out model with native function calling" },
+    { name: "Mistral Voxtral TTS", url: "https://mistral.ai/news/voxtral-tts/", desc: "Open-weight TTS cloning from roughly 3 seconds — weights are CC-BY-NC (non-commercial)", archiveUrl: "https://web.archive.org/web/20260703141451/https://mistral.ai/news/voxtral-tts/" },
+    { name: "F5-TTS", url: "https://github.com/SWivid/F5-TTS", desc: "Flow-matching zero-shot TTS — MIT code, but CC-BY-NC (non-commercial) weights", archiveUrl: "https://web.archive.org/web/20260608234025/https://github.com/SWivid/F5-TTS" },
+    { name: "Microsoft VibeVoice", url: "https://github.com/microsoft/VibeVoice", desc: "Long-form multi-speaker TTS; Microsoft pulled the code after misuse and community forks preserved it" },
+    { name: "Meta AudioSeal", url: "https://github.com/facebookresearch/audioseal", desc: "MIT-licensed audio watermarking — embed and detect entirely locally", archiveUrl: "https://web.archive.org/web/20260518100408/https://github.com/facebookresearch/audioseal" },
+    { name: "LiveKit Turn Detector", url: "https://docs.livekit.io/agents/build/turns/turn-detector", desc: "Audio-native end-of-turn detection, replacing transcript-based approaches", archiveUrl: "https://web.archive.org/web/20251213012537/https://docs.livekit.io/agents/build/turns/turn-detector" },
   ] },
 ];
 

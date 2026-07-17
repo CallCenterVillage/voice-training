@@ -3,6 +3,22 @@ import '@testing-library/jest-dom';
 // Mock window.scrollTo
 window.scrollTo = () => {};
 
+// Mock scrollIntoView — not implemented in jsdom
+Element.prototype.scrollIntoView = () => {};
+
+// Mock matchMedia — not implemented in jsdom. Defaults to "no match", i.e. desktop.
+// Tests that need a mobile viewport override this per-test.
+window.matchMedia = (query) => ({
+  matches: false,
+  media: query,
+  onchange: null,
+  addEventListener: () => {},
+  removeEventListener: () => {},
+  addListener: () => {},
+  removeListener: () => {},
+  dispatchEvent: () => false,
+});
+
 // Mock history.pushState/replaceState
 const originalPushState = history.pushState;
 const originalReplaceState = history.replaceState;

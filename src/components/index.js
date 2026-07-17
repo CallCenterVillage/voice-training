@@ -1,4 +1,5 @@
 export { C } from "./colors";
+export { useMediaQuery, useIsMobile, MOBILE_BREAKPOINT } from "./useMediaQuery";
 export { default as ProgressBar } from "./ProgressBar";
 export { default as CodeBlock } from "./CodeBlock";
 export { default as QuizBank } from "./QuizBank";

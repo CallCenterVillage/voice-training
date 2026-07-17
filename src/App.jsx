@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { C } from "./components";
+import { C, useIsMobile } from "./components";
 import { SECTIONS as VC_SECTIONS, COMPS as VC_COMPS } from "./modules/voice-cloning";
 import { SECTIONS as VA_SECTIONS, COMPS as VA_COMPS } from "./modules/voice-agents";
 import { SECTIONS as SE_SECTIONS, COMPS as SE_COMPS } from "./modules/social-engineering";
@@ -79,6 +79,7 @@ export default function App() {
   }, [getState]);
 
   const [searchOpen, setSearchOpen] = useState(false);
+  const isMobile = useIsMobile();
   const isQuiz = route.moduleSlug === "quiz";
   const mod = isQuiz ? null : MODULES[route.moduleSlug];
 
@@ -93,11 +94,13 @@ export default function App() {
       style={{
         background: isActive ? C.primary : "transparent",
         border: `1px solid ${isActive ? C.primary : C.border}`,
-        borderRadius: 6, padding: "8px 20px",
+        borderRadius: 6, padding: isMobile ? "8px 12px" : "8px 20px",
         color: isActive ? "#fff" : C.muted,
         cursor: "pointer", fontFamily: "'Inter', 'Segoe UI', sans-serif",
         fontSize: 14, fontWeight: 600,
         transition: "all 0.2s ease",
+        // Keep the nav a single 48px row — App hardcodes that height in three places.
+        flexShrink: 0, whiteSpace: "nowrap",
       }}
     >
       {label}
@@ -106,35 +109,49 @@ export default function App() {
 
   return (
     <div style={{ fontFamily: "'Inter', 'Segoe UI', sans-serif" }}>
-      <style>{`*:focus-visible { outline: 2px solid #38b6ff; outline-offset: 2px; }`}</style>
+      <style>{`
+        *:focus-visible { outline: 2px solid #38b6ff; outline-offset: 2px; }
+        .module-tabs::-webkit-scrollbar { display: none; }
+      `}</style>
       <nav aria-label="Module switcher" style={{
         position: "fixed", top: 0, left: 0, right: 0, zIndex: 9999,
         background: `${C.bg}ee`, borderBottom: `1px solid ${C.border}`,
-        padding: "8px 16px", display: "flex", alignItems: "center",
+        padding: isMobile ? "8px 8px" : "8px 16px", display: "flex", alignItems: "center",
+        gap: 8,
         backdropFilter: "blur(10px)",
       }} role="tablist">
-        <div style={{ display: "flex", gap: 8, flex: 1, justifyContent: "center" }}>
+        {/* Scrolls horizontally rather than wrapping — the nav must stay one row. */}
+        <div className="module-tabs" style={{
+          display: "flex", gap: 8, flex: 1,
+          justifyContent: isMobile ? "flex-start" : "center",
+          overflowX: "auto", scrollbarWidth: "none", msOverflowStyle: "none",
+        }}>
           {MAIN_MODULES.map(slug => renderNavButton(slug, MODULES[slug].name, slug === route.moduleSlug))}
           {renderNavButton("quiz", "Knowledge Test", isQuiz)}
+          {/* On mobile the right-hand cluster shrinks to the search icon, so Appendix
+              moves in here rather than becoming unreachable. */}
+          {isMobile && renderNavButton("appendix", "Appendix", route.moduleSlug === "appendix")}
         </div>
-        <div style={{ position: "absolute", right: 16, display: "flex", gap: 8, alignItems: "center" }}>
+        {/* In flow, not absolute — absolute took it out of layout and let it paint over the tabs. */}
+        <div style={{ display: "flex", gap: 8, alignItems: "center", flexShrink: 0 }}>
           <button
             onClick={() => setSearchOpen(true)}
             aria-label="Search"
             style={{
               background: "none", border: `1px solid ${C.border}`, borderRadius: 6,
-              padding: "7px 16px", color: C.muted, cursor: "pointer", minWidth: 160,
+              padding: isMobile ? "7px 9px" : "7px 16px", color: C.muted, cursor: "pointer",
+              minWidth: isMobile ? 0 : 160,
               display: "flex", alignItems: "center", gap: 6,
               fontFamily: "'Inter', 'Segoe UI', sans-serif", fontSize: 13,
-              transition: "all 0.2s ease",
+              transition: "all 0.2s ease", flexShrink: 0,
             }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = C.accent; e.currentTarget.style.color = C.text; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.color = C.muted; }}
           >
-            <MagnifyingGlassIcon style={{ width: 14, height: 14 }} aria-hidden="true" />
-            Search
+            <MagnifyingGlassIcon style={{ width: 14, height: 14, flexShrink: 0 }} aria-hidden="true" />
+            {!isMobile && "Search"}
           </button>
-          {renderNavButton("appendix", "Appendix", route.moduleSlug === "appendix")}
+          {!isMobile && renderNavButton("appendix", "Appendix", route.moduleSlug === "appendix")}
         </div>
       </nav>
       {searchOpen && <SearchModal onClose={() => setSearchOpen(false)} onNavigate={navigate} />}

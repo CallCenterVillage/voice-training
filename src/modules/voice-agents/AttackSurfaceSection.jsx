@@ -1,9 +1,11 @@
 import { C, QuizBank, SectionDivider } from "../../components";
 
 const AttackDiagram = ({ nodes, attackLabel, attackColor, _attackFrom, _attackTo }) => (
-  <figure role="figure" aria-label={attackLabel} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "24px 20px", marginBottom: 16, position: "relative", overflow: "hidden", margin: 0 }}>
-    {/* Pipeline row */}
-    <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 0 }}>
+  <figure role="figure" aria-label={attackLabel} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "24px 20px", marginBottom: 16, position: "relative", margin: 0 }}>
+    {/* Pipeline row — scrolls when it outgrows the screen instead of being clipped.
+        max-content + auto margins keep it centred while it still fits. */}
+    <div style={{ overflowX: "auto" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: 0, width: "max-content", margin: "0 auto" }}>
       {nodes.map((node, i) => (
         <div key={i} style={{ display: "flex", alignItems: "center" }}>
           <div style={{
@@ -20,6 +22,7 @@ const AttackDiagram = ({ nodes, attackLabel, attackColor, _attackFrom, _attackTo
           )}
         </div>
       ))}
+    </div>
     </div>
     {/* Attack indicator */}
     <div style={{ display: "flex", justifyContent: "center", marginTop: 16 }}>
