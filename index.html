@@ -4,12 +4,23 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <title>Call Center Village — Voice Security Training</title>
-    <meta name="description" content="Free, hands-on training in voice security: AI voice cloning, voice agent architecture and attack surface, and social engineering against humans and AI agents." />
-    <!-- Updated per route by App.jsx; the static value is the fallback for non-JS crawlers. -->
-    <link rel="canonical" href="https://callcentervillage.org/" />
     <meta name="theme-color" content="#08060f" />
     <meta name="color-scheme" content="dark" />
+
+    <!--
+      Everything between social:start and social:end is replaced per route by
+      scripts/prerender.mjs, which builds it from src/siteMeta.js. What is here
+      is the home-page version: it is what the dev server shows, and what any
+      route that escaped prerendering would fall back to.
+
+      Do not hand-edit these values — change src/siteMeta.js and rebuild, or the
+      prerendered pages and this block will disagree.
+    -->
+    <!-- social:start -->
+    <title>Call Center Village — Voice Security Training</title>
+    <meta name="description" content="Free, hands-on training in voice security: AI voice cloning, voice agent architecture and attack surface, and social engineering against humans and AI agents." />
+    <meta name="author" content="Patrick Labbett" />
+    <link rel="canonical" href="https://callcentervillage.org/" />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
@@ -18,16 +29,27 @@
     <meta property="og:title" content="Call Center Village — Voice Security Training" />
     <meta property="og:description" content="Free, hands-on training in voice security: AI voice cloning, voice agent architecture and attack surface, and social engineering against humans and AI agents." />
     <meta property="og:image" content="https://callcentervillage.org/images/og-card.png" />
+    <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="Call Center Village — voice security training" />
     <meta property="og:locale" content="en_US" />
 
-    <!-- Twitter / X -->
+    <!-- Twitter / X. No twitter:site or twitter:creator: there is no X account,
+         and a handle that resolves to nothing is worse than an absent one. -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Call Center Village — Voice Security Training" />
     <meta name="twitter:description" content="Free, hands-on training in voice security: AI voice cloning, voice agent architecture and attack surface, and social engineering against humans and AI agents." />
     <meta name="twitter:image" content="https://callcentervillage.org/images/og-card.png" />
+    <meta name="twitter:image:alt" content="Call Center Village — voice security training" />
+
+    <!-- Mastodon 4.3+ renders this as the byline on the preview card. -->
+    <meta name="fediverse:creator" content="@callcentervillage@defcon.social" />
+
+    <script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[{"@type":"Person","@id":"https://callcentervillage.org/#author","name":"Patrick Labbett"},{"@type":"Organization","@id":"https://callcentervillage.org/#organization","name":"Call Center Village","url":"https://www.callcentervillage.com","logo":{"@type":"ImageObject","url":"https://callcentervillage.org/images/ccv-logo.png","width":200,"height":200},"sameAs":["https://www.callcentervillage.com","https://defcon.social/@callcentervillage"]},{"@type":"WebSite","@id":"https://callcentervillage.org/#website","url":"https://callcentervillage.org/","name":"Call Center Village","description":"Free, hands-on training in voice security: AI voice cloning, voice agent architecture and attack surface, and social engineering against humans and AI agents.","inLanguage":"en-US","publisher":{"@id":"https://callcentervillage.org/#organization"}},{"@type":"WebPage","@id":"https://callcentervillage.org/#webpage","url":"https://callcentervillage.org/","name":"Call Center Village — Voice Security Training","description":"Free, hands-on training in voice security: AI voice cloning, voice agent architecture and attack surface, and social engineering against humans and AI agents.","inLanguage":"en-US","isPartOf":{"@id":"https://callcentervillage.org/#website"},"author":{"@id":"https://callcentervillage.org/#author"},"publisher":{"@id":"https://callcentervillage.org/#organization"},"primaryImageOfPage":{"@type":"ImageObject","url":"https://callcentervillage.org/images/og-card.png","width":1200,"height":630}}]}
+    </script>
+    <!-- social:end -->
 
     <link rel="icon" type="image/png" href="/images/ccv-logo.png" />
     <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png" />

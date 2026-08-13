@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { C } from "./components/colors";
+import { SITE_ORIGIN, SITE_NAME, socialCardFor } from "./siteMeta";
 import { useIsMobile } from "./components/useMediaQuery";
 import { SECTIONS as VC_SECTIONS, COMPS as VC_COMPS } from "./modules/voice-cloning";
 import { SECTIONS as VA_SECTIONS, COMPS as VA_COMPS } from "./modules/voice-agents";
@@ -22,7 +23,7 @@ export const MODULES = {
 
 const MAIN_MODULES = ["voice-cloning", "voice-agents", "social-engineering"];
 
-export const SITE_ORIGIN = "https://callcentervillage.org";
+export { SITE_ORIGIN } from "./siteMeta";
 
 // Height of the fixed module nav. Buttons are 44px (WCAG 2.5.5) plus 6px of
 // vertical padding either side. Content offset must match, so it lives here
@@ -101,21 +102,48 @@ export default function App({ initialPath }) {
 
   // Every route otherwise shares one title and one canonical, which reads as ~36
   // duplicate pages to crawlers and gives screen readers no page-change signal.
+  //
+  // The og:/twitter: tags below are not for scrapers — none of them run JS, so
+  // what they read is whatever scripts/prerender.mjs wrote into the static file.
+  // This keeps the live DOM matching that file after a client-side navigation,
+  // for the browser extensions, share sheets and previewers that do read it.
   useEffect(() => {
     const section = isQuiz ? null : MODULES[route.moduleSlug].sections[route.sectionIndex];
     const label = isQuiz
       ? "Knowledge Test"
       : `${section.title} — ${MODULES[route.moduleSlug].title}`;
-    document.title = `${label} | Call Center Village`;
+    const title = `${label} | ${SITE_NAME}`;
+    document.title = title;
 
     const path = isQuiz ? "/quiz" : `/${route.moduleSlug}/${section.id}`;
+    const url = `${SITE_ORIGIN}${path}`;
+
     let link = document.querySelector('link[rel="canonical"]');
     if (!link) {
       link = document.createElement("link");
       link.rel = "canonical";
       document.head.appendChild(link);
     }
-    link.href = `${SITE_ORIGIN}${path}`;
+    link.href = url;
+
+    const card = socialCardFor(isQuiz ? "quiz" : route.moduleSlug);
+    const setMeta = (attr, key, value) => {
+      let tag = document.head.querySelector(`meta[${attr}="${key}"]`);
+      if (!tag) {
+        tag = document.createElement("meta");
+        tag.setAttribute(attr, key);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute("content", value);
+    };
+
+    setMeta("property", "og:url", url);
+    setMeta("property", "og:title", title);
+    setMeta("property", "og:image", card.image);
+    setMeta("property", "og:image:alt", card.alt);
+    setMeta("name", "twitter:title", title);
+    setMeta("name", "twitter:image", card.image);
+    setMeta("name", "twitter:image:alt", card.alt);
   }, [route.moduleSlug, route.sectionIndex, isQuiz]);
 
   const renderNavButton = (slug, label, isActive) => (

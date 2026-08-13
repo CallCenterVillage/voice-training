@@ -49,11 +49,14 @@ src/
     quiz/                 # Combined knowledge test
   App.jsx                 # Router + module switcher
   main.jsx                # Entry point
+  siteMeta.js             # Site identity + link-preview metadata (one source)
 
 public/                   # Served verbatim: fonts, images, audio,
                           # robots.txt, sitemap.xml, .well-known/
 fonts-src/                # Source TTFs — build input, NOT published
 scripts/build-fonts.py    # Subsets fonts-src/*.ttf -> public/fonts/*.woff2
+scripts/build-og-images.py # Renders the social cards -> public/images/og-*.png
+scripts/socialHead.mjs    # Builds the per-route <head> the prerenderer writes
 netlify/edge-functions/   # Cloudflare origin auth
 ```
 
@@ -63,8 +66,10 @@ Every section is a real URL (`/:module/:section`, plus `/quiz`) driven by the
 History API in `App.jsx`. `netlify.toml` rewrites those prefixes to the SPA
 shell and lets everything else fall through to a genuine 404.
 
-Adding a module means adding a redirect rule in `netlify.toml` and entries to
-`public/sitemap.xml` — `src/test/staticFiles.test.js` fails if you forget.
+Adding a module means adding a redirect rule in `netlify.toml`, entries to
+`public/sitemap.xml`, and a social card in `src/siteMeta.js` plus
+`scripts/build-og-images.py` — `src/test/staticFiles.test.js` fails if you
+forget any of them.
 
 ## Prerendering
 
@@ -80,6 +85,39 @@ runs the normal client app — `src/main.jsx` uses `createRoot` rather than
 
 Anything rendered at build time must tolerate having no `window`. `App` takes
 an `initialPath` prop for exactly this reason.
+
+## Link previews
+
+Everything a scraper reads — title, description, author, Open Graph, Twitter
+cards, JSON-LD — comes from `src/siteMeta.js`. Three places consume it and must
+not drift apart, so change the constants there rather than the markup:
+
+- `index.html` holds the home-page version between `<!-- social:start -->` and
+  `<!-- social:end -->`. That is the dev-server fallback.
+- `scripts/socialHead.mjs` builds the real per-route head; `prerender.mjs` swaps
+  it into that marked region for each of the 37 pages.
+- `App.jsx` re-syncs the tags after a client-side navigation. Not for scrapers —
+  none of them run JS — but for share sheets and previewers that read the DOM.
+
+Authorship shows up as `<meta name="author">`, `article:author`, and a
+schema.org `Person` referenced by `@id` from every page, with Call Center
+Village as the `Organization` publisher. Mastodon's byline comes from
+`fediverse:creator`. There is no X account, so `twitter:site`/`twitter:creator`
+are deliberately absent.
+
+Each module has its own 1200×630 card so a shared deep link says which module it
+points at. They are generated and committed — Netlify does not run Python:
+
+```bash
+pip install pillow
+python3 scripts/build-og-images.py
+```
+
+Card copy lives in `CARDS` in that script; the layout constants are measured
+from the original hand-made `og-card.png`, which the script reproduces exactly.
+`src/test/socialHead.test.js` and `staticFiles.test.js` check every route's tags,
+that each card file exists at the right dimensions, and that no tag survives
+outside the marker region (which would ship two of it).
 
 ## Code splitting
 
