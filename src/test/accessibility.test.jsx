@@ -1,10 +1,12 @@
 import { describe, it, expect } from 'vitest';
+import { useState } from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import Lightbox from '../components/Lightbox';
 import LightboxCardGrid from '../components/LightboxCardGrid';
 import ProgressBar from '../components/ProgressBar';
 import StarRating from '../components/StarRating';
 import CodeBlock from '../components/CodeBlock';
+import Tabs, { tabPanelProps } from '../components/Tabs';
 
 describe('Accessibility - Lightbox', () => {
   it('has role="dialog" and aria-modal', () => {
@@ -100,7 +102,7 @@ describe('Accessibility - ProgressBar', () => {
     const { container } = render(<ProgressBar current={0} total={3} onNavigate={() => {}} />);
     const buttons = container.querySelectorAll('[role="button"]');
     buttons.forEach((btn, i) => {
-      expect(btn.getAttribute('aria-label')).toBe(`Go to section ${i + 1}`);
+      expect(btn.getAttribute('aria-label')).toBe(`Go to section ${i + 1} of 3`);
     });
   });
 });
@@ -125,5 +127,79 @@ describe('Accessibility - CodeBlock', () => {
     const region = container.querySelector('[role="region"]');
     expect(region).toBeTruthy();
     expect(region.getAttribute('aria-label')).toBe('Code block: python');
+  });
+});
+
+describe('Accessibility - Tabs', () => {
+  const TABS = [
+    { key: 'a', label: 'Alpha' },
+    { key: 'b', label: 'Beta' },
+    { key: 'c', label: 'Gamma' },
+  ];
+
+  const Harness = ({ initial = 'a' }) => {
+    const [sel, setSel] = useState(initial);
+    return (
+      <>
+        <Tabs idBase="t" label="Test tabs" tabs={TABS} selected={sel} onSelect={setSel} tabStyle={() => ({})} />
+        <div {...tabPanelProps('t', sel)}>panel {sel}</div>
+      </>
+    );
+  };
+
+  it('exposes a labelled tablist with one selected tab', () => {
+    render(<Harness />);
+    expect(screen.getByRole('tablist', { name: 'Test tabs' })).toBeTruthy();
+    const tabs = screen.getAllByRole('tab');
+    expect(tabs).toHaveLength(3);
+    expect(tabs.filter(t => t.getAttribute('aria-selected') === 'true')).toHaveLength(1);
+  });
+
+  // Roving tabIndex: Tab enters the strip once, then moves on to the panel.
+  it('keeps only the selected tab in the tab order', () => {
+    render(<Harness />);
+    const tabs = screen.getAllByRole('tab');
+    expect(tabs.map(t => t.getAttribute('tabindex'))).toEqual(['0', '-1', '-1']);
+  });
+
+  it('wires the selected tab to its panel', () => {
+    render(<Harness />);
+    const panel = screen.getByRole('tabpanel');
+    const selected = screen.getAllByRole('tab').find(t => t.getAttribute('aria-selected') === 'true');
+    expect(selected.getAttribute('aria-controls')).toBe(panel.id);
+    expect(panel.getAttribute('aria-labelledby')).toBe(selected.id);
+  });
+
+  // aria-controls must not point at an id that is absent from the DOM.
+  it('does not set aria-controls on unselected tabs', () => {
+    render(<Harness />);
+    const unselected = screen.getAllByRole('tab').filter(t => t.getAttribute('aria-selected') !== 'true');
+    unselected.forEach(t => expect(t.getAttribute('aria-controls')).toBeNull());
+  });
+
+  it('moves selection with arrow keys and wraps', () => {
+    render(<Harness />);
+    const list = screen.getByRole('tablist');
+
+    fireEvent.keyDown(list, { key: 'ArrowRight' });
+    expect(screen.getByRole('tab', { name: 'Beta' }).getAttribute('aria-selected')).toBe('true');
+
+    fireEvent.keyDown(list, { key: 'ArrowLeft' });
+    expect(screen.getByRole('tab', { name: 'Alpha' }).getAttribute('aria-selected')).toBe('true');
+
+    // Wraps backwards from the first tab to the last.
+    fireEvent.keyDown(list, { key: 'ArrowLeft' });
+    expect(screen.getByRole('tab', { name: 'Gamma' }).getAttribute('aria-selected')).toBe('true');
+  });
+
+  it('supports Home and End', () => {
+    render(<Harness initial="b" />);
+    const list = screen.getByRole('tablist');
+
+    fireEvent.keyDown(list, { key: 'End' });
+    expect(screen.getByRole('tab', { name: 'Gamma' }).getAttribute('aria-selected')).toBe('true');
+
+    fireEvent.keyDown(list, { key: 'Home' });
+    expect(screen.getByRole('tab', { name: 'Alpha' }).getAttribute('aria-selected')).toBe('true');
   });
 });

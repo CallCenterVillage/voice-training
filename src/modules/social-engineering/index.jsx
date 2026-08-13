@@ -1,12 +1,5 @@
-import { TrainingShell } from "../../components";
-import IntroSection from "./IntroSection";
-import PsychologySection from "./PsychologySection";
-import HumanTargetsSection from "./HumanTargetsSection";
-import AITargetsSection from "./AITargetsSection";
-import CallCenterSection from "./CallCenterSection";
-import CombinedSection from "./CombinedSection";
-import DefenseSection from "./DefenseSection";
-import LabSection from "./LabSection";
+import { lazy } from "react";
+import TrainingShell from "../../components/TrainingShell";
 
 const SECTIONS = [
   { id: "intro", title: "Welcome", icon: "user-group" },
@@ -52,10 +45,22 @@ const SECTIONS = [
   { id: "lab", title: "Escalation Desk CTF", icon: "phone" },
 ];
 
-const COMPS = [IntroSection, PsychologySection, HumanTargetsSection, AITargetsSection, CallCenterSection, CombinedSection, DefenseSection, LabSection];
+// Lazy so a visitor to one section does not download every other
+// section's prose and diagrams. SECTIONS stays eager — it is just
+// metadata, and routing plus the drawer need it up front.
+const COMPS = [
+  lazy(() => import("./IntroSection")),
+  lazy(() => import("./PsychologySection")),
+  lazy(() => import("./HumanTargetsSection")),
+  lazy(() => import("./AITargetsSection")),
+  lazy(() => import("./CallCenterSection")),
+  lazy(() => import("./CombinedSection")),
+  lazy(() => import("./DefenseSection")),
+  lazy(() => import("./LabSection")),
+];
 
 export { SECTIONS, COMPS };
 
 export default function SocialEngineeringTraining() {
-  return <TrainingShell sections={SECTIONS} sectionComponents={COMPS} moduleTitle="Social Engineering" topOffset={48} />;
+  return <TrainingShell sections={SECTIONS} sectionComponents={COMPS} moduleTitle="Social Engineering" topOffset={56} />;
 }

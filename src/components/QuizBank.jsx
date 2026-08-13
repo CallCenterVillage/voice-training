@@ -49,6 +49,11 @@ const quizHeadingStyle = {
   marginBottom: 14, display: "flex", alignItems: "center", gap: 8,
 };
 
+const srOnly = {
+  position: "absolute", width: 1, height: 1, padding: 0, margin: -1,
+  overflow: "hidden", clip: "rect(0,0,0,0)", whiteSpace: "nowrap", border: 0,
+};
+
 const QuizBank = ({ questions }) => {
   const [shuffled, setShuffled] = useState(() => shuffleQuestions(questions));
   const [qIdx, setQIdx] = useState(0);
@@ -126,14 +131,14 @@ const QuizBank = ({ questions }) => {
     <div style={quizWrapStyle}>
     <div style={quizHeadingStyle}><BeakerIcon style={{ width: 18, height: 18 }} aria-hidden="true" /> Check Your Understanding</div>
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
         <div style={{ fontSize: 14, fontWeight: 600, color: C.text, display: "flex", alignItems: "center", gap: 6 }}><BeakerIcon style={{ width: 16, height: 16 }} aria-hidden="true" /> Question {qIdx + 1} / {shuffled.length}</div>
         <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
           {answers.length > 0 && <>
             <span style={{ fontSize: 14, color: C.accent, fontWeight: 700, background: `${C.accent}15`, padding: "6px 10px", borderRadius: 4 }}>{Math.round((score / answers.length) * 100)}%</span>
             <span style={{ fontSize: 14, color: C.muted, fontWeight: 600, background: `${C.border}`, padding: "6px 10px", borderRadius: 4 }}>{score}/{answers.length} correct</span>
           </>}
-          <button onClick={reset} aria-label="Reset quiz" style={{ background: "none", border: `1px solid ${C.border}`, borderRadius: 6, padding: "8px 12px", color: C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 14, display: "flex", alignItems: "center", gap: 4 }}><ArrowPathIcon style={{ width: 14, height: 14 }} aria-hidden="true" /> Reset</button>
+          <button onClick={reset} aria-label="Reset quiz" style={{ background: "none", border: `1px solid ${C.border}`, borderRadius: 6, padding: "8px 12px", minHeight: 44, color: C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 14, display: "flex", alignItems: "center", gap: 4 }}><ArrowPathIcon style={{ width: 14, height: 14 }} aria-hidden="true" /> Reset</button>
         </div>
       </div>
       <div style={{ height: 3, borderRadius: 2, background: C.codeBg, marginBottom: 14 }}>
@@ -147,7 +152,7 @@ const QuizBank = ({ questions }) => {
           if (selected !== null) { if (isCorrect) { bg = `${C.primary}15`; border = C.secondary; } else if (isSelected && !isCorrect) { bg = "#ef444415"; border = "#ef4444"; } }
           const showFeedback = selected !== null && isSelected;
           return (
-            <button key={i} onClick={() => handleSelect(i)} style={{ background: bg, border: `1px solid ${border}`, borderRadius: 8, padding: showFeedback ? "10px 14px 14px 14px" : "10px 14px", color: C.text, cursor: selected === null ? "pointer" : "default", textAlign: "left", fontFamily: "inherit", fontSize: 14, transition: "all 0.3s ease" }}>
+            <button key={i} onClick={() => handleSelect(i)} aria-disabled={selected !== null} style={{ background: bg, border: `1px solid ${border}`, borderRadius: 8, padding: showFeedback ? "10px 14px 14px 14px" : "10px 14px", minHeight: 44, color: C.text, cursor: selected === null ? "pointer" : "default", textAlign: "left", fontFamily: "inherit", fontSize: 14, transition: "all 0.3s ease" }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                 {selected !== null && isSelected && (
                   isCorrect
@@ -161,6 +166,10 @@ const QuizBank = ({ questions }) => {
               </div>
               {showFeedback && (
                 <div style={{ marginTop: 10, paddingTop: 10, borderTop: `1px solid ${isCorrect ? `${C.secondary}44` : "#ef444444"}`, fontSize: 13, color: C.muted, lineHeight: 1.6 }}>
+                  {/* Correctness in words, not only in colour and an aria-hidden icon. */}
+                  <div style={{ color: isCorrect ? "#22c55e" : "#ef4444", fontWeight: 700, marginBottom: 4 }}>
+                    {isCorrect ? "Correct" : "Incorrect"}
+                  </div>
                   {!isCorrect && <div style={{ color: "#22c55e", marginBottom: 4 }}>Correct answer: {q.options[q.correctIndex]}</div>}
                   {q.explanation}
                 </div>
@@ -169,8 +178,17 @@ const QuizBank = ({ questions }) => {
           );
         })}
       </div>
+      {/* The feedback above is injected into the button the user just activated,
+          which screen readers do not reliably announce. Mirror it here. */}
+      <div aria-live="polite" aria-atomic="true" style={srOnly}>
+        {selected !== null && (
+          selected === q.correctIndex
+            ? `Correct. ${q.explanation}`
+            : `Incorrect. The correct answer is: ${q.options[q.correctIndex]}. ${q.explanation}`
+        )}
+      </div>
       {selected !== null && (
-        <button onClick={nextQ} style={{ marginTop: 10, background: `${C.primary}20`, border: `1px solid ${C.primary}66`, borderRadius: 8, padding: "8px 16px", color: C.accent, cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+        <button onClick={nextQ} style={{ marginTop: 10, background: `${C.primary}20`, border: `1px solid ${C.primary}66`, borderRadius: 8, padding: "8px 16px", minHeight: 44, color: C.accent, cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
           {qIdx + 1 >= questions.length ? "View Results" : "Next Question"} <ArrowRightIcon style={{ width: 14, height: 14 }} aria-hidden="true" />
         </button>
       )}

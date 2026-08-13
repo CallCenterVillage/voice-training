@@ -1,0 +1,30 @@
+name: CI
+
+# netlify.toml runs `pnpm run build` with no test gate, so without this a
+# commit that fails lint or tests still deploys to production.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Version comes from the "packageManager" field in package.json.
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - run: pnpm lint
+
+      - run: pnpm test
+
+      - run: pnpm build

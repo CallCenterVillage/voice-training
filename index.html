@@ -2,22 +2,56 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/images/ccv-logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Call Center Village</title>
+
+    <title>Call Center Village — Voice Security Training</title>
+    <meta name="description" content="Free, hands-on training in voice security: AI voice cloning, voice agent architecture and attack surface, and social engineering against humans and AI agents." />
+    <!-- Updated per route by App.jsx; the static value is the fallback for non-JS crawlers. -->
+    <link rel="canonical" href="https://callcentervillage.org/" />
+    <meta name="theme-color" content="#08060f" />
+    <meta name="color-scheme" content="dark" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Call Center Village" />
+    <meta property="og:url" content="https://callcentervillage.org/" />
+    <meta property="og:title" content="Call Center Village — Voice Security Training" />
+    <meta property="og:description" content="Free, hands-on training in voice security: AI voice cloning, voice agent architecture and attack surface, and social engineering against humans and AI agents." />
+    <meta property="og:image" content="https://callcentervillage.org/images/og-card.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Call Center Village — voice security training" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Call Center Village — Voice Security Training" />
+    <meta name="twitter:description" content="Free, hands-on training in voice security: AI voice cloning, voice agent architecture and attack surface, and social engineering against humans and AI agents." />
+    <meta name="twitter:image" content="https://callcentervillage.org/images/og-card.png" />
+
+    <link rel="icon" type="image/png" href="/images/ccv-logo.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png" />
+
+    <!-- Above-the-fold weights only; the rest are discovered from the CSS below. -->
+    <link rel="preload" href="/fonts/inter-400.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/inter-600.woff2" as="font" type="font/woff2" crossorigin />
     <style>
-      @font-face { font-family: 'Inter'; font-weight: 400; font-style: normal; font-display: swap; src: url('/fonts/inter-400.ttf') format('truetype'); }
-      @font-face { font-family: 'Inter'; font-weight: 500; font-style: normal; font-display: swap; src: url('/fonts/inter-500.ttf') format('truetype'); }
-      @font-face { font-family: 'Inter'; font-weight: 600; font-style: normal; font-display: swap; src: url('/fonts/inter-600.ttf') format('truetype'); }
-      @font-face { font-family: 'Inter'; font-weight: 700; font-style: normal; font-display: swap; src: url('/fonts/inter-700.ttf') format('truetype'); }
-      @font-face { font-family: 'Inter'; font-weight: 800; font-style: normal; font-display: swap; src: url('/fonts/inter-800.ttf') format('truetype'); }
-      @font-face { font-family: 'JetBrains Mono'; font-weight: 400; font-style: normal; font-display: swap; src: url('/fonts/jetbrains-mono-400.ttf') format('truetype'); }
-      @font-face { font-family: 'JetBrains Mono'; font-weight: 600; font-style: normal; font-display: swap; src: url('/fonts/jetbrains-mono-600.ttf') format('truetype'); }
+      /* Subset to Latin + the symbol blocks actually used in the UI. Regenerate
+         with scripts/build-fonts.py if a new glyph range is ever needed. */
+      @font-face { font-family: 'Inter'; font-weight: 400; font-style: normal; font-display: swap; src: url('/fonts/inter-400.woff2') format('woff2'); }
+      @font-face { font-family: 'Inter'; font-weight: 500; font-style: normal; font-display: swap; src: url('/fonts/inter-500.woff2') format('woff2'); }
+      @font-face { font-family: 'Inter'; font-weight: 600; font-style: normal; font-display: swap; src: url('/fonts/inter-600.woff2') format('woff2'); }
+      @font-face { font-family: 'Inter'; font-weight: 700; font-style: normal; font-display: swap; src: url('/fonts/inter-700.woff2') format('woff2'); }
+      @font-face { font-family: 'Inter'; font-weight: 800; font-style: normal; font-display: swap; src: url('/fonts/inter-800.woff2') format('woff2'); }
+      @font-face { font-family: 'JetBrains Mono'; font-weight: 400; font-style: normal; font-display: swap; src: url('/fonts/jetbrains-mono-400.woff2') format('woff2'); }
+      @font-face { font-family: 'JetBrains Mono'; font-weight: 600; font-style: normal; font-display: swap; src: url('/fonts/jetbrains-mono-600.woff2') format('woff2'); }
       *, *::before, *::after { box-sizing: border-box; }
       html, body, #root { margin: 0; padding: 0; background: #08060f; }
       body { font-family: 'Inter', 'Segoe UI', sans-serif; }
       button { font-family: 'Inter', 'Segoe UI', sans-serif; }
       body { font-size: 16px; }
+      /* Long URLs and paths in prose break instead of forcing a horizontal scroll. */
+      body { overflow-wrap: break-word; }
       *:focus-visible {
         outline: 2px solid #38b6ff;
         outline-offset: 2px;

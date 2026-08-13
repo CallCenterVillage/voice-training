@@ -1,15 +1,15 @@
-import { TrainingShell } from "../../components";
+import { lazy } from "react";
+import TrainingShell from "../../components/TrainingShell";
 import { toAnchorId } from "./_helpers";
-import IntroSection from "./IntroSection";
-import CLIGlossarySection, { cliTools } from "./CLIGlossarySection";
-import VoiceGlossarySection, { voiceTools } from "./VoiceGlossarySection";
-import ProjectGlossarySection, { allProjectTools } from "./ProjectGlossarySection";
-import FunToolsSection, { funTools } from "./FunToolsSection";
-import AudioSection from "./AudioSection";
-import SocialEngineeringResourcesSection, { seResources } from "./SocialEngineeringResourcesSection";
-import ResourcesSection, { resources } from "./ResourcesSection";
-import BuiltWithSection, { builtWithItems } from "./BuiltWithSection";
-import ThankYouSection from "./ThankYouSection";
+// Data only. The components that render these lists are lazy below; the lists
+// themselves are needed up front to build the "On this page" anchor links.
+import { cliTools } from "./data/cliTools";
+import { voiceTools } from "./data/voiceTools";
+import { allProjectTools } from "./data/projectTools";
+import { funTools } from "./data/funTools";
+import { seResources } from "./data/seResources";
+import { resources } from "./data/resources";
+import { builtWithItems } from "./data/builtWithItems";
 
 const sortByLabel = (a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: "base" });
 
@@ -50,10 +50,21 @@ SECTIONS[8].anchors = [
   ...builtWithItems.map(t => ({ id: `bw-${toAnchorId(t.name)}`, label: t.name })),
 ];
 
-const COMPS = [IntroSection, CLIGlossarySection, VoiceGlossarySection, ProjectGlossarySection, FunToolsSection, AudioSection, SocialEngineeringResourcesSection, ResourcesSection, BuiltWithSection, ThankYouSection];
+const COMPS = [
+  lazy(() => import("./IntroSection")),
+  lazy(() => import("./CLIGlossarySection")),
+  lazy(() => import("./VoiceGlossarySection")),
+  lazy(() => import("./ProjectGlossarySection")),
+  lazy(() => import("./FunToolsSection")),
+  lazy(() => import("./AudioSection")),
+  lazy(() => import("./SocialEngineeringResourcesSection")),
+  lazy(() => import("./ResourcesSection")),
+  lazy(() => import("./BuiltWithSection")),
+  lazy(() => import("./ThankYouSection")),
+];
 
 export { SECTIONS, COMPS };
 
 export default function AppendixTraining() {
-  return <TrainingShell sections={SECTIONS} sectionComponents={COMPS} moduleTitle="Appendix" topOffset={48} />;
+  return <TrainingShell sections={SECTIONS} sectionComponents={COMPS} moduleTitle="Appendix" topOffset={56} />;
 }

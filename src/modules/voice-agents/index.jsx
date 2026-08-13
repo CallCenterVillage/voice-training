@@ -1,13 +1,5 @@
-import { TrainingShell } from "../../components";
-import IntroSection from "./IntroSection";
-import ArchitectureSection from "./ArchitectureSection";
-import STTSection from "./STTSection";
-import BrainSection from "./BrainSection";
-import TTSSection from "./TTSSection";
-import LiveKitSection from "./LiveKitSection";
-import BuildingSection from "./BuildingSection";
-import AttackSurfaceSection from "./AttackSurfaceSection";
-import LabSection from "./LabSection";
+import { lazy } from "react";
+import TrainingShell from "../../components/TrainingShell";
 
 const SECTIONS = [
   { id: "intro", title: "Welcome", icon: "command-line" },
@@ -60,10 +52,23 @@ const SECTIONS = [
   { id: "lab", title: "Interactive Lab", icon: "beaker" },
 ];
 
-const COMPS = [IntroSection, ArchitectureSection, STTSection, BrainSection, TTSSection, LiveKitSection, BuildingSection, AttackSurfaceSection, LabSection];
+// Lazy so a visitor to one section does not download every other
+// section's prose and diagrams. SECTIONS stays eager — it is just
+// metadata, and routing plus the drawer need it up front.
+const COMPS = [
+  lazy(() => import("./IntroSection")),
+  lazy(() => import("./ArchitectureSection")),
+  lazy(() => import("./STTSection")),
+  lazy(() => import("./BrainSection")),
+  lazy(() => import("./TTSSection")),
+  lazy(() => import("./LiveKitSection")),
+  lazy(() => import("./BuildingSection")),
+  lazy(() => import("./AttackSurfaceSection")),
+  lazy(() => import("./LabSection")),
+];
 
 export { SECTIONS, COMPS };
 
 export default function VoiceAgentsTraining() {
-  return <TrainingShell sections={SECTIONS} sectionComponents={COMPS} moduleTitle="Voice Agents" topOffset={48} />;
+  return <TrainingShell sections={SECTIONS} sectionComponents={COMPS} moduleTitle="Voice Agents" topOffset={56} />;
 }

@@ -6,12 +6,12 @@ import { SECTIONS as VA_SECTIONS } from "./modules/voice-agents";
 import { SECTIONS as SE_SECTIONS } from "./modules/social-engineering";
 import { SECTIONS as AP_SECTIONS } from "./modules/appendix";
 import { allQuizQuestions } from "./quizData";
-import { resources } from "./modules/appendix/ResourcesSection";
-import { seResources } from "./modules/appendix/SocialEngineeringResourcesSection";
-import { cliTools } from "./modules/appendix/CLIGlossarySection";
-import { voiceTools } from "./modules/appendix/VoiceGlossarySection";
-import { allProjectTools } from "./modules/appendix/ProjectGlossarySection";
-import { funTools } from "./modules/appendix/FunToolsSection";
+import { resources } from "./modules/appendix/data/resources";
+import { seResources } from "./modules/appendix/data/seResources";
+import { cliTools } from "./modules/appendix/data/cliTools";
+import { voiceTools } from "./modules/appendix/data/voiceTools";
+import { allProjectTools } from "./modules/appendix/data/projectTools";
+import { funTools } from "./modules/appendix/data/funTools";
 import { toAnchorId } from "./modules/appendix/_helpers";
 
 const MODULE_MAP = [

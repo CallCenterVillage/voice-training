@@ -1,12 +1,5 @@
-import { TrainingShell } from "../../components";
-import IntroSection from "./IntroSection";
-import FundamentalsSection from "./FundamentalsSection";
-import TraditionalSection from "./TraditionalSection";
-import AISection from "./AISection";
-import LocalToolsSection from "./LocalToolsSection";
-import CommercialSection from "./CommercialSection";
-import DefenseSection from "./DefenseSection";
-import LabSection from "./LabSection";
+import { lazy } from "react";
+import TrainingShell from "../../components/TrainingShell";
 
 const SECTIONS = [
   { id: "intro", title: "Welcome", icon: "microphone" },
@@ -56,10 +49,22 @@ const SECTIONS = [
   { id: "lab", title: "Interactive Lab", icon: "beaker" },
 ];
 
-const COMPS = [IntroSection, FundamentalsSection, TraditionalSection, AISection, LocalToolsSection, CommercialSection, DefenseSection, LabSection];
+// Lazy so a visitor to one section does not download every other
+// section's prose and diagrams. SECTIONS stays eager — it is just
+// metadata, and routing plus the drawer need it up front.
+const COMPS = [
+  lazy(() => import("./IntroSection")),
+  lazy(() => import("./FundamentalsSection")),
+  lazy(() => import("./TraditionalSection")),
+  lazy(() => import("./AISection")),
+  lazy(() => import("./LocalToolsSection")),
+  lazy(() => import("./CommercialSection")),
+  lazy(() => import("./DefenseSection")),
+  lazy(() => import("./LabSection")),
+];
 
 export { SECTIONS, COMPS };
 
 export default function VoiceCloningTraining() {
-  return <TrainingShell sections={SECTIONS} sectionComponents={COMPS} moduleTitle="Voice Cloning" topOffset={48} />;
+  return <TrainingShell sections={SECTIONS} sectionComponents={COMPS} moduleTitle="Voice Cloning" topOffset={56} />;
 }

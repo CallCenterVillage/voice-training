@@ -14,3 +14,5 @@ export { default as Lightbox } from "./Lightbox";
 export { default as StaticCard } from "./StaticCard";
 export { default as LightboxCardGrid } from "./LightboxCardGrid";
 export { default as ServiceCardGrid } from "./ServiceCardGrid";
+export { default as Tabs, tabPanelProps } from "./Tabs";
+export { useLockBodyScroll } from "./useLockBodyScroll";

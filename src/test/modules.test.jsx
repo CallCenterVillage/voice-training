@@ -49,7 +49,9 @@ describe('Module Section Structure', () => {
     });
   });
 
-  it('every section component is a function', async () => {
+  // Sections are code-split, so COMPS holds React.lazy objects rather than
+  // plain function components.
+  it('every section component is a renderable component type', async () => {
     const modules = [
       await import('../modules/voice-cloning/index.jsx'),
       await import('../modules/voice-agents/index.jsx'),
@@ -57,9 +59,11 @@ describe('Module Section Structure', () => {
       await import('../modules/appendix/index.jsx'),
     ];
 
+    const LAZY = Symbol.for('react.lazy');
     modules.forEach(mod => {
       mod.COMPS.forEach((Comp, i) => {
-        expect(typeof Comp, `Component ${i} is not a function`).toBe('function');
+        const ok = typeof Comp === 'function' || (Comp && Comp.$$typeof === LAZY);
+        expect(ok, `Component ${i} is neither a function nor a lazy component`).toBe(true);
       });
     });
   });

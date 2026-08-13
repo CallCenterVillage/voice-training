@@ -3,7 +3,11 @@ import { C, Icon } from "../../components";
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 
 export const SystemPromptExplainer = () => {
+  // Hover alone left this content unreachable by keyboard and on touch, so a
+  // click/Enter/Space toggle pins it open independently of the pointer.
   const [hoveredSection, setHoveredSection] = useState(null);
+  const [openSection, setOpenSection] = useState(null);
+  const isShown = (i) => hoveredSection === i || openSection === i;
   const sections = [
     {
       color: C.accent,
@@ -76,16 +80,28 @@ export const SystemPromptExplainer = () => {
       {sections.map((section, i) => (
         <div
           key={i}
+          role="button"
+          tabIndex={0}
+          aria-expanded={isShown(i)}
           onMouseEnter={() => setHoveredSection(i)}
           onMouseLeave={() => setHoveredSection(null)}
+          onFocus={() => setHoveredSection(i)}
+          onBlur={() => setHoveredSection(null)}
+          onClick={() => setOpenSection(prev => (prev === i ? null : i))}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setOpenSection(prev => (prev === i ? null : i));
+            }
+          }}
           style={{
             padding: "8px 12px",
             marginBottom: 4,
             borderRadius: 6,
             cursor: "help",
             transition: "background 0.2s ease",
-            background: hoveredSection === i ? `${section.color}15` : "transparent",
-            borderLeft: `3px solid ${hoveredSection === i ? section.color : "transparent"}`,
+            background: isShown(i) ? `${section.color}15` : "transparent",
+            borderLeft: `3px solid ${isShown(i) ? section.color : "transparent"}`,
             position: "relative",
           }}
         >
@@ -93,7 +109,7 @@ export const SystemPromptExplainer = () => {
           {section.lines.map((line, j) => (
             <div key={j} style={{ color: C.muted }}>{line}</div>
           ))}
-          {hoveredSection === i && (
+          {isShown(i) && (
             <div style={{
               marginTop: 8,
               background: `${section.color}18`, border: `1px solid ${section.color}44`,
@@ -173,14 +189,15 @@ export const LatencyMeter = ({ label, ms, max = 2000 }) => (
   <div style={{ marginBottom: 8 }}>
     <div style={{ display: "flex", justifyContent: "space-between", fontSize: 14, marginBottom: 4 }}>
       <span style={{ color: C.muted }}>{label}</span>
-      <span style={{ color: ms < 300 ? C.accent : ms < 800 ? C.tertiary : C.primary, fontWeight: 700, fontFamily: "monospace" }}>{ms}ms</span>
+      {/* C.primary as text is 2.6:1 — the slowest latencies were the least legible. */}
+      <span style={{ color: ms < 300 ? C.accent : ms < 800 ? C.tertiary : C.primaryText, fontWeight: 700, fontFamily: "monospace" }}>{ms}ms</span>
     </div>
     <div role="progressbar" aria-valuenow={ms} aria-valuemin={0} aria-valuemax={max} aria-label={label} style={{ background: C.codeBg, borderRadius: 4, height: 6, overflow: "hidden" }}>
       <div style={{
         width: `${Math.min((ms / max) * 100, 100)}%`,
         height: "100%",
         borderRadius: 4,
-        background: ms < 300 ? C.accent : ms < 800 ? C.tertiary : C.primary,
+        background: ms < 300 ? C.accent : ms < 800 ? C.tertiary : C.primaryText,
         transition: "width 0.5s ease",
       }} />
     </div>

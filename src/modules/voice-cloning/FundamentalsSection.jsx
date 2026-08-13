@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { C, QuizBank, Icon, SectionDivider } from '../../components';
+import { C, QuizBank, Icon, SectionDivider, Tabs, tabPanelProps } from '../../components';
 import { WaveformViz, VoiceCharacteristicCard, PitchDiagram, FormantDiagram, TimbreDiagram, ProsodyDiagram, SpectrumViz, RecommendationCard, AudioQualityCard } from './_helpers';
 
 const FundamentalsSection = () => {
@@ -12,8 +12,21 @@ const FundamentalsSection = () => {
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>A <strong style={{ color: C.text }}>sine wave</strong> is the simplest possible sound: one smooth, repeating frequency. A <strong style={{ color: C.text }}>square wave</strong> snaps abruptly between two levels, producing a harsher tone packed with extra harmonics. Then look at the <strong style={{ color: C.text }}>human voice</strong> — it's dramatically more complex, made up of dozens of overlapping frequencies that shift constantly. That complexity is what makes every voice unique, and it's what voice cloning AI has to learn to reproduce.</p>
     <div style={{ marginBottom: 24 }}>
       <h2 id="waveform-explorer" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 12, scrollMarginTop: 120 }}>Interactive Waveform Explorer</h2>
-      <div role="tablist" style={{ display: "flex", gap: 8, marginBottom: 12, alignItems: "center" }}>
-        {["sine", "square", "complex"].map(t => <button key={t} role="tab" aria-selected={waveType === t} onClick={() => setWaveType(t)} style={{ background: waveType === t ? `${C.primary}20` : "#06040c", border: `1px solid ${waveType === t ? C.secondary : C.border}`, borderRadius: 6, padding: "6px 12px", color: waveType === t ? C.accent : C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600 }}>{t === "complex" ? "Human Voice" : `${t[0].toUpperCase()+t.slice(1)} Wave`}</button>)}
+      {/* The Play button used to sit inside the tablist, where a non-tab child is
+          invalid and it stole a position in the arrow-key sequence. */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 12, alignItems: "center", flexWrap: "wrap" }}>
+        <Tabs
+          idBase="waveform-explorer"
+          label="Waveform type"
+          selected={waveType}
+          onSelect={setWaveType}
+          tabs={["sine", "square", "complex"].map(t => ({
+            key: t,
+            label: t === "complex" ? "Human Voice" : `${t[0].toUpperCase() + t.slice(1)} Wave`,
+          }))}
+          style={{ display: "flex", gap: 8 }}
+          tabStyle={isSelected => ({ background: isSelected ? `${C.primary}20` : "#06040c", border: `1px solid ${isSelected ? C.secondary : C.border}`, borderRadius: 6, padding: "6px 12px", minHeight: 44, color: isSelected ? C.accent : C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600 })}
+        />
         <button
           onClick={() => waveRef.current?.togglePlay()}
           aria-label={wavePlaying ? "Stop audio" : "Play audio"}
@@ -21,7 +34,7 @@ const FundamentalsSection = () => {
             display: "inline-flex", alignItems: "center", gap: 6,
             background: wavePlaying ? "#58E88025" : `${C.primary}25`,
             border: `1px solid ${wavePlaying ? "#58E88066" : C.border}`,
-            borderRadius: 6, padding: "6px 12px",
+            borderRadius: 6, padding: "6px 12px", minHeight: 44,
             color: wavePlaying ? "#58E880" : C.accent,
             cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600,
             transition: "all 0.2s ease",
@@ -30,8 +43,10 @@ const FundamentalsSection = () => {
           <Icon name={wavePlaying ? "stop" : "play"} size={14} />{wavePlaying ? "Stop" : "Play"}
         </button>
       </div>
+      <div {...tabPanelProps("waveform-explorer", waveType)}>
       <WaveformViz ref={waveRef} type={waveType} onPlayingChange={setWavePlaying} />
       <div style={{ fontSize: 14, color: C.dim, marginTop: 8 }}>{waveType === "sine" ? "A pure tone — single frequency, 440Hz (the 'A' note). Hit play to hear it. Think tuning forks, hearing tests, and the reference pitch used to tune instruments. Sine waves are the building blocks of all complex sounds." : waveType === "square" ? "An abrupt on/off signal — rich in odd harmonics. Hit play to hear the harsh, buzzy tone. Used as clock sources in digital circuits, sync signals in audio gear, and the basis for chiptune / 8-bit video game music. Never found in natural voice." : "Human voice: many overlapping harmonics with micro-variations in pitch, amplitude, and timing. Hit play to hear a synthesized vowel and watch the waveform — notice how much more chaotic it is compared to the pure tones."}</div>
+      </div>
     </div>
 
     <SectionDivider />

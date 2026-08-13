@@ -2,10 +2,65 @@
   command = "pnpm run build"
   publish = "dist"
 
+# --- SPA deep links ---------------------------------------------------------
+# Scoped to the real module prefixes rather than a blanket /* so that unknown
+# URLs get a genuine 404 instead of a 200 with the app shell. Adding a module
+# means adding a rule here.
+
 [[redirects]]
-  from = "/*"
+  from = "/voice-cloning/*"
   to = "/index.html"
   status = 200
+
+[[redirects]]
+  from = "/voice-agents/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/social-engineering/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/appendix/*"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/quiz"
+  to = "/index.html"
+  status = 200
+
+# Bare module paths — App.jsx replaceStates these to /:module/intro.
+[[redirects]]
+  from = "/voice-cloning"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/voice-agents"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/social-engineering"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/appendix"
+  to = "/index.html"
+  status = 200
+
+[[redirects]]
+  from = "/*"
+  to = "/404.html"
+  status = 404
+
+# --- Security headers -------------------------------------------------------
+# HSTS is deliberately not set here — it belongs at the TLS-terminating edge
+# (Cloudflare), and setting it in both places risks conflicting max-age values.
 
 [[headers]]
   for = "/*"
@@ -13,8 +68,60 @@
     X-Content-Type-Options = "nosniff"
     X-Frame-Options = "DENY"
     Referrer-Policy = "strict-origin-when-cross-origin"
+    Cross-Origin-Opener-Policy = "same-origin"
+    Cross-Origin-Resource-Policy = "same-origin"
+    Permissions-Policy = "microphone=(), camera=(), geolocation=(), payment=(), usb=(), midi=(), magnetometer=(), gyroscope=(), accelerometer=(), display-capture=()"
 
+    # Report-Only first. Watch the console on the waveform pages (wavesurfer.js
+    # is the one dependency that could plausibly want blob:/worker), then rename
+    # this key to Content-Security-Policy to enforce.
+    # 'unsafe-inline' covers only the <style> block in index.html — React's
+    # style={{}} prop goes through the CSSOM and is not subject to style-src.
+    Content-Security-Policy-Report-Only = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; media-src 'self'; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none'; upgrade-insecure-requests"
+
+# --- Caching ----------------------------------------------------------------
+
+# Vite output is content-hashed, so it is safe to freeze.
 [[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
+
+# public/ assets are NOT content-hashed. 7 days with revalidation, so a replaced
+# file is picked up within a week. Only use immutable here if you version the
+# filenames on every change.
+[[headers]]
+  for = "/fonts/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+    Access-Control-Allow-Origin = "*"
+
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+[[headers]]
+  for = "/audio/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+# --- Content types for the well-known files ---------------------------------
+
+[[headers]]
+  for = "/robots.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/sitemap.xml"
+  [headers.values]
+    Content-Type = "application/xml; charset=utf-8"
+    Cache-Control = "public, max-age=86400"
+
+[[headers]]
+  for = "/.well-known/security.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+    Cache-Control = "public, max-age=86400"

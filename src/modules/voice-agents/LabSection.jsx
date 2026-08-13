@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { C, CodeBlock, NextModuleLink, SectionDivider } from "../../components";
+import { C, CodeBlock, NextModuleLink, SectionDivider, Tabs, tabPanelProps } from "../../components";
 
 export default function LabSection() {
   const [exercise, setExercise] = useState(0);
@@ -27,15 +27,17 @@ export default function LabSection() {
       <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 24 }}>
         Hands-on exercises to build and test a voice agent. Follow these in order for the best experience.
       </p>
-      <div role="tablist" style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
-        {exercises.map((ex, i) => (
-          <button role="tab" aria-selected={i === exercise} key={i} onClick={() => setExercise(i)} style={{ background: i === exercise ? `${C.secondary}20` : C.card, border: `1px solid ${i === exercise ? C.secondary : C.border}`, borderRadius: 8, padding: "10px 14px", color: i === exercise ? C.secondary : C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600 }}>
-            {ex.title}
-          </button>
-        ))}
-      </div>
-      <div style={{ background: C.card, borderRadius: 12, padding: 20, border: `1px solid ${C.secondary}33` }}>
-        <div style={{ fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 4 }}>{exercises[exercise].title}</div>
+      <Tabs
+        idBase="va-lab"
+        label="Lab exercises"
+        selected={String(exercise)}
+        onSelect={key => setExercise(Number(key))}
+        tabs={exercises.map((ex, i) => ({ key: String(i), label: ex.title }))}
+        style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}
+        tabStyle={isSelected => ({ background: isSelected ? `${C.secondary}20` : C.card, border: `1px solid ${isSelected ? C.secondary : C.border}`, borderRadius: 8, padding: "10px 14px", minHeight: 44, color: isSelected ? C.secondary : C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600 })}
+      />
+      <div {...tabPanelProps("va-lab", String(exercise))} style={{ background: C.card, borderRadius: 12, padding: 20, border: `1px solid ${C.secondary}33` }}>
+        <h3 style={{ margin: "0 0 4px", fontSize: 16, fontWeight: 700, color: C.text }}>{exercises[exercise].title}</h3>
         <div style={{ fontSize: 14, color: C.muted, marginBottom: 16, lineHeight: 1.6 }}>{exercises[exercise].desc}</div>
         <CodeBlock code={exercises[exercise].code} language="bash" />
       </div>

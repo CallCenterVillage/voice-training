@@ -38,7 +38,7 @@ const renderShell = (props = {}) =>
     />
   );
 
-const drawer = () => screen.getByLabelText('Sections navigation');
+const drawer = () => document.getElementById('sections-drawer');
 const isDrawerOpen = () => drawer().style.transform === 'translateX(0)';
 
 afterEach(() => { window.matchMedia = realMatchMedia; });
@@ -53,7 +53,7 @@ describe('TrainingShell — mobile', () => {
 
   it('overlays rather than pushing content when open', () => {
     const { container } = renderShell();
-    fireEvent.click(screen.getByLabelText('Open sections navigation'));
+    fireEvent.click(screen.getByLabelText('Sections menu'));
     expect(isDrawerOpen()).toBe(true);
 
     // No element may reserve a 260px gutter — that is what crushed content to ~115px.
@@ -65,7 +65,7 @@ describe('TrainingShell — mobile', () => {
   it('closes the drawer after choosing a section', () => {
     const onNavigate = vi.fn();
     renderShell({ onNavigate });
-    fireEvent.click(screen.getByLabelText('Open sections navigation'));
+    fireEvent.click(screen.getByLabelText('Sections menu'));
     expect(isDrawerOpen()).toBe(true);
 
     fireEvent.click(screen.getByText('Section Two'));
@@ -75,7 +75,7 @@ describe('TrainingShell — mobile', () => {
 
   it('closes the drawer when the scrim is tapped', () => {
     renderShell();
-    fireEvent.click(screen.getByLabelText('Open sections navigation'));
+    fireEvent.click(screen.getByLabelText('Sections menu'));
     const scrim = document.querySelector('[aria-hidden="true"][style*="position: fixed"]');
     expect(scrim).toBeTruthy();
     fireEvent.click(scrim);
@@ -119,7 +119,8 @@ describe('App nav — mobile', () => {
 
   it('keeps every module reachable, including Appendix', () => {
     render(<App />);
-    const labels = screen.getAllByRole('tab').map(t => t.textContent);
+    const nav = screen.getByRole('navigation', { name: 'Module switcher' });
+    const labels = [...nav.querySelectorAll('button')].map(t => t.textContent);
     expect(labels).toContain('Voice Cloning');
     expect(labels).toContain('Voice Agents');
     expect(labels).toContain('Social Engineering');

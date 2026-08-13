@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { C, CodeBlock, InfoBox, NextModuleLink, SectionDivider } from '../../components';
+import { C, CodeBlock, InfoBox, NextModuleLink, SectionDivider, Tabs, tabPanelProps } from '../../components';
 
 const LabSection = () => {
   const [step, setStep] = useState(0);
@@ -15,9 +15,15 @@ const LabSection = () => {
     <p style={{ color: C.muted, lineHeight: 1.7, marginBottom: 16 }}>Put it all together — record your voice, modify it, clone it with AI, then try to detect which is real vs AI vs modified.</p>
     <InfoBox>If you need any help, please find an on-site Call Center Village staff member.</InfoBox>
 
-    <div role="tablist" style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}>
-      {exercises.map((ex, i) => <button key={i} role="tab" aria-selected={i === step} onClick={() => setStep(i)} style={{ background: i === step ? `${C.primary}20` : C.card, border: `1px solid ${i === step ? C.secondary : C.border}`, borderRadius: 8, padding: "10px 16px", color: i === step ? C.accent : C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 600 }}>{ex.title}</button>)}
-    </div>
+    <Tabs
+      idBase="vc-lab"
+      label="Lab exercises"
+      selected={String(step)}
+      onSelect={key => setStep(Number(key))}
+      tabs={exercises.map((ex, i) => ({ key: String(i), label: ex.title }))}
+      style={{ display: "flex", gap: 8, marginBottom: 20, flexWrap: "wrap" }}
+      tabStyle={isSelected => ({ background: isSelected ? `${C.primary}20` : C.card, border: `1px solid ${isSelected ? C.secondary : C.border}`, borderRadius: 8, padding: "10px 16px", minHeight: 44, color: isSelected ? C.accent : C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 13, fontWeight: 600 })}
+    />
 
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, marginBottom: 24, overflow: "hidden" }}>
       <button onClick={() => setScriptOpen(!scriptOpen)} style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", padding: 20, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit" }}>
@@ -35,8 +41,8 @@ const LabSection = () => {
       )}
     </div>
 
-    <div style={{ background: C.card, borderRadius: 12, padding: 20, border: `1px solid ${C.secondary}33` }}>
-      <div style={{ fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 12 }}>{exercises[step].title}</div>
+    <div {...tabPanelProps("vc-lab", String(step))} style={{ background: C.card, borderRadius: 12, padding: 20, border: `1px solid ${C.secondary}33` }}>
+      <h3 style={{ margin: "0 0 12px", fontSize: 16, fontWeight: 700, color: C.text }}>{exercises[step].title}</h3>
       {exercises[step].desc && <p style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 16, marginTop: 0 }}>{exercises[step].desc}</p>}
       <CodeBlock code={exercises[step].cmd} language="bash" />
     </div>

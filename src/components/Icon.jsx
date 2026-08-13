@@ -50,6 +50,7 @@ import {
   ServerIcon,
   ArrowRightIcon,
   PlayIcon,
+  StopIcon,
   RocketLaunchIcon,
   HomeIcon,
   FireIcon,
@@ -132,6 +133,9 @@ const iconMap = {
   server: ServerIcon,
   "arrow-right": ArrowRightIcon,
   play: PlayIcon,
+  // Callers pass name="stop" in two places; without this the Stop state rendered
+  // no icon at all, since Icon returns null for unknown names.
+  stop: StopIcon,
   rocket: RocketLaunchIcon,
   home: HomeIcon,
   fire: FireIcon,

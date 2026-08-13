@@ -1,10 +1,11 @@
-import { useState, useEffect, useRef, useCallback, useImperativeHandle, forwardRef } from "react";
-import { C, CodeBlock, Icon, Lightbox } from '../../components';
+import { useState, useEffect, useRef, useCallback, useId, useImperativeHandle, forwardRef } from "react";
+import { C, CodeBlock, Icon, Lightbox, Tabs, tabPanelProps } from '../../components';
 import { ArrowRightIcon } from "@heroicons/react/24/outline";
 
 const ArtifactLightbox = ({ sign, desc, renderViz }) => {
   const [hovered, setHovered] = useState(false);
   const [open, setOpen] = useState(false);
+  const titleId = useId();
   return (
     <>
       <div
@@ -15,13 +16,15 @@ const ArtifactLightbox = ({ sign, desc, renderViz }) => {
         onMouseLeave={() => setHovered(false)}
         style={{ background: "#06040c", padding: 14, borderRadius: 8, cursor: "pointer", border: `1px solid ${hovered ? C.tertiary : "transparent"}`, transition: "border-color 0.2s ease" }}
       >
-        <div style={{ color: C.tertiary, fontWeight: 700, fontSize: 13, marginBottom: 2 }}>{sign}</div>
+        <h3 style={{ margin: "0 0 2px", color: C.tertiary, fontWeight: 700, fontSize: 13 }}>{sign}</h3>
         <div style={{ fontSize: 12, color: C.dim, marginBottom: 10 }}>{desc}</div>
         {renderViz(60)}
       </div>
       {open && (
-        <Lightbox onClose={() => setOpen(false)}>
-          <div style={{ fontSize: 20, color: C.tertiary, fontWeight: 700, marginBottom: 8 }}>{sign}</div>
+        // Naming the dialog from its own title — most Lightbox instances
+        // announced only "dialog" with no indication of what had opened.
+        <Lightbox onClose={() => setOpen(false)} ariaLabelledBy={titleId}>
+          <h3 id={titleId} style={{ margin: "0 0 8px", fontSize: 20, color: C.tertiary, fontWeight: 700 }}>{sign}</h3>
           <div style={{ fontSize: 14, color: C.muted, marginBottom: 16, lineHeight: 1.7 }}>{desc}</div>
           {renderViz(180)}
         </Lightbox>
@@ -33,6 +36,7 @@ const ArtifactLightbox = ({ sign, desc, renderViz }) => {
 const AudioQualityCard = ({ title, children }) => {
   const [hovered, setHovered] = useState(false);
   const [open, setOpen] = useState(false);
+  const titleId = useId();
   return (
     <>
       <div
@@ -47,12 +51,12 @@ const AudioQualityCard = ({ title, children }) => {
           transition: "border-color 0.2s ease",
         }}
       >
-        <div style={{ fontSize: 13, color: C.accent, fontWeight: 700, marginBottom: 16 }}>{title}</div>
+        <h3 style={{ margin: "0 0 16px", fontSize: 13, color: C.accent, fontWeight: 700 }}>{title}</h3>
         {children}
       </div>
       {open && (
-        <Lightbox onClose={() => setOpen(false)}>
-          <div style={{ fontSize: 20, color: C.accent, fontWeight: 700, marginBottom: 20 }}>{title}</div>
+        <Lightbox onClose={() => setOpen(false)} ariaLabelledBy={titleId}>
+          <h3 id={titleId} style={{ margin: "0 0 20px", fontSize: 20, color: C.accent, fontWeight: 700 }}>{title}</h3>
           <div className="lightbox-svg-scaled">{children}</div>
           <style>{`.lightbox-svg-scaled svg { width: 100% !important; height: 280px !important; }`}</style>
         </Lightbox>
@@ -64,6 +68,7 @@ const AudioQualityCard = ({ title, children }) => {
 const RecommendationCard = ({ label, value, ideal, detail }) => {
   const [hovered, setHovered] = useState(false);
   const [open, setOpen] = useState(false);
+  const titleId = useId();
   return (
     <>
       <div
@@ -79,9 +84,9 @@ const RecommendationCard = ({ label, value, ideal, detail }) => {
         <div style={{ fontSize: 12, color: C.accent }}>Ideal: {ideal}</div>
       </div>
       {open && (
-        <Lightbox onClose={() => setOpen(false)}>
+        <Lightbox onClose={() => setOpen(false)} ariaLabelledBy={titleId}>
           <div style={{ fontSize: 12, color: C.dim, marginBottom: 4 }}>{label}</div>
-          <div style={{ fontSize: 22, color: C.text, fontWeight: 800, marginBottom: 4 }}>Recommended: {value}</div>
+          <h3 id={titleId} style={{ margin: "0 0 4px", fontSize: 22, color: C.text, fontWeight: 800 }}>Recommended: {value}</h3>
           <div style={{ fontSize: 16, color: C.accent, fontWeight: 600, marginBottom: 20 }}>Ideal: {ideal}</div>
           <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.8 }}>{detail}</div>
         </Lightbox>
@@ -93,6 +98,7 @@ const RecommendationCard = ({ label, value, ideal, detail }) => {
 const VoiceCharacteristicCard = ({ name, desc, diagram }) => {
   const [hovered, setHovered] = useState(false);
   const [open, setOpen] = useState(false);
+  const titleId = useId();
   return (
     <>
       <div
@@ -103,13 +109,13 @@ const VoiceCharacteristicCard = ({ name, desc, diagram }) => {
         onMouseLeave={() => setHovered(false)}
         style={{ background: "#06040c", padding: 14, borderRadius: 8, border: `1px solid ${hovered ? C.accent : C.border}`, cursor: "pointer", transition: "border-color 0.2s ease" }}
       >
-        <div style={{ fontSize: 14, color: C.accent, fontWeight: 700, marginBottom: 10 }}>{name}</div>
+        <h3 style={{ margin: "0 0 10px", fontSize: 14, color: C.accent, fontWeight: 700 }}>{name}</h3>
         <div style={{ background: "#0a0812", borderRadius: 6, padding: "24px 6px", marginBottom: 8, border: `1px solid ${C.border}` }}>{diagram}</div>
         <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.6 }}>{desc}</div>
       </div>
       {open && (
-        <Lightbox onClose={() => setOpen(false)}>
-          <div style={{ fontSize: 20, color: C.accent, fontWeight: 700, marginBottom: 20 }}>{name}</div>
+        <Lightbox onClose={() => setOpen(false)} ariaLabelledBy={titleId}>
+          <h3 id={titleId} style={{ margin: "0 0 20px", fontSize: 20, color: C.accent, fontWeight: 700 }}>{name}</h3>
           <div className="lightbox-svg-scaled" style={{ background: "#0a0812", borderRadius: 8, padding: "28px 12px", marginBottom: 20, border: `1px solid ${C.border}` }}>{diagram}</div>
           <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.8 }}>{desc}</div>
           <style>{`.lightbox-svg-scaled svg { width: 100% !important; height: 280px !important; }`}</style>
@@ -605,9 +611,11 @@ const SpectrumViz = () => {
 
   return (
     <div>
-      <div role="tablist" style={{ display: "flex", gap: 8, marginBottom: 12, alignItems: "center" }}>
+      {/* Not a tablist: several profiles can be shown at once, and `tab` has no
+          multi-select. Toggle buttons with aria-pressed say what this actually is. */}
+      <div role="group" aria-label="Voice profiles to overlay" style={{ display: "flex", gap: 8, marginBottom: 12, alignItems: "center", flexWrap: "wrap" }}>
         {Object.entries(VOICE_PROFILES).map(([key, prof]) => (
-          <button key={key} role="tab" aria-selected={selected.includes(key)} onClick={() => toggle(key)} style={{ background: selected.includes(key) ? `${prof.color}20` : "#06040c", border: `1px solid ${selected.includes(key) ? prof.color : C.border}`, borderRadius: 6, padding: "6px 14px", color: selected.includes(key) ? prof.color : C.muted, cursor: cycling ? "default" : "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600, opacity: cycling ? 0.5 : 1 }}>{prof.label}</button>
+          <button key={key} aria-pressed={selected.includes(key)} onClick={() => toggle(key)} style={{ background: selected.includes(key) ? `${prof.color}20` : "#06040c", border: `1px solid ${selected.includes(key) ? prof.color : C.border}`, borderRadius: 6, padding: "6px 14px", minHeight: 44, color: selected.includes(key) ? prof.color : C.muted, cursor: cycling ? "default" : "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600, opacity: cycling ? 0.5 : 1 }}>{prof.label}</button>
         ))}
         <button
           onClick={cycling ? stopCycle : startCycle}
@@ -618,6 +626,7 @@ const SpectrumViz = () => {
             borderRadius: 6, padding: "6px 14px",
             color: cycling ? "#58E880" : C.accent,
             cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600,
+            minHeight: 44,
             display: "flex", alignItems: "center", gap: 6, marginLeft: 4
           }}
         >
@@ -677,9 +686,15 @@ const PipelineDiagram = ({ steps, activeStep = -1, onStepClick }) => (
       <div key={i} style={{ display: "flex", alignItems: "center" }}>
         <div
           onClick={onStepClick ? () => onStepClick(i) : undefined}
+          {...(onStepClick ? {
+            role: "button",
+            tabIndex: 0,
+            "aria-pressed": i === activeStep,
+            onKeyDown: (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onStepClick(i); } },
+          } : {})}
           onMouseEnter={onStepClick ? e => { if (i !== activeStep) { e.currentTarget.style.borderColor = C.secondary; e.currentTarget.style.background = `${C.primary}12`; } } : undefined}
           onMouseLeave={onStepClick ? e => { if (i !== activeStep) { e.currentTarget.style.borderColor = C.border; e.currentTarget.style.background = C.card; } } : undefined}
-          style={{ background: i === activeStep ? `${C.primary}20` : C.card, border: `1px solid ${i === activeStep ? C.secondary : C.border}`, borderRadius: 12, padding: "12px 16px", minWidth: 100, textAlign: "center", transition: "all 0.3s ease", boxShadow: i === activeStep ? `0 0 20px ${C.primary}22` : "none", cursor: onStepClick ? "pointer" : "default" }}>
+          style={{ background: i === activeStep ? `${C.primary}20` : C.card, border: `1px solid ${i === activeStep ? C.secondary : C.border}`, borderRadius: 12, padding: "12px 16px", minWidth: 100, minHeight: 44, textAlign: "center", transition: "all 0.3s ease", boxShadow: i === activeStep ? `0 0 20px ${C.primary}22` : "none", cursor: onStepClick ? "pointer" : "default" }}>
           <div style={{ fontSize: 22, marginBottom: 4 }}><Icon name={step.icon} size={22} /></div>
           <div style={{ fontSize: 13, color: i === activeStep ? C.accent : C.muted, fontWeight: 600 }}>{step.label}</div>
         </div>
@@ -704,13 +719,22 @@ const ToolComparison = ({ tools }) => {
   const matchIdx = tools.findIndex(t => t.name === selectedName);
   const safeIdx = matchIdx >= 0 ? matchIdx : 0;
   const t = tools[safeIdx];
+  // Tool names contain spaces, which are not valid in an id. Index keys plus a
+  // generated base keep the tab/panel ids unique across every instance.
+  const idBase = useId();
   return (
     <div style={{ background: C.card, borderRadius: 12, padding: 20, border: `1px solid ${C.border}` }}>
-      <div role="tablist" style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
-        {tools.map((tool, i) => <button key={i} role="tab" aria-selected={i === safeIdx} onClick={() => setSelectedName(tool.name)} style={{ background: i === safeIdx ? `${C.primary}20` : "#06040c", border: `1px solid ${i === safeIdx ? C.secondary : C.border}`, borderRadius: 8, padding: "8px 14px", color: i === safeIdx ? C.accent : C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600 }}>{tool.name}</button>)}
-      </div>
-      <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.8 }}>
-        <div style={{ color: C.text, fontWeight: 600, marginBottom: 4 }}>{t.name}</div>
+      <Tabs
+        idBase={idBase}
+        label="Tool comparison"
+        selected={String(safeIdx)}
+        onSelect={key => setSelectedName(tools[Number(key)].name)}
+        tabs={tools.map((tool, i) => ({ key: String(i), label: tool.name }))}
+        style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}
+        tabStyle={isSelected => ({ background: isSelected ? `${C.primary}20` : "#06040c", border: `1px solid ${isSelected ? C.secondary : C.border}`, borderRadius: 8, padding: "8px 14px", minHeight: 44, color: isSelected ? C.accent : C.muted, cursor: "pointer", fontFamily: "inherit", fontSize: 14, fontWeight: 600 })}
+      />
+      <div {...tabPanelProps(idBase, String(safeIdx))} style={{ fontSize: 14, color: C.muted, lineHeight: 1.8 }}>
+        <h3 style={{ margin: "0 0 4px", fontSize: 14, color: C.text, fontWeight: 600 }}>{t.name}</h3>
         <div style={{ marginBottom: 8 }}>{t.desc}</div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
           <div style={{ background: "#06040c", padding: 10, borderRadius: 8 }}><div style={{ fontSize: 12, color: C.accent, fontWeight: 700, marginBottom: 4 }}>PROS</div>{t.pros.map((p, i) => <div key={i}>+ {p}</div>)}</div>
@@ -723,7 +747,7 @@ const ToolComparison = ({ tools }) => {
           <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
             {t.guide.map((g, gi) => (
               <div key={gi}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 4 }}>{g.heading}</div>
+                <h4 style={{ margin: "0 0 4px", fontSize: 14, fontWeight: 700, color: C.text }}>{g.heading}</h4>
                 {g.action && <div style={{ fontSize: 14, color: C.accent, marginBottom: 4 }}>{inlineCode(g.action)}</div>}
                 {g.steps && <ol style={{ margin: 0, paddingLeft: 20, fontSize: 13, color: C.muted, lineHeight: 1.8 }}>
                   {g.steps.map((s, si) => <li key={si}>{inlineCode(s)}</li>)}
@@ -830,7 +854,7 @@ const AI_FLOW_DETAILS = {
 
 const DefenseCard = ({ id, title, titleColor = C.text, desc, children }) => (
   <div id={id} style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 24, marginBottom: 24, ...(id ? { scrollMarginTop: 120 } : {}) }}>
-    {title && <div style={{ fontSize: 16, fontWeight: 700, color: titleColor, marginBottom: 8 }}>{title}</div>}
+    {title && <h3 style={{ margin: "0 0 8px", fontSize: 16, fontWeight: 700, color: titleColor }}>{title}</h3>}
     {desc && <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.7, marginBottom: 14 }}>{desc}</p>}
     {children}
   </div>
@@ -839,6 +863,7 @@ const DefenseCard = ({ id, title, titleColor = C.text, desc, children }) => (
 const DefenseSubCard = ({ title, desc, link, linkLabel }) => {
   const [hovered, setHovered] = useState(false);
   const [open, setOpen] = useState(false);
+  const titleId = useId();
   return (
     <>
       <div
@@ -849,13 +874,13 @@ const DefenseSubCard = ({ title, desc, link, linkLabel }) => {
         onMouseLeave={() => setHovered(false)}
         style={{ background: C.codeBg, border: `1px solid ${hovered ? C.accent : C.border}`, borderRadius: 8, padding: 16, cursor: "pointer", transition: "border-color 0.2s ease" }}
       >
-        <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 6 }}>{title}</div>
+        <h3 style={{ margin: "0 0 6px", fontSize: 14, fontWeight: 700, color: C.text }}>{title}</h3>
         <div style={{ fontSize: 13, color: C.dim, lineHeight: 1.7, display: "-webkit-box", WebkitLineClamp: 3, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{desc}</div>
         {link && <a href={link} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} style={{ display: "inline-block", marginTop: 8, fontSize: 12, color: C.accent, textDecoration: "none" }}>{linkLabel || "Link"} ↗</a>}
       </div>
       {open && (
-        <Lightbox onClose={() => setOpen(false)}>
-          <div style={{ fontSize: 20, fontWeight: 700, color: C.text, marginBottom: 12 }}>{title}</div>
+        <Lightbox onClose={() => setOpen(false)} ariaLabelledBy={titleId}>
+          <h3 id={titleId} style={{ margin: "0 0 12px", fontSize: 20, fontWeight: 700, color: C.text }}>{title}</h3>
           <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.8, marginBottom: link ? 16 : 0 }}>{desc}</div>
           {link && <a href={link} target="_blank" rel="noopener noreferrer" style={{ fontSize: 13, color: C.accent, textDecoration: "none", fontWeight: 600 }}>{linkLabel || "Link"} ↗</a>}
         </Lightbox>

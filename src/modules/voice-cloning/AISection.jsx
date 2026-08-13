@@ -2,18 +2,19 @@ import { useState } from "react";
 import { C, CodeBlock, Icon, InfoBox, QuizBank, StarRating, WaveformPlayer, SectionDivider, Lightbox } from '../../components';
 import { PipelineDiagram, VocoderViz, AI_FLOW_DETAILS } from './_helpers';
 
-const VcTargetCard = ({ color, children, expandedChildren }) => {
+const VcTargetCard = ({ color, label, children, expandedChildren }) => {
   const [hovered, setHovered] = useState(false);
   const [open, setOpen] = useState(false);
   return (
     <>
-      <div role="button" tabIndex={0} onClick={() => setOpen(true)}
+      <div role="button" tabIndex={0} aria-label={label} onClick={() => setOpen(true)}
         onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(true); } }}
         onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
         style={{ background: `${color}10`, border: `1px solid ${hovered ? color : `${color}33`}`, borderRadius: 8, padding: 14, cursor: "pointer", transition: "border-color 0.2s ease" }}>
         {children}
       </div>
-      {open && <Lightbox onClose={() => setOpen(false)}>{expandedChildren || children}</Lightbox>}
+      {/* No title element to point at, so the dialog is named directly. */}
+      {open && <Lightbox onClose={() => setOpen(false)} ariaLabel={label}>{expandedChildren || children}</Lightbox>}
     </>
   );
 };
@@ -211,7 +212,7 @@ const AISection = () => {
                 const swapped = ["Voice identity and timbre", "Vocal tract resonance", "Harmonic structure", "Breathiness and texture", "Speaker-specific formants"];
                 return (
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-                    <VcTargetCard color={C.accent} expandedChildren={<div>
+                    <VcTargetCard label="Preserved From Source" color={C.accent} expandedChildren={<div>
                       <div style={{ fontSize: 20, fontWeight: 700, color: C.accent, marginBottom: 12 }}>Preserved From Source</div>
                       <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.8, marginBottom: 16 }}>These characteristics are carried over directly from the original recording. They're what make the output sound like a natural human performance rather than synthetic speech.</div>
                       {preserved.map((item, i) => <div key={i} style={{ fontSize: 14, color: C.muted, lineHeight: 2, display: "flex", alignItems: "center", gap: 8 }}><span style={{ color: C.accent, fontSize: 16 }}>●</span> {item}</div>)}
@@ -219,7 +220,7 @@ const AISection = () => {
                       <div style={{ fontSize: 12, fontWeight: 700, color: C.accent, marginBottom: 8 }}>PRESERVED FROM SOURCE</div>
                       {preserved.map((item, i) => <div key={i} style={{ fontSize: 13, color: C.muted, lineHeight: 1.8, display: "flex", alignItems: "center", gap: 6 }}><span style={{ color: C.accent }}>●</span> {item}</div>)}
                     </VcTargetCard>
-                    <VcTargetCard color={C.secondary} expandedChildren={<div>
+                    <VcTargetCard label="Swapped From Target" color={C.secondary} expandedChildren={<div>
                       <div style={{ fontSize: 20, fontWeight: 700, color: C.secondary, marginBottom: 12 }}>Swapped From Target</div>
                       <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.8, marginBottom: 16 }}>These are the identity markers that get replaced with the target speaker's characteristics. The conversion model learns these from the speaker embedding.</div>
                       {swapped.map((item, i) => <div key={i} style={{ fontSize: 14, color: C.muted, lineHeight: 2, display: "flex", alignItems: "center", gap: 8 }}><span style={{ color: C.secondary, fontSize: 16 }}>●</span> {item}</div>)}
@@ -227,7 +228,7 @@ const AISection = () => {
                       <div style={{ fontSize: 12, fontWeight: 700, color: C.secondary, marginBottom: 8 }}>SWAPPED FROM TARGET</div>
                       {swapped.map((item, i) => <div key={i} style={{ fontSize: 13, color: C.muted, lineHeight: 1.8, display: "flex", alignItems: "center", gap: 6 }}><span style={{ color: C.secondary }}>●</span> {item}</div>)}
                     </VcTargetCard>
-                    <VcTargetCard color={C.accent} expandedChildren={<div>
+                    <VcTargetCard label="Source Voice" color={C.accent} expandedChildren={<div>
                       <div style={{ fontSize: 20, fontWeight: 700, color: C.accent, marginBottom: 12 }}>Source Voice</div>
                       <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.7, marginBottom: 16 }}>The original speaker's formant peaks (F1–F4) are shown along the waveform. These resonance positions are unique to this speaker's vocal tract.</div>
                       <svg width={wLg} height={hLg} viewBox={`0 0 ${wLg} ${hLg}`} style={{ width: "100%", height: hLg }}>
@@ -241,7 +242,7 @@ const AISection = () => {
                         {renderFormants(sourceFormants, C.accent, w, h)}
                       </svg>
                     </VcTargetCard>
-                    <VcTargetCard color={C.secondary} expandedChildren={<div>
+                    <VcTargetCard label="Target Voice — Same Words" color={C.secondary} expandedChildren={<div>
                       <div style={{ fontSize: 20, fontWeight: 700, color: C.secondary, marginBottom: 12 }}>Target Voice — Same Words</div>
                       <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.7, marginBottom: 16 }}>Same waveform shape (the content is preserved), but the formant peaks have shifted to match the target speaker's vocal tract. The <span style={{ color: C.tertiary }}>horizontal lines</span> show how far each formant moved.</div>
                       <svg width={wLg} height={hLg} viewBox={`0 0 ${wLg} ${hLg}`} style={{ width: "100%", height: hLg }}>
@@ -274,7 +275,7 @@ const AISection = () => {
         <div style={{ background: C.codeBg, border: `1px solid ${C.border}`, borderRadius: 8, padding: 16, marginTop: 10 }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: C.accent, marginBottom: 6 }}>eSpeak NG (non-AI)</div>
           <div style={{ fontSize: 13, color: C.muted, lineHeight: 1.7, marginBottom: 10 }}>Same phrase generated by a rule-based synthesizer for comparison.</div>
-          <WaveformPlayer src="/audio/espeak-compare.wav" />
+          <WaveformPlayer src="/audio/espeak-compare.mp3" />
         </div>
       </>}
     </div>

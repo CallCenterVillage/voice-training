@@ -16,12 +16,16 @@ const WeDefenseArchitecture = () => {
         <a href="https://github.com/zlin0/wedefense" target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} style={{ color: C.accent, textDecoration: "none" }}>Source: zlin0/wedefense ↗</a>
       </div>
     </div>
+    {/* Was a hand-rolled overlay with no close button, no Escape and no focus
+        management — the only way out was clicking the padding ring. Lightbox
+        already implements the full dialog contract. */}
     {open && (
-      <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.9)", display: "flex", alignItems: "center", justifyContent: "center", cursor: "zoom-out", padding: 32 }}>
-        <div onClick={e => e.stopPropagation()} style={{ background: `linear-gradient(135deg, ${C.primary}, ${C.accent})`, borderRadius: 12, padding: 20, maxWidth: "90vw", maxHeight: "90vh", cursor: "default" }}>
-          <img src="/images/wedefense-architecture.png" alt="WeDefense toolkit architecture diagram" style={{ width: "100%", maxHeight: "80vh", objectFit: "contain", borderRadius: 4, display: "block" }} />
+      <Lightbox onClose={() => setOpen(false)} ariaLabelledBy="wedefense-arch-title">
+        <div id="wedefense-arch-title" style={{ fontSize: 15, fontWeight: 700, color: C.text, marginBottom: 12 }}>WeDefense Architecture</div>
+        <div style={{ background: `linear-gradient(135deg, ${C.primary}, ${C.accent})`, borderRadius: 12, padding: 12 }}>
+          <img src="/images/wedefense-architecture.png" alt="WeDefense toolkit architecture diagram" style={{ width: "100%", borderRadius: 4, display: "block" }} />
         </div>
-      </div>
+      </Lightbox>
     )}
   </>);
 };
@@ -37,7 +41,7 @@ const DefenseSection = () => (<div>
       { layer: "Organizational", color: C.secondary, items: ["Staff training (security awareness)", "No voice-only auth for high-value", "Voice biometric + PIN", "Audit suspicious calls"] },
     ].map((d, i) => (
       <div key={i} style={{ background: C.card, border: `1px solid ${d.color}33`, borderRadius: 12, padding: 24 }}>
-        <div style={{ fontSize: 16, fontWeight: 700, color: d.color, marginBottom: 10 }}>{d.layer}</div>
+        <h3 style={{ margin: "0 0 10px", fontSize: 16, fontWeight: 700, color: d.color }}>{d.layer}</h3>
         <div style={{ fontSize: 14, color: C.muted, lineHeight: 1.8 }}>{d.items.map((item, j) => <div key={j} style={{ marginBottom: 6, display: "flex", alignItems: "center", gap: 6 }}><Icon name="arrow-right" size={12} />{item}</div>)}</div>
       </div>
     ))}

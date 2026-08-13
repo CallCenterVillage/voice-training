@@ -62,14 +62,14 @@ const LightboxCardGrid = ({ items }) => {
             onMouseLeave={e => e.currentTarget.style.borderColor = "transparent"}
             style={{ background: C.card, border: "1px solid transparent", borderRadius: 12, padding: 16, cursor: "pointer", transition: "border-color 0.2s ease" }}
           >
-            <div style={{ color: item.color, fontWeight: 700, fontSize: 14, marginBottom: 6 }}>{item.name}</div>
+            <h3 style={{ margin: "0 0 6px", color: item.color, fontWeight: 700, fontSize: 14 }}>{item.name}</h3>
             {renderDesc(item.desc, item.color, "small")}
           </div>
         ))}
       </div>
       {openIdx !== null && (
         <Lightbox onClose={() => setOpenIdx(null)} ariaLabelledBy="lightbox-card-title">
-          <div id="lightbox-card-title" style={{ fontSize: 24, color: items[openIdx].color, fontWeight: 700, marginBottom: 16 }}>{items[openIdx].name}</div>
+          <h3 id="lightbox-card-title" style={{ margin: "0 0 16px", fontSize: 24, color: items[openIdx].color, fontWeight: 700 }}>{items[openIdx].name}</h3>
           {renderDesc(items[openIdx].desc, items[openIdx].color, "large")}
         </Lightbox>
       )}

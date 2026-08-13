@@ -7,7 +7,8 @@ export const ScenarioSim = ({ title, setup, turns, lesson }) => {
   const [showLesson, setShowLesson] = useState(false);
   return (
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 16 }}>
-      {title && <div style={{ fontSize: 14, fontWeight: 700, color: C.secondary, marginBottom: 8 }}><Icon name="shield-exclamation" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />{title}</div>}
+      {/* C.secondary is 4.37:1 on C.card — secondaryText is the legible variant. */}
+      {title && <h3 style={{ margin: "0 0 8px", fontSize: 14, fontWeight: 700, color: C.secondaryText }}><Icon name="shield-exclamation" size={16} style={{ display: "inline-block", verticalAlign: "middle", marginRight: 6 }} />{title}</h3>}
       {setup && <div style={{ fontSize: 14, color: C.muted, marginBottom: 16, lineHeight: 1.6, fontStyle: "italic" }}>{setup}</div>}
       <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
         {turns.slice(0, currentTurn + 1).map((turn, i) => (
