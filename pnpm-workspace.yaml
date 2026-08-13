@@ -1,2 +1,13 @@
+# esbuild's postinstall unpacks its platform binary, so its build script has to
+# be allowed or vite/vitest get a non-functional esbuild.
+#
+# pnpm 11 renamed this setting to `allowBuilds` and no longer reads
+# `onlyBuiltDependencies` — with only the old key present, pnpm 11 treats the
+# ignored build as a hard error (ERR_PNPM_IGNORED_BUILDS) and the install fails.
+# The old key is kept for anyone still on pnpm 10, where it is still the one
+# that is read.
+allowBuilds:
+  esbuild: true
+
 onlyBuiltDependencies:
   - esbuild
