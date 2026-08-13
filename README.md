@@ -1,6 +1,6 @@
 # Call Center Village — Training Modules
 
-Interactive training platform for voice security topics, built for [Call Center Village](https://callcentervillage.org). Three self-contained training modules covering voice cloning, voice agents, and social engineering.
+Interactive training platform for voice security topics, built for [Call Center Village](https://www.callcentervillage.com). Three self-contained training modules covering voice cloning, voice agents, and social engineering.
 
 ## Modules
 

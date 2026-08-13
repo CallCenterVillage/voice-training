@@ -12,7 +12,7 @@
  * wrong on some page.
  */
 
-export const SITE_ORIGIN = "https://callcentervillage.org";
+export const SITE_ORIGIN = "https://voice-training.callcentervillage.com";
 export const SITE_NAME = "Call Center Village";
 export const LOCALE = "en_US";
 export const LANGUAGE = "en-US";

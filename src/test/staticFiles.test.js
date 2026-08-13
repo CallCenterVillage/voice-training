@@ -7,7 +7,10 @@ import { SECTIONS as VA } from '../modules/voice-agents';
 import { SECTIONS as SE } from '../modules/social-engineering';
 import { SECTIONS as AP } from '../modules/appendix';
 
-const ORIGIN = 'https://callcentervillage.org';
+// Deliberately not a second copy of the origin string — siteMeta.js is the one
+// source of truth, and a hardcoded duplicate here silently stops testing
+// anything the moment the real origin changes.
+const ORIGIN = SITE_ORIGIN;
 
 const MODULES = {
   'voice-cloning': VC,

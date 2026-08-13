@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://callcentervillage.org/sitemap.xml
+Sitemap: https://voice-training.callcentervillage.com/sitemap.xml
