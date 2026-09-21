@@ -2,12 +2,19 @@
   "name": "voice-engineering",
   "private": true,
   "version": "0.0.0",
+  "description": "Interactive voice security training modules for Call Center Village",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CallCenterVillage/voice-training.git"
+  },
   "type": "module",
   "packageManager": "pnpm@11.5.0",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && vite build --ssr src/entry-server.jsx --outDir dist-ssr && node scripts/prerender.mjs",
-    "build:client": "vite build",
+    "build": "pnpm run build:security && vite build && vite build --ssr src/entry-server.jsx --outDir dist-ssr && node scripts/prerender.mjs",
+    "build:client": "pnpm run build:security && vite build",
+    "build:security": "node scripts/build-security-txt.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",

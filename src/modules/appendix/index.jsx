@@ -47,6 +47,7 @@ SECTIONS[7].anchors = resources.flatMap(g => g.items.map(r => ({ id: `res-${toAn
 SECTIONS[8].anchors = [
   { id: "bw-ai-disclosure", label: "AI Disclosure" },
   { id: "bw-getting-started", label: "Getting Started" },
+  { id: "bw-license", label: "License" },
   ...builtWithItems.map(t => ({ id: `bw-${toAnchorId(t.name)}`, label: t.name })),
 ];
 

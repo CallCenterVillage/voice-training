@@ -13,6 +13,7 @@
  */
 
 export const SITE_ORIGIN = "https://voice-training.callcentervillage.com";
+export const REPO_URL = "https://github.com/CallCenterVillage/voice-training";
 export const SITE_NAME = "Call Center Village";
 export const LOCALE = "en_US";
 export const LANGUAGE = "en-US";
@@ -43,6 +44,10 @@ export const PUBLISHER = {
  * or wrong handle there is worse than none.
  */
 export const FEDIVERSE_CREATOR = "@callcentervillage@defcon.social";
+
+/** Where to report a vulnerability. scripts/build-security-txt.mjs writes it
+ *  into /.well-known/security.txt, and SECURITY.md quotes the same address. */
+export const SECURITY_CONTACT = "security@callcentervillage.com";
 
 export const OG_IMAGE_WIDTH = 1200;
 export const OG_IMAGE_HEIGHT = 630;

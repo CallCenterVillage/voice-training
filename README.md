@@ -57,6 +57,7 @@ fonts-src/                # Source TTFs — build input, NOT published
 scripts/build-fonts.py    # Subsets fonts-src/*.ttf -> public/fonts/*.woff2
 scripts/build-og-images.py # Renders the social cards -> public/images/og-*.png
 scripts/socialHead.mjs    # Builds the per-route <head> the prerenderer writes
+scripts/build-security-txt.mjs # Regenerates public/.well-known/security.txt
 netlify/edge-functions/   # Cloudflare origin auth
 ```
 
@@ -150,9 +151,43 @@ the system sans — add its Unicode block to `UNICODES` in that script.
 ## Build
 
 ```bash
-pnpm build         # client build + SSR build + prerender -> dist/
-pnpm build:client  # client build only (skips prerendering)
-pnpm preview       # Preview production build
-pnpm test          # Vitest
-pnpm lint          # ESLint
+pnpm build          # security.txt + client build + SSR build + prerender -> dist/
+pnpm build:client   # client build only (skips prerendering)
+pnpm build:security # Regenerate public/.well-known/security.txt
+pnpm preview        # Preview production build
+pnpm test           # Vitest
+pnpm lint           # ESLint
 ```
+
+## security.txt
+
+`public/.well-known/security.txt` is generated, not hand-edited. RFC 9116 makes
+`Expires` mandatory and an expired file invalid, so `pnpm build` regenerates it
+first and every deploy ships a date a year out from that deploy. The contact
+address and the repository URL come from `src/siteMeta.js`; change them there.
+
+Like the fonts and the OG cards it is generated *and* committed, so the dev
+server and a fresh clone agree with production. Commit the regenerated file when
+a build changes it — `src/test/staticFiles.test.js` fails if the committed copy
+has expired.
+
+## License
+
+Dual-licensed, with the branding reserved:
+
+- **Code** — MIT ([`LICENSE`](LICENSE)). App source, components, build config,
+  scripts, styles.
+- **Training content** — CC BY-SA 4.0 ([`LICENSE-CONTENT`](LICENSE-CONTENT)).
+  Lesson text, quiz questions, diagrams, original images, written appendix
+  material.
+- **Not licensed** — the "Call Center Village" name, the CCV logo
+  (`public/images/ccv-logo.png`) and the OG card branding remain all rights
+  reserved.
+
+Copyright © 2026 Patrick Labbett / Call Center Village.
+
+[`LICENSING.md`](LICENSING.md) is the authoritative map of which terms apply to
+what, including how to attribute the content and what a fork must rebrand.
+Bundled fonts, provider logos and third-party figures keep their own terms —
+see [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md). Contributions are
+accepted under these same terms ([`CONTRIBUTING.md`](CONTRIBUTING.md)).

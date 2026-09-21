@@ -5,7 +5,8 @@ dist-ssr
 .env.*
 *.local
 
-# IDE
+# IDE / tooling
+.claude/settings.local.json
 .idea
 .vscode
 *.swp

@@ -39,6 +39,24 @@ pnpm run build
 pnpm run preview`} />
     </div>
 
+    {/* CC BY-SA asks that the licence notice travel with the work, and the
+        deployed site is a distribution of it — so the terms live here, not
+        only in the repository. */}
+    <div id="bw-license" style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: "20px 24px", marginBottom: 24, scrollMarginTop: 120 }}>
+      <div style={{ fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 8 }}>License</div>
+      <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.7, margin: "0 0 10px 0" }}>
+        Copyright © 2026 Patrick Labbett / Call Center Village.
+      </p>
+      <ul style={{ color: C.muted, fontSize: 14, lineHeight: 1.8, margin: "0 0 10px 0", paddingLeft: 20 }}>
+        <li>Source code — <a href="https://opensource.org/license/mit" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>MIT</a>.</li>
+        <li>Training content — lesson text, quiz questions, diagrams and original images — <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>CC BY-SA 4.0</a>. Reuse it, adapt it, credit us, and share your version alike.</li>
+        <li>The Call Center Village name, the CCV logo and the social card branding are not licensed — all rights reserved.</li>
+      </ul>
+      <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.7, margin: 0 }}>
+        Bundled fonts, provider logos and third-party diagrams keep their own terms. Full details in <a href="https://github.com/CallCenterVillage/voice-training/blob/main/LICENSING.md" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>LICENSING.md</a> and <a href="https://github.com/CallCenterVillage/voice-training/blob/main/THIRD-PARTY-NOTICES.md" target="_blank" rel="noopener noreferrer" style={{ color: C.accent, textDecoration: "none" }}>THIRD-PARTY-NOTICES.md</a>.
+      </p>
+    </div>
+
     <div style={{ fontSize: 16, fontWeight: 700, color: C.text, marginBottom: 12 }}>Application Stack</div>
     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 12 }}>
       {builtWithItems.map(t => (
