@@ -75,7 +75,7 @@ forget any of them.
 ## Prerendering
 
 `pnpm build` runs three steps: a client build, an SSR build of
-`src/entry-server.jsx`, then `scripts/prerender.mjs`, which renders all 37
+`src/entry-server.jsx`, then `scripts/prerender.mjs`, which renders all 38
 routes to `dist/<route>/index.html` with their own `<title>`, description,
 canonical and Open Graph tags.
 
@@ -96,7 +96,7 @@ not drift apart, so change the constants there rather than the markup:
 - `index.html` holds the home-page version between `<!-- social:start -->` and
   `<!-- social:end -->`. That is the dev-server fallback.
 - `scripts/socialHead.mjs` builds the real per-route head; `prerender.mjs` swaps
-  it into that marked region for each of the 37 pages.
+  it into that marked region for each of the 38 pages.
 - `App.jsx` re-syncs the tags after a client-side navigation. Not for scrapers —
   none of them run JS — but for share sheets and previewers that read the DOM.
 

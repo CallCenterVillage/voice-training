@@ -94,7 +94,7 @@ describe('Module Section Structure', () => {
     const socialEng = await import('../modules/social-engineering/index.jsx');
 
     // Voice agents - check sections that should have knowledge-check
-    const vaSectionsWithQuiz = ['stt', 'brain', 'tts', 'livekit', 'building', 'attack-surface'];
+    const vaSectionsWithQuiz = ['stt', 'brain', 'tts', 'speech-to-speech', 'livekit', 'building', 'attack-surface'];
     vaSectionsWithQuiz.forEach(sectionId => {
       const section = voiceAgents.SECTIONS.find(s => s.id === sectionId);
       expect(section, `Voice agents section ${sectionId} not found`).toBeTruthy();

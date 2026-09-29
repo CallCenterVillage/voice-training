@@ -849,10 +849,19 @@ exit
 # Verify
 ddsp-svc --input source.wav --output converted.wav && play converted.wav` },
   ],
+  "Speech-to-Speech": [
+    { name: "Moshi", url: "https://github.com/kyutai-labs/moshi", desc: "Kyutai's full-duplex speech model — listens and speaks at once, ~200ms turns. CC-BY 4.0 weights, 7B, ~16 GB VRAM" },
+    { name: "PersonaPlex", url: "https://huggingface.co/nvidia/personaplex-7b-v1", desc: "NVIDIA's Moshi fine-tune with text role prompts and audio voice prompts — gated NVIDIA Open Model License" },
+    { name: "MiniCPM-o 4.5", url: "https://huggingface.co/openbmb/MiniCPM-o-4_5", desc: "OpenBMB's 9B full-duplex omni model with in-conversation voice cloning — int4/GGUF builds fit a consumer GPU" },
+    { name: "Qwen2.5-Omni", url: "https://github.com/QwenLM/Qwen2.5-Omni", desc: "Alibaba's Thinker-Talker speech-in/speech-out model — 7B weights Apache-2.0, 3B under the non-commercial Qwen Research License" },
+    { name: "Qwen3-Omni", url: "https://github.com/QwenLM/Qwen3-Omni", desc: "Alibaba's Apache-2.0 30B MoE omni model — 10 spoken output languages and native function calling" },
+    { name: "Step-Audio 2 mini", url: "https://github.com/stepfun-ai/Step-Audio2", desc: "StepFun's Apache-2.0 end-to-end speech conversation model with tool calling" },
+    { name: "Hibiki", url: "https://github.com/kyutai-labs/hibiki", desc: "Kyutai's simultaneous speech translation that keeps the speaker's voice — CC-BY 4.0 weights" },
+    { name: "Seamless", url: "https://github.com/facebookresearch/seamless_communication", desc: "Meta's multilingual speech-to-speech translation family — non-commercial / research-only weights, watermarked output" },
+    { name: "Kyutai Unmute", url: "https://github.com/kyutai-labs/unmute", desc: "MIT-licensed cascade wrapping any vLLM text model with Kyutai's streaming STT and TTS" },
+  ],
   "Frameworks": [
     { name: "GPT-4o Voice Mode", url: "https://platform.openai.com/docs/guides/audio", desc: "OpenAI's speech-native multimodal model — processes audio directly without separate STT/TTS steps" },
-    { name: "Moshi", url: "https://github.com/kyutai-labs/moshi", desc: "Open-source speech-native model from Kyutai — trained on audio tokens alongside text for real-time spoken dialogue" },
-    { name: "Seamless", url: "https://github.com/facebookresearch/seamless_communication", desc: "Meta's family of speech-to-speech models for multilingual translation and communication" },
     { name: "Pipecat", url: "https://github.com/pipecat-ai/pipecat", desc: "Open-source framework from Daily.co for building real-time voice AI pipelines — WebRTC native with clean STT/LLM/TTS abstractions" },
     { name: "Vocode", url: "https://github.com/vocodedev/vocode-core", desc: "Open-source library for building voice agents with multiple STT/LLM/TTS backends and telephony support (Twilio, Vonage)" },
     { name: "LiveKit", url: "https://github.com/livekit/livekit", desc: "Open-source real-time audio/video infrastructure",

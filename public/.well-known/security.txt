@@ -5,7 +5,7 @@
 # Expires is set 365 days from the build that produced this file.
 
 Contact: mailto:security@callcentervillage.com
-Expires: 2027-09-21T23:59:59.000Z
+Expires: 2027-09-29T23:59:59.000Z
 Preferred-Languages: en
 Canonical: https://voice-training.callcentervillage.com/.well-known/security.txt
 Policy: https://github.com/CallCenterVillage/voice-training/blob/main/SECURITY.md

@@ -6,6 +6,7 @@ const categoryColors = {
   "Language Model": "#cb6ce6",
   "Text-to-Speech": "#5e17eb",
   "Voice Conversion": "#8c52ff",
+  "Speech-to-Speech": "#cb6ce6",
   "Framework": "#5170ff",
   "Detection": "#38b6ff",
 };

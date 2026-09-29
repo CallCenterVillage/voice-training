@@ -26,26 +26,26 @@ export default function BuildingSection() {
 
     <SectionDivider />
     <h2 id="architecture-decision-matrix" style={{ fontSize: 18, fontWeight: 700, color: C.text, marginBottom: 4, scrollMarginTop: 120 }}>Architecture Decision Matrix</h2>
-    <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.7, marginBottom: 12 }}>Comparing the tradeoffs between a fully local stack and a cloud-hybrid approach.</p>
+    <p style={{ color: C.muted, fontSize: 14, lineHeight: 1.7, marginBottom: 12 }}>Comparing the tradeoffs between a fully local stack, a cloud-hybrid approach, and a single local <a href="/voice-agents/speech-to-speech" style={{ color: C.accent, textDecoration: "underline" }}>speech-to-speech model</a>.</p>
     <div style={{ background: C.card, border: `1px solid ${C.border}`, borderRadius: 12, padding: 20, marginBottom: 12 }}>
       <div style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
           <thead>
             <tr style={{ borderBottom: `1px solid ${C.border}` }}>
-              {["Factor", "Fully Local", "Cloud Hybrid"].map(h => (
+              {["Factor", "Fully Local", "Cloud Hybrid", "Local Speech-to-Speech"].map(h => (
                 <th key={h} style={{ padding: 8, textAlign: "left", color: C.secondary, fontWeight: 700 }}>{h}</th>
               ))}
             </tr>
           </thead>
           <tbody>
             {[
-              ["Setup complexity", "High (GPU, models, deps)", "Medium (API keys, LiveKit)"],
-              ["Latency", "~1-2s (CPU), ~500ms (GPU)", "~500-800ms"],
-              ["Voice quality", "Good (Piper) to Great (XTTS)", "Excellent (ElevenLabs/Cartesia)"],
-              ["Privacy", "Complete — nothing leaves machine", "Audio/text goes to cloud providers"],
-              ["Cost", "Hardware only", "Per-minute API costs"],
-              ["Scalability", "Limited by hardware", "Elastic"],
-              ["Best for", "Security research, red teaming", "Production, demos, PoCs"],
+              ["Setup complexity", "High (GPU, models, deps)", "Medium (API keys, LiveKit)", "Medium (one model, big GPU)"],
+              ["Latency", "~1-2s (CPU), ~500ms (GPU)", "~500-800ms", "~200-450ms (GPU)"],
+              ["Voice quality", "Good (Piper) to Great (XTTS)", "Excellent (ElevenLabs/Cartesia)", "Very natural, but mostly fixed voices"],
+              ["Privacy", "Complete — nothing leaves machine", "Audio/text goes to cloud providers", "Complete — nothing leaves machine"],
+              ["Cost", "Hardware only", "Per-minute API costs", "Hardware only (16 GB+ VRAM)"],
+              ["Scalability", "Limited by hardware", "Elastic", "Limited by hardware"],
+              ["Best for", "Security research, red teaming", "Production, demos, PoCs", "Realism demos, awareness training"],
             ].map((row, i) => (
               <tr key={i} style={{ borderBottom: `1px solid ${C.codeBg}` }}>
                 {row.map((cell, j) => (

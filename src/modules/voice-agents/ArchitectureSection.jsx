@@ -49,12 +49,13 @@ export default function ArchitectureSection() {
       </p>
       <div style={{ display: "grid", gap: 20, marginBottom: 20 }}>
         {[
-          { title: "Speech-Native Models", color: C.secondary, desc: "Models that process audio directly without converting to text in between — audio in, audio out. Some, like GPT-4o's voice mode, expose this as an end-to-end API. Others, like Kyutai's Moshi and Meta's Seamless, are trained from the ground up with audio tokens as a first-class part of their vocabulary alongside text. Either way, the result is the same: vocal nuance (tone, hesitation, laughter) that text transcription throws away is preserved, and latency drops by eliminating separate STT and TTS steps.", steps: ["Audio In", "Speech-Native Model", "Audio Out"] },
+          { title: "Speech-Native Models", color: C.secondary, desc: "Models that process audio directly without converting to text in between — audio in, audio out. Open-weight examples like Kyutai's Moshi and Alibaba's Qwen-Omni are trained with audio tokens as a first-class part of their vocabulary alongside text. Vocal nuance (tone, hesitation, laughter) that text transcription throws away is preserved, and latency drops by eliminating separate STT and TTS steps.", more: { href: "/voice-agents/speech-to-speech", label: "Compare open speech-to-speech models →" }, steps: ["Audio In", "Speech-Native Model", "Audio Out"] },
           { title: "Streaming Fusion", color: C.accent, desc: "Hybrid approaches that keep the pipeline structure but tightly couple the components. The STT streams partial transcripts to the LLM, which starts generating while the caller is still speaking, and TTS begins synthesizing the first words before the LLM finishes its response. LiveKit, Pipecat, and Vocode use this approach.", steps: ["Audio In", "STT", "LLM", "TTS", "Audio Out"], bidirectional: true },
         ].map((a, i) => (
           <div key={i} style={{ background: C.card, border: `1px solid ${a.color}33`, borderRadius: 12, padding: 20 }}>
             <div style={{ fontSize: 14, fontWeight: 700, color: a.color, marginBottom: 6 }}>{a.title}</div>
             <p style={{ fontSize: 14, color: C.muted, lineHeight: 1.7, margin: "0 0 14px 0" }}>{a.desc}</p>
+            {a.more && <p style={{ fontSize: 13, margin: "-6px 0 14px 0" }}><a href={a.more.href} style={{ color: C.accent, textDecoration: "underline" }}>{a.more.label}</a></p>}
             <div style={{ display: "flex", alignItems: "center", gap: 0, flexWrap: "wrap", justifyContent: "center" }}>
               {a.steps.map((step, j) => (
                 <div key={j} style={{ display: "flex", alignItems: "center" }}>
