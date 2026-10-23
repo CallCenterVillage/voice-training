@@ -16,9 +16,11 @@ jobs:
       # Version comes from the "packageManager" field in package.json.
       - uses: pnpm/action-setup@v4
 
+      # Version comes from .nvmrc, shared with Netlify, so CI and production
+      # build on the same (patched) Node release.
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version-file: .nvmrc
           cache: pnpm
 
       - run: pnpm install --frozen-lockfile
